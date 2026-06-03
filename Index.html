@@ -1,0 +1,1062 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>J-USE NbCS Virtual Exercise</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --green:#1a3d2b;--green-mid:#2d6a4f;--green-light:#52b788;
+  --blue:#1d6fa5;--amber:#c8973a;--sand:#f5f0e8;--ink:#1c1c1c;--muted:#6b7280;
+}
+body{font-family:'DM Sans',sans-serif;background:#0f1a14;height:100vh;display:flex;flex-direction:column;overflow:hidden;}
+
+/* ── SCREENS ── */
+.screen{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.8rem;background:#0f1a14;z-index:100;padding:20px;}
+.screen.hidden{display:none;}
+.screen-logo{font-size:0.75rem;color:#3d6b50;text-transform:uppercase;letter-spacing:0.12em;font-weight:600;}
+.screen-title{font-family:'DM Serif Display',serif;color:white;font-size:2.2rem;text-align:center;line-height:1.2;}
+.screen-title em{color:var(--green-light);font-style:italic;}
+.mode-cards{display:flex;gap:1.2rem;flex-wrap:wrap;justify-content:center;}
+.mode-card{background:#1a2e1f;border:1px solid #2d4a32;border-radius:12px;padding:1.6rem 2rem;cursor:pointer;transition:all 0.18s;min-width:180px;text-align:center;}
+.mode-card:hover{border-color:var(--green-light);background:#1f3826;transform:translateY(-2px);}
+.mode-card-icon{font-size:1.8rem;margin-bottom:0.6rem;}
+.mode-card-title{font-size:0.95rem;font-weight:600;color:white;margin-bottom:0.3rem;}
+.mode-card-desc{font-size:0.75rem;color:#5a8a6a;line-height:1.5;}
+.or-sep{color:#2d4a32;font-size:0.72rem;text-transform:uppercase;letter-spacing:0.1em;}
+
+/* PIN */
+.pin-box{background:#1a2e1f;border:1px solid #2d4a32;border-radius:12px;padding:1.8rem 2.2rem;text-align:center;display:flex;flex-direction:column;gap:1rem;min-width:280px;}
+.pin-title{font-size:1rem;font-weight:600;color:white;}
+.pin-desc{font-size:0.78rem;color:#5a8a6a;line-height:1.5;}
+.pin-input{background:#111d15;border:1px solid #2d4a32;border-radius:8px;padding:10px 14px;font-size:1.2rem;color:white;text-align:center;letter-spacing:0.3em;font-family:'DM Sans',sans-serif;width:100%;}
+.pin-input:focus{outline:none;border-color:var(--green-light);}
+.pin-error{font-size:0.75rem;color:#f87171;min-height:1rem;}
+.btn-primary{background:var(--green-light);color:var(--green);border:none;padding:9px 20px;border-radius:7px;font-size:0.82rem;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:opacity 0.15s;}
+.btn-primary:hover{opacity:0.88;}
+.btn-back{background:none;border:none;color:#3d6b50;font-size:0.75rem;cursor:pointer;font-family:'DM Sans',sans-serif;margin-top:-0.4rem;}
+.btn-back:hover{color:#5a8a6a;}
+
+/* ── HEADER ── */
+.app-header{background:var(--green);color:white;padding:7px 14px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-shrink:0;border-bottom:1px solid #2d4a32;}
+.header-left{display:flex;align-items:center;gap:10px;}
+.header-title{font-family:'DM Serif Display',serif;font-size:0.95rem;}
+.header-sub{font-size:0.62rem;color:rgba(255,255,255,0.45);}
+.table-badge{background:rgba(82,183,136,0.2);border:1px solid rgba(82,183,136,0.35);color:var(--green-light);padding:2px 9px;border-radius:20px;font-size:0.7rem;font-weight:600;}
+.header-right{display:flex;align-items:center;gap:8px;}
+.budget-block{display:flex;flex-direction:column;align-items:flex-end;}
+.budget-lbl{font-size:0.58rem;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.08em;}
+.budget-nums{display:flex;align-items:baseline;gap:4px;}
+.budget-spent{font-family:'DM Serif Display',serif;font-size:1rem;color:white;}
+.budget-of{font-size:0.65rem;color:rgba(255,255,255,0.35);}
+.budget-bar-wrap{width:120px;height:3px;background:rgba(255,255,255,0.1);border-radius:2px;margin-top:2px;}
+.budget-bar{height:3px;border-radius:2px;background:var(--green-light);transition:width 0.3s,background 0.3s;}
+.timer{font-family:'DM Serif Display',serif;font-size:0.95rem;color:white;background:rgba(255,255,255,0.08);padding:3px 9px;border-radius:5px;cursor:pointer;user-select:none;letter-spacing:0.04em;}
+.timer.warn{color:#fbbf24;}.timer.danger{color:#f87171;}
+.btn-sm{background:transparent;color:rgba(255,255,255,0.55);border:1px solid rgba(255,255,255,0.15);padding:4px 10px;border-radius:5px;font-size:0.68rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:background 0.12s;}
+.btn-sm:hover{background:rgba(255,255,255,0.08);}
+.btn-green{background:var(--green-light);color:var(--green);border:none;padding:5px 12px;border-radius:5px;font-size:0.72rem;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;}
+.btn-green:hover{opacity:0.88;}
+
+/* ── MAIN LAYOUT ── */
+.app-main{flex:1;display:flex;overflow:hidden;}
+
+/* ── MAP PANEL ── */
+.map-panel{flex:1;position:relative;overflow:hidden;background:#f0ebe0;}
+.map-svg-wrap{width:100%;height:100%;position:relative;}
+.map-svg-wrap svg{width:100%;height:100%;}
+
+/* Zone hit targets — invisible but clickable, sit on top of SVG */
+.zone-hit{position:absolute;transform:translate(-50%,-50%);cursor:pointer;z-index:10;}
+.zone-hit-inner{
+  width:28px;height:28px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:9px;font-weight:700;
+  border:2px solid;background:rgba(255,255,255,0.95);
+  box-shadow:0 2px 8px rgba(0,0,0,0.25);
+  transition:transform 0.15s,box-shadow 0.15s;
+  pointer-events:all;
+}
+.zone-hit:hover .zone-hit-inner{transform:scale(1.2);box-shadow:0 3px 12px rgba(0,0,0,0.35);}
+.zone-hit-inner.has-placement{background:rgba(255,255,255,1);box-shadow:0 0 0 3px rgba(82,183,136,0.5);}
+
+/* Placement dots on map */
+.placement-dot{
+  position:absolute;transform:translate(-50%,-50%);
+  width:18px;height:18px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:8px;font-weight:700;color:rgba(0,0,0,0.65);
+  border:2px solid rgba(255,255,255,0.8);
+  box-shadow:0 2px 6px rgba(0,0,0,0.35);
+  pointer-events:none;z-index:5;
+}
+
+/* ── POPUP ── */
+.zone-popup{
+  position:absolute;z-index:50;
+  background:white;border-radius:10px;
+  box-shadow:0 8px 30px rgba(0,0,0,0.25);
+  width:270px;overflow:hidden;
+}
+.zp-head{padding:10px 12px 8px;border-bottom:1px solid #f0f0f0;}
+.zp-id{font-size:0.62rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:2px;}
+.zp-name{font-size:0.88rem;font-weight:600;color:#111;}
+.zp-desc{font-size:0.72rem;color:#666;margin-top:3px;line-height:1.4;}
+.zp-body{padding:8px 10px 10px;}
+.zp-lbl{font-size:0.6rem;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;color:#999;margin-bottom:5px;}
+.zp-card-btn{
+  display:flex;align-items:center;gap:6px;width:100%;
+  padding:5px 7px;margin-bottom:3px;
+  background:#f9fafb;border:1px solid #e5e7eb;border-radius:6px;
+  cursor:pointer;font-family:'DM Sans',sans-serif;font-size:0.74rem;
+  color:#111;transition:all 0.1s;text-align:left;
+}
+.zp-card-btn:hover{background:#ecfdf5;border-color:#6ee7b7;}
+.zp-card-btn:disabled{opacity:0.38;pointer-events:none;}
+.zp-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
+.zp-cname{flex:1;}
+.zp-ccost{font-size:0.65rem;color:#888;white-space:nowrap;}
+.zp-close{display:block;width:100%;margin-top:4px;padding:4px;text-align:center;font-size:0.7rem;color:#aaa;cursor:pointer;border:none;background:none;font-family:'DM Sans',sans-serif;}
+.zp-close:hover{color:#666;}
+
+/* ── SIDEBAR ── */
+.sidebar{width:260px;background:#111d15;border-left:1px solid #1f3226;display:flex;flex-direction:column;flex-shrink:0;overflow:hidden;}
+.s-tabs{display:flex;border-bottom:1px solid #1f3226;}
+.s-tab{flex:1;padding:8px 4px;font-size:0.68rem;font-weight:600;text-align:center;cursor:pointer;color:#3d6b50;border-bottom:2px solid transparent;transition:all 0.12s;text-transform:uppercase;letter-spacing:0.05em;}
+.s-tab.active{color:var(--green-light);border-bottom-color:var(--green-light);background:rgba(82,183,136,0.05);}
+.s-pane{display:none;flex:1;overflow-y:auto;padding:8px;}
+.s-pane.active{display:flex;flex-direction:column;gap:5px;}
+
+.card-item{background:#1a2e1f;border:1px solid #2a4030;border-radius:7px;padding:7px 9px;display:flex;align-items:center;gap:7px;cursor:pointer;transition:all 0.12s;}
+.card-item:hover{border-color:#3d6b50;background:#1f3826;}
+.card-item.placed{opacity:0.4;pointer-events:none;}
+.ci-num{font-size:0.62rem;font-weight:700;color:#3d6b50;width:12px;flex-shrink:0;text-align:right;}
+.ci-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.ci-info{flex:1;}
+.ci-name{font-size:0.75rem;color:#d1fae5;font-weight:500;}
+.ci-cost{font-size:0.65rem;color:#3d6b50;}
+.ci-badge{font-size:0.58rem;background:rgba(82,183,136,0.15);color:var(--green-light);padding:1px 5px;border-radius:3px;white-space:nowrap;}
+
+.pl-item{background:#1a2e1f;border:1px solid #2a4030;border-radius:6px;padding:6px 8px;display:flex;align-items:center;gap:6px;}
+.pl-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
+.pl-info{flex:1;}
+.pl-name{font-size:0.72rem;color:#d1fae5;}
+.pl-zone{font-size:0.62rem;color:#3d6b50;}
+.pl-cost{font-size:0.65rem;color:#3d6b50;font-weight:600;white-space:nowrap;}
+.pl-rm{background:none;border:none;color:#3d4a3d;cursor:pointer;font-size:0.75rem;padding:1px 3px;transition:color 0.12s;}
+.pl-rm:hover{color:#f87171;}
+
+.empty-note{text-align:center;padding:1.5rem 0.8rem;color:#2d4a32;font-size:0.75rem;line-height:1.6;}
+
+.zone-li{background:#1a2e1f;border:1px solid #2a4030;border-radius:7px;padding:6px 9px;cursor:pointer;transition:all 0.12s;}
+.zone-li:hover{border-color:#3d6b50;background:#1f3826;}
+.zone-li-id{font-size:0.62rem;font-weight:700;color:var(--green-light);margin-bottom:1px;}
+.zone-li-name{font-size:0.73rem;color:#d1fae5;}
+.zone-li-desc{font-size:0.62rem;color:#3d6b50;margin-top:1px;line-height:1.3;}
+
+/* ── BRIEFING SCREEN ── */
+.brief-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;max-width:760px;width:100%;}
+.brief-card{background:#1a2e1f;border:1px solid #2d4a32;border-radius:10px;padding:1.2rem 1.4rem;}
+.brief-card-icon{font-size:1.4rem;margin-bottom:0.5rem;}
+.brief-card-title{font-size:0.82rem;font-weight:600;color:var(--green-light);margin-bottom:0.5rem;text-transform:uppercase;letter-spacing:0.06em;}
+.brief-card-items{display:flex;flex-direction:column;gap:0.35rem;}
+.brief-item{display:flex;gap:0.5rem;align-items:flex-start;font-size:0.78rem;color:#a7c4b0;line-height:1.4;}
+.brief-item-dot{width:5px;height:5px;border-radius:50%;background:var(--green-light);flex-shrink:0;margin-top:5px;}
+.brief-item strong{color:white;}
+.brief-colours{display:flex;flex-direction:column;gap:0.3rem;}
+.brief-colour{display:flex;align-items:center;gap:0.5rem;font-size:0.75rem;color:#a7c4b0;}
+.brief-swatch{width:12px;height:12px;border-radius:50%;flex-shrink:0;}
+.brief-start-row{display:flex;gap:1rem;align-items:center;}
+.brief-constraint{background:#2a1a1a;border:1px solid #4a2a2a;border-radius:8px;padding:0.8rem 1rem;font-size:0.75rem;color:#f4a5a5;line-height:1.5;max-width:760px;width:100%;}
+.brief-constraint strong{color:#fca5a5;}
+
+/* ── SUMMARY ── */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,0.75);display:flex;align-items:center;justify-content:center;z-index:200;padding:12px;}
+.overlay.hidden{display:none;}
+.sum-box{background:white;border-radius:12px;width:100%;max-width:940px;max-height:96vh;overflow-y:auto;box-shadow:0 24px 60px rgba(0,0,0,0.5);display:flex;flex-direction:column;}
+.sum-head{background:var(--green);color:white;padding:14px 20px;border-radius:12px 12px 0 0;display:flex;align-items:flex-start;justify-content:space-between;flex-shrink:0;}
+.sum-htitle{font-family:'DM Serif Display',serif;font-size:1.3rem;}
+.sum-hsub{font-size:0.67rem;color:rgba(255,255,255,0.5);margin-top:2px;}
+.sum-close{background:none;border:none;color:rgba(255,255,255,0.6);font-size:1.1rem;cursor:pointer;}
+/* Two-column layout */
+.sum-cols{display:grid;grid-template-columns:1fr 1fr;flex:1;overflow:hidden;}
+.sum-left{padding:16px 18px;border-right:1px solid #e5e7eb;overflow-y:auto;}
+.sum-right{padding:16px 18px;overflow-y:auto;background:#fafaf8;}
+.sum-sec{font-size:0.63rem;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);margin-bottom:7px;}
+/* Stats row */
+.sum-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:14px;}
+.ss{background:#f4faf6;border-radius:7px;padding:9px 10px;border:1px solid #e0f0e8;}
+.ss-val{font-family:'DM Serif Display',serif;font-size:1.35rem;color:var(--green);}
+.ss-lbl{font-size:0.65rem;color:var(--muted);margin-top:1px;}
+/* Budget bar */
+.sum-bbar{background:#f3f4f6;border-radius:6px;height:7px;margin-bottom:4px;}
+.sum-bfill{height:7px;background:var(--green-light);border-radius:6px;transition:width 0.5s;}
+.sum-blbl{display:flex;justify-content:space-between;font-size:0.67rem;color:var(--muted);margin-bottom:14px;}
+/* Placements list */
+.sum-pls{display:flex;flex-direction:column;gap:4px;}
+.spl{display:flex;align-items:center;gap:7px;padding:6px 9px;background:#f9fafb;border-radius:5px;border:1px solid #f0f0f0;}
+.spl-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
+.spl-card{font-size:0.78rem;color:#111;flex:1;font-weight:500;}
+.spl-zone{font-size:0.67rem;color:var(--muted);}
+.spl-cost{font-size:0.7rem;font-weight:600;color:var(--green);white-space:nowrap;}
+/* Theme breakdown */
+.theme-bars{display:flex;flex-direction:column;gap:8px;margin-bottom:14px;}
+.theme-bar-row{display:flex;flex-direction:column;gap:3px;}
+.theme-bar-label{display:flex;justify-content:space-between;font-size:0.72rem;color:#333;}
+.theme-bar-label span:last-child{color:var(--green);font-weight:600;}
+.theme-bar-bg{background:#eee;border-radius:4px;height:8px;}
+.theme-bar-fill{height:8px;border-radius:4px;transition:width 0.5s;}
+/* Constraint flags */
+.sum-flags{display:flex;flex-direction:column;gap:5px;margin-bottom:14px;}
+.flag-item{display:flex;gap:7px;align-items:flex-start;padding:6px 9px;border-radius:5px;font-size:0.75rem;line-height:1.4;}
+.flag-warn{background:#fefce8;border:1px solid #fde68a;color:#854d0e;}
+.flag-ok{background:#f0fdf4;border:1px solid #bbf7d0;color:#166534;}
+/* Map preview in summary */
+.sum-map-wrap{position:relative;border-radius:8px;overflow:hidden;border:1px solid #e5e7eb;margin-bottom:12px;background:#f0ebe0;}
+.sum-map-wrap svg{display:block;width:100%;}
+.sum-map-dot{position:absolute;transform:translate(-50%,-50%);border-radius:50%;border:2px solid white;font-size:7px;font-weight:700;color:rgba(0,0,0,0.65);display:flex;align-items:center;justify-content:center;box-shadow:0 1px 4px rgba(0,0,0,0.3);}
+/* Actions */
+.sum-acts{display:flex;gap:8px;padding:14px 18px;border-top:1px solid #f0f0f0;background:white;border-radius:0 0 12px 12px;flex-shrink:0;}
+.btn-print{background:var(--green);color:white;border:none;padding:8px 16px;border-radius:6px;font-size:0.78rem;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;}
+.btn-sec{background:#f3f4f6;color:#555;border:none;padding:8px 16px;border-radius:6px;font-size:0.78rem;cursor:pointer;font-family:'DM Sans',sans-serif;}
+
+/* ── FACILITATOR ── */
+.fac-wrap{display:none;flex-direction:column;height:100vh;background:#0a1a0f;}
+.fac-wrap.active{display:flex;}
+.fac-head{background:var(--green);color:white;padding:9px 16px;display:flex;align-items:center;justify-content:space-between;}
+.fac-htitle{font-family:'DM Serif Display',serif;font-size:1rem;}
+.fac-hsub{font-size:0.62rem;color:rgba(255,255,255,0.4);margin-top:1px;}
+.fac-grid{flex:1;display:grid;grid-template-columns:repeat(5,1fr);gap:1px;background:#1a2e1f;overflow:hidden;}
+.fac-col{background:#111d15;display:flex;flex-direction:column;overflow:hidden;}
+.fac-col-head{padding:7px 9px;border-bottom:1px solid #1f3226;display:flex;align-items:center;justify-content:space-between;}
+.fac-col-name{font-size:0.78rem;font-weight:600;color:var(--green-light);}
+.fac-col-spend{font-size:0.68rem;color:#3d6b50;}
+.fac-col-items{flex:1;overflow-y:auto;padding:5px;display:flex;flex-direction:column;gap:3px;}
+.fac-item{display:flex;align-items:center;gap:5px;padding:4px 6px;background:#1a2e1f;border-radius:4px;}
+.fac-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.fac-iname{font-size:0.65rem;color:#d1fae5;flex:1;}
+.fac-izone{font-size:0.6rem;color:#2d4a32;}
+.fac-col-bar{height:3px;background:rgba(255,255,255,0.06);}
+.fac-col-fill{height:3px;background:var(--green-light);transition:width 0.4s;}
+.fac-empty{padding:1rem;text-align:center;color:#1f3226;font-size:0.7rem;}
+.fac-foot{background:#0a1a0f;padding:6px 16px;display:flex;justify-content:space-between;align-items:center;}
+.fac-update{font-size:0.65rem;color:#1f3226;}
+
+/* TOAST */
+.toast{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:#1a3d2b;color:white;padding:6px 16px;border-radius:20px;font-size:0.76rem;font-weight:500;z-index:300;opacity:0;transition:opacity 0.25s;pointer-events:none;border:1px solid rgba(82,183,136,0.35);}
+.toast.show{opacity:1;}
+
+@media print{
+  .screen,.app-header,.app-main,.fac-wrap,.toast{display:none!important;}
+  .overlay{position:static;background:none;padding:0;}
+  .sum-box{box-shadow:none;max-height:none;}
+  .sum-acts,.sum-close{display:none;}
+}
+</style>
+</head>
+<body>
+
+<!-- ── SCREEN 1: MODE SELECT ── -->
+<div class="screen" id="screenMode">
+  <div class="screen-logo">J-USE · Environmental Foundation of Jamaica · CUF 2026</div>
+  <div class="screen-title">NbCS Retrofit Exercise<br><em>Olympic Gardens / Maxfield Ave</em></div>
+  <div class="mode-cards">
+    <div class="mode-card" onclick="showTableSelect()">
+      <div class="mode-card-icon">🗺️</div>
+      <div class="mode-card-title">Table Exercise</div>
+      <div class="mode-card-desc">Shared screen per table. Place NbCS cards on the map and track your budget.</div>
+    </div>
+    <div class="or-sep">or</div>
+    <div class="mode-card" onclick="showPinScreen()">
+      <div class="mode-card-icon">📊</div>
+      <div class="mode-card-title">Facilitator View</div>
+      <div class="mode-card-desc">All 5 tables visible in real time. Enter facilitator PIN to access.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── SCREEN 2: TABLE SELECT ── -->
+<div class="screen hidden" id="screenTable">
+  <div class="screen-title" style="font-size:1.5rem">Which table are you?</div>
+  <div class="mode-cards">
+    <div class="mode-card" onclick="startTable(1)"><div class="mode-card-icon">1️⃣</div><div class="mode-card-title">Table 1</div></div>
+    <div class="mode-card" onclick="startTable(2)"><div class="mode-card-icon">2️⃣</div><div class="mode-card-title">Table 2</div></div>
+    <div class="mode-card" onclick="startTable(3)"><div class="mode-card-icon">3️⃣</div><div class="mode-card-title">Table 3</div></div>
+    <div class="mode-card" onclick="startTable(4)"><div class="mode-card-icon">4️⃣</div><div class="mode-card-title">Table 4</div></div>
+    <div class="mode-card" onclick="startTable(5)"><div class="mode-card-icon">5️⃣</div><div class="mode-card-title">Table 5</div></div>
+  </div>
+  <button class="btn-back" onclick="backToMode()">← Back</button>
+</div>
+
+<!-- ── SCREEN 3: BRIEFING ── -->
+<div class="screen hidden" id="screenBrief">
+  <div class="screen-logo">J-USE · EFJ · CUF 2026 · <span id="briefTableLabel">Table —</span></div>
+  <div class="screen-title" style="font-size:1.5rem">Your briefing</div>
+  <div class="brief-grid">
+    <div class="brief-card">
+      <div class="brief-card-icon">📍</div>
+      <div class="brief-card-title">The site</div>
+      <div class="brief-card-items">
+        <div class="brief-item"><div class="brief-item-dot"></div><span><strong>Olympic Gardens / Maxfield Ave corridor</strong> — Kingston & St. Andrew</span></div>
+        <div class="brief-item"><div class="brief-item-dot"></div><span>Urban arterial road — high pedestrian traffic, informal vendors, flood-prone gullies</span></div>
+        <div class="brief-item"><div class="brief-item-dot"></div><span>Mix of residential, commercial, and public land</span></div>
+      </div>
+    </div>
+    <div class="brief-card">
+      <div class="brief-card-icon">⏱</div>
+      <div class="brief-card-title">Your task — 18 minutes</div>
+      <div class="brief-card-items">
+        <div class="brief-item"><div class="brief-item-dot"></div><span><strong>Click any zone marker</strong> (Z1–Z11) on the map to open its card menu</span></div>
+        <div class="brief-item"><div class="brief-item-dot"></div><span><strong>Select a card</strong> to place it — a coloured dot appears on the map</span></div>
+        <div class="brief-item"><div class="brief-item-dot"></div><span>Stay within the <strong>J$18,500,000 budget</strong> — the bar in the header tracks your spend</span></div>
+        <div class="brief-item"><div class="brief-item-dot"></div><span>When done, hit <strong>Summary</strong> to see your pitch view</span></div>
+      </div>
+    </div>
+    <div class="brief-card">
+      <div class="brief-card-icon">🎯</div>
+      <div class="brief-card-title">Your 3-min pitch covers</div>
+      <div class="brief-card-items">
+        <div class="brief-item"><div class="brief-item-dot"></div><span>Which NbCS cards you chose and where you placed them</span></div>
+        <div class="brief-item"><div class="brief-item-dot"></div><span>The primary hazard your package addresses</span></div>
+        <div class="brief-item"><div class="brief-item-dot"></div><span>The strongest co-benefit in your design</span></div>
+        <div class="brief-item"><div class="brief-item-dot"></div><span>One constraint you had to navigate — and how</span></div>
+      </div>
+    </div>
+    <div class="brief-card">
+      <div class="brief-card-icon">🔵</div>
+      <div class="brief-card-title">Card colour key</div>
+      <div class="brief-colours">
+        <div class="brief-colour"><div class="brief-swatch" style="background:#60a5fa"></div>Blue — Water & Flood (cards 1, 2, 3, 8, 9)</div>
+        <div class="brief-colour"><div class="brief-swatch" style="background:#4ade80"></div>Green — Heat & Greening (cards 4, 6)</div>
+        <div class="brief-colour"><div class="brief-swatch" style="background:#f472b6"></div>Pink — Flood + Heat dual (cards 5, 7)</div>
+        <div class="brief-colour"><div class="brief-swatch" style="background:#fb923c"></div>Orange — Food & Livelihoods (cards 10, 11)</div>
+        <div class="brief-colour"><div class="brief-swatch" style="background:#facc15"></div>Yellow — Sustainability (card 12)</div>
+      </div>
+    </div>
+  </div>
+  <div class="brief-constraint">
+    <strong>⚠ Key constraints to keep in mind:</strong> &nbsp;NWA road reserve — any works within 3m of Maxfield Ave centreline require NWA approval (red dashed lines on map). &nbsp;|&nbsp; Green Roofs (card 5) and Green Walls (card 6) on private buildings need owner consent + KSAC building permit.
+  </div>
+  <div class="brief-start-row">
+    <button class="btn-primary" onclick="launchExercise()" style="font-size:0.9rem;padding:11px 28px;">Start exercise →</button>
+    <button class="btn-back" onclick="showTableSelect()">← Change table</button>
+  </div>
+</div>
+
+<!-- ── SCREEN 4: FACILITATOR PIN ── -->
+<div class="screen hidden" id="screenPin">
+  <div class="pin-box">
+    <div class="pin-title">Facilitator Access</div>
+    <div class="pin-desc">Enter the facilitator PIN to view all tables.<br>Contact Rashene Clarke-Randall for the PIN.</div>
+    <input class="pin-input" id="pinInput" type="password" maxlength="4" placeholder="••••" oninput="clearPinError()" onkeydown="if(event.key==='Enter')checkPin()"/>
+    <div class="pin-error" id="pinError"></div>
+    <button class="btn-primary" onclick="checkPin()">Enter →</button>
+    <button class="btn-back" onclick="backToMode()">← Back</button>
+  </div>
+</div>
+
+<!-- ── MAIN APP ── -->
+<div id="appWrap" style="display:none;flex-direction:column;height:100vh;">
+
+  <div class="app-header">
+    <div class="header-left">
+      <div>
+        <div class="header-title">NbCS Retrofit Exercise</div>
+        <div class="header-sub">Olympic Gardens / Maxfield Ave · J-USE / EFJ · CUF 2026</div>
+      </div>
+      <div class="table-badge" id="tableBadge">Table —</div>
+    </div>
+    <div class="header-right">
+      <div class="budget-block">
+        <div class="budget-lbl">Budget</div>
+        <div class="budget-nums">
+          <div class="budget-spent" id="budgetSpent">J$0</div>
+          <div class="budget-of">/ J$18,500,000</div>
+        </div>
+        <div class="budget-bar-wrap"><div class="budget-bar" id="budgetBar" style="width:0%"></div></div>
+      </div>
+      <div class="timer" id="timerEl" onclick="toggleTimer()" title="Click to start / pause">18:00</div>
+      <button class="btn-sm" onclick="clearAll()">Clear all</button>
+      <button class="btn-sm" onclick="goHome()" title="Back to start">⌂</button>
+      <button class="btn-green" onclick="showSummary()">Summary →</button>
+    </div>
+  </div>
+
+  <div class="app-main">
+
+    <!-- MAP PANEL -->
+    <div class="map-panel" id="mapPanel">
+
+      <!-- SCHEMATIC SVG MAP (viewBox 780×530, same as A3) -->
+      <div class="map-svg-wrap" id="mapWrap">
+        <svg viewBox="0 0 780 530" xmlns="http://www.w3.org/2000/svg" font-family="'DM Sans',sans-serif" id="baseSvg" style="display:block;width:100%;height:100%;">
+          <defs>
+            <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
+              <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#e0dbd0" stroke-width="0.4"/>
+            </pattern>
+          </defs>
+          <rect width="780" height="530" fill="#f0ebe0"/>
+          <rect width="780" height="530" fill="url(#grid)"/>
+          <!-- NORTH ARROW -->
+          <g transform="translate(720,40)">
+            <circle cx="0" cy="0" r="16" fill="white" stroke="#ccc" stroke-width="0.8"/>
+            <polygon points="0,-12 -5,6 0,2 5,6" fill="#1a3d2b"/>
+            <polygon points="0,-12 -5,6 0,2 5,6" fill="#888" transform="rotate(180)"/>
+            <text x="0" y="-16" text-anchor="middle" font-size="8" fill="#1a3d2b" font-weight="600">N</text>
+          </g>
+          <!-- LAND USE ZONES -->
+          <rect x="30" y="80" width="190" height="200" rx="4" fill="#e8f4ec" opacity="0.7"/>
+          <text x="38" y="96" font-size="7" fill="#2d6a4f" font-weight="600" opacity="0.8">OLYMPIC GARDENS</text>
+          <text x="38" y="107" font-size="6" fill="#52b788" opacity="0.9">Residential</text>
+          <rect x="30" y="290" width="160" height="180" rx="4" fill="#e8f4ec" opacity="0.6"/>
+          <text x="38" y="308" font-size="7" fill="#2d6a4f" font-weight="600" opacity="0.8">WHITFIELD TOWN</text>
+          <text x="38" y="319" font-size="6" fill="#52b788" opacity="0.9">Residential</text>
+          <rect x="218" y="80" width="70" height="420" rx="2" fill="#fef3c7" opacity="0.5"/>
+          <rect x="30" y="470" width="190" height="50" rx="3" fill="#dbeafe" opacity="0.5"/>
+          <text x="38" y="486" font-size="6.5" fill="#1d6fa5" font-weight="600">TRENCH TOWN</text>
+          <rect x="290" y="80" width="240" height="260" rx="4" fill="#fdf2e0" opacity="0.6"/>
+          <text x="298" y="97" font-size="7" fill="#c8973a" font-weight="600" opacity="0.8">MIXED USE / COMMERCIAL</text>
+          <rect x="530" y="80" width="220" height="200" rx="4" fill="#f3e8ff" opacity="0.4"/>
+          <text x="538" y="97" font-size="7" fill="#6d28d9" font-weight="600" opacity="0.7">NEW KINGSTON</text>
+          <rect x="290" y="370" width="330" height="150" rx="4" fill="#fdf2e0" opacity="0.55"/>
+          <text x="395" y="388" font-size="7" fill="#c8973a" font-weight="600" opacity="0.8">CROSS ROADS COMMERCIAL</text>
+          <!-- GULLY SYSTEM -->
+          <path d="M 200 490 Q 185 400 175 310 Q 165 240 155 160 Q 148 110 140 80" fill="none" stroke="#74b9e8" stroke-width="5" opacity="0.75"/>
+          <text transform="translate(130,220) rotate(-80)" font-size="7" fill="#1d6fa5" font-weight="500">Sandy Gully</text>
+          <path d="M 30 200 Q 80 195 130 190 Q 175 186 215 183" fill="none" stroke="#74b9e8" stroke-width="3.5" opacity="0.65"/>
+          <text x="55" y="180" font-size="6.5" fill="#1d6fa5">Branch gully</text>
+          <circle cx="215" cy="183" r="5" fill="none" stroke="#1d6fa5" stroke-width="1.5" stroke-dasharray="3,2"/>
+          <text x="220" y="180" font-size="5.5" fill="#1d6fa5">culvert</text>
+          <path d="M 300 490 Q 310 420 315 350 Q 318 280 320 200 Q 322 140 325 90" fill="none" stroke="#74b9e8" stroke-width="3" opacity="0.55" stroke-dasharray="6,3"/>
+          <!-- ROADS -->
+          <path d="M 253 30 L 253 520" stroke="#aaa" stroke-width="20"/>
+          <path d="M 253 30 L 253 520" stroke="#e8e0d0" stroke-width="16"/>
+          <path d="M 253 30 L 253 520" stroke="#f5c842" stroke-width="1" stroke-dasharray="12,8"/>
+          <rect x="230" y="30" width="46" height="490" fill="rgba(239,68,68,0.06)"/>
+          <line x1="230" y1="30" x2="230" y2="520" stroke="#ef4444" stroke-width="0.8" stroke-dasharray="5,4" opacity="0.6"/>
+          <line x1="276" y1="30" x2="276" y2="520" stroke="#ef4444" stroke-width="0.8" stroke-dasharray="5,4" opacity="0.6"/>
+          <text transform="translate(216,200) rotate(-90)" font-size="6" fill="#ef4444" opacity="0.8" font-weight="600">NWA RESERVE ← 3m</text>
+          <text transform="translate(281,310) rotate(90)" font-size="6" fill="#ef4444" opacity="0.8" font-weight="600">NWA RESERVE → 3m</text>
+          <text transform="translate(246,390) rotate(-90)" font-size="9" fill="#555" font-weight="600" letter-spacing="1">MAXFIELD AVENUE</text>
+          <path d="M 450 30 L 430 170 L 410 280 L 400 380 L 390 450 L 385 520" stroke="#aaa" stroke-width="16" stroke-linecap="round"/>
+          <path d="M 450 30 L 430 170 L 410 280 L 400 380 L 390 450 L 385 520" stroke="#e8e0d0" stroke-width="12"/>
+          <text transform="translate(435,260) rotate(-8)" font-size="8" fill="#555" font-weight="600">HALF WAY TREE ROAD</text>
+          <path d="M 420 65 L 30 70" stroke="#aaa" stroke-width="14" stroke-linecap="round"/>
+          <path d="M 420 65 L 30 70" stroke="#e8e0d0" stroke-width="10"/>
+          <text x="80" y="55" font-size="7.5" fill="#555" font-weight="600">HAGLEY PARK ROAD</text>
+          <path d="M 390 450 L 750 435" stroke="#bbb" stroke-width="12"/><path d="M 390 450 L 750 435" stroke="#e8e0d0" stroke-width="8"/>
+          <text x="470" y="432" font-size="7.5" fill="#555" font-weight="600">SLIPE ROAD →</text>
+          <path d="M 400 380 L 680 190" stroke="#bbb" stroke-width="10"/><path d="M 400 380 L 680 190" stroke="#e8e0d0" stroke-width="7"/>
+          <text transform="translate(540,310) rotate(-36)" font-size="7" fill="#555" font-weight="600">OLD HOPE ROAD</text>
+          <path d="M 253 340 L 30 415" stroke="#bbb" stroke-width="10"/><path d="M 253 340 L 30 415" stroke="#e8e0d0" stroke-width="7"/>
+          <text transform="translate(80,408) rotate(-20)" font-size="6.5" fill="#555">WALTHAM PARK RD</text>
+          <path d="M 253 480 L 30 508" stroke="#bbb" stroke-width="10"/><path d="M 253 480 L 30 508" stroke="#e8e0d0" stroke-width="7"/>
+          <!-- LANDMARKS -->
+          <g transform="translate(440,55)">
+            <rect x="-40" y="-18" width="80" height="38" rx="4" fill="#1a3d2b" opacity="0.9"/>
+            <text x="0" y="-5" text-anchor="middle" font-size="7.5" fill="white" font-weight="600">HALF WAY TREE</text>
+            <text x="0" y="6" text-anchor="middle" font-size="6" fill="rgba(255,255,255,0.7)">Transport Centre</text>
+          </g>
+          <circle cx="440" cy="65" r="5" fill="#1a3d2b" opacity="0.8"/>
+          <g transform="translate(390,462)">
+            <rect x="-42" y="-16" width="84" height="32" rx="4" fill="#374151" opacity="0.85"/>
+            <text x="0" y="-4" text-anchor="middle" font-size="7.5" fill="white" font-weight="600">CROSS ROADS</text>
+            <text x="0" y="8" text-anchor="middle" font-size="5.5" fill="rgba(255,255,255,0.65)">5-road junction</text>
+          </g>
+          <ellipse cx="253" cy="260" rx="22" ry="14" fill="#52b788" opacity="0.4" stroke="#2d6a4f" stroke-width="0.8"/>
+          <text x="253" y="263" text-anchor="middle" font-size="6" fill="#1a3d2b" font-weight="600">Maxfield Park</text>
+          <!-- NWA CALLOUT -->
+          <g transform="translate(530,155)">
+            <rect x="0" y="0" width="130" height="38" rx="3" fill="rgba(254,226,226,0.9)" stroke="#ef4444" stroke-width="0.8" stroke-dasharray="4,2"/>
+            <text x="8" y="13" font-size="7" fill="#991b1b" font-weight="700">⚠ NWA ROAD RESERVE</text>
+            <text x="8" y="24" font-size="6" fill="#991b1b">Red dashed = 3m from centreline</text>
+            <text x="8" y="34" font-size="6" fill="#991b1b">NWA approval required</text>
+          </g>
+          <!-- GULLY LEGEND -->
+          <g transform="translate(530,205)">
+            <rect x="0" y="0" width="130" height="28" rx="3" fill="rgba(219,234,254,0.9)" stroke="#74b9e8" stroke-width="0.8"/>
+            <line x1="8" y1="14" x2="35" y2="14" stroke="#74b9e8" stroke-width="3"/>
+            <text x="42" y="18" font-size="6.5" fill="#1d6fa5" font-weight="600">Gully / drainage</text>
+          </g>
+          <!-- STUDY BOUNDARY -->
+          <rect x="25" y="58" width="600" height="460" rx="4" fill="none" stroke="#1a3d2b" stroke-width="1.5" stroke-dasharray="8,5" opacity="0.3"/>
+        </svg>
+
+        <!-- ZONE HIT TARGETS — positioned as % of SVG viewBox 780×530 -->
+        <!-- Z1(253,80) Z2(253,145) Z3(170,200) Z4(253,230) Z5(100,230)
+             Z6(253,320) Z7(195,370) Z8(90,360) Z9(253,420) Z10(345,190) Z11(345,390) -->
+        <div id="zones-overlay" style="position:absolute;inset:0;pointer-events:none;"></div>
+        <!-- Placement dots overlay -->
+        <div id="placements-overlay" style="position:absolute;inset:0;pointer-events:none;"></div>
+        <!-- Popup container -->
+        <div id="popupContainer" style="position:absolute;inset:0;pointer-events:none;z-index:50;"></div>
+      </div>
+    </div>
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+      <div class="s-tabs">
+        <div class="s-tab active" onclick="switchTab('cards')">Cards</div>
+        <div class="s-tab" onclick="switchTab('placed')">Placed</div>
+        <div class="s-tab" onclick="switchTab('zones')">Zones</div>
+      </div>
+      <div class="s-pane active" id="pane-cards"></div>
+      <div class="s-pane" id="pane-placed"></div>
+      <div class="s-pane" id="pane-zones"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── FACILITATOR ── -->
+<div class="fac-wrap" id="facWrap">
+  <div class="fac-head">
+    <div>
+      <div class="fac-htitle">Facilitator Dashboard — All Tables</div>
+      <div class="fac-hsub">J-USE NbCS Exercise · CUF 2026 · Auto-refreshes every 10s</div>
+    </div>
+    <button class="btn-sm" onclick="location.reload()">← Back</button>
+  </div>
+  <div class="fac-grid" id="facGrid"></div>
+  <div class="fac-foot">
+    <span class="fac-update" id="facUpdate">Loading…</span>
+    <span style="font-size:0.62rem;color:#1f3226;">J-USE · EFJ · Global Affairs Canada</span>
+  </div>
+</div>
+
+<!-- SUMMARY OVERLAY -->
+<div class="overlay hidden" id="sumOverlay">
+  <div class="sum-box">
+    <div class="sum-head">
+      <div><div class="sum-htitle" id="sumTitle">Table — Design Brief</div><div class="sum-hsub">Olympic Gardens / Maxfield Ave · J-USE NbCS Retrofit Exercise · CUF 2026</div></div>
+      <button class="sum-close" onclick="hideSummary()">✕</button>
+    </div>
+    <div class="sum-cols">
+      <!-- LEFT: map + placements list -->
+      <div class="sum-left">
+        <div class="sum-sec">Placement map</div>
+        <div class="sum-map-wrap" id="sumMapWrap">
+          <!-- Mini schematic SVG injected by JS -->
+        </div>
+        <div class="sum-sec">Cards placed</div>
+        <div class="sum-pls" id="sumPls"></div>
+      </div>
+      <!-- RIGHT: stats + theme breakdown + constraints -->
+      <div class="sum-right">
+        <div class="sum-sec">Overview</div>
+        <div class="sum-stats" id="sumStats"></div>
+        <div class="sum-sec">Budget</div>
+        <div class="sum-bbar"><div class="sum-bfill" id="sumBFill"></div></div>
+        <div class="sum-blbl"><span id="sumBSpent"></span><span id="sumBRemain"></span></div>
+        <div class="sum-sec">Spend by theme</div>
+        <div class="theme-bars" id="sumThemes"></div>
+        <div class="sum-sec">Constraint flags</div>
+        <div class="sum-flags" id="sumFlags"></div>
+        <div class="sum-sec" style="margin-top:4px">Pitch guide</div>
+        <div style="font-size:0.75rem;color:#555;line-height:1.7;background:#f9fafb;border-radius:7px;padding:10px 12px;border:1px solid #eee;">
+          <strong style="color:#111">3 minutes — cover these points:</strong><br>
+          1. Which NbCS you chose and where you placed them<br>
+          2. The primary hazard your package addresses<br>
+          3. Your strongest co-benefit story<br>
+          4. One constraint you had to navigate
+        </div>
+      </div>
+    </div>
+    <div class="sum-acts">
+      <button class="btn-print" onclick="window.print()">🖨 Print summary</button>
+      <button class="btn-sec" onclick="hideSummary()">Close</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ══════ DATA ══════
+const BUDGET = 18500000;
+const FAC_PIN = '2026';
+
+const CARDS = [
+  {id:1, name:'Bioswale Network',         cost:3800000, color:'#60a5fa', theme:'Water & Flood'},
+  {id:2, name:'Rain Gardens ×8',          cost:2400000, color:'#60a5fa', theme:'Water & Flood'},
+  {id:3, name:'Permeable Paving',         cost:5200000, color:'#60a5fa', theme:'Water & Flood'},
+  {id:4, name:'Street Trees ×40',         cost:2800000, color:'#4ade80', theme:'Heat & Greening'},
+  {id:5, name:'Green Roofs ×3',           cost:6500000, color:'#f472b6', theme:'Flood + Heat'},
+  {id:6, name:'Green Walls ×2',           cost:3200000, color:'#4ade80', theme:'Heat & Greening'},
+  {id:7, name:'Pocket Park Upgrade',      cost:1800000, color:'#f472b6', theme:'Flood + Heat'},
+  {id:8, name:'Drain Rehab + Bioswale',   cost:4100000, color:'#60a5fa', theme:'Water & Flood'},
+  {id:9, name:'Rainwater Harvesting ×6',  cost:2900000, color:'#60a5fa', theme:'Water & Flood'},
+  {id:10,name:'Edible Green Corridor',    cost:950000,  color:'#fb923c', theme:'Food & Livelihoods'},
+  {id:11,name:'Composting Hub',           cost:650000,  color:'#fb923c', theme:'Food & Livelihoods'},
+  {id:12,name:'NbCS Ambassador Programme',cost:1850000, color:'#facc15', theme:'Sustainability'},
+];
+
+// SVG coords (viewBox 780×530) → stored as pct for responsive positioning
+const ZONES = [
+  {id:'Z1', sx:253,sy:80,  color:'#1a3d2b', name:'Hagley Park junction',       desc:'High pedestrian & vehicle flow. Verges both sides of Maxfield Ave. Within NWA reserve — any works within 3m of centreline require NWA approval.'},
+  {id:'Z2', sx:253,sy:145, color:'#1a3d2b', name:'Maxfield Ave north verge',   desc:'Paved, compacted verge, minimal vegetation. Narrow–medium width. Sits within the NWA road reserve.'},
+  {id:'Z3', sx:170,sy:200, color:'#1d6fa5', name:'Sandy Gully corridor',       desc:'Main drainage gully, west of Maxfield. Exposed concrete, heavily silted. History of overflow flooding into Olympic Gardens during heavy rain.'},
+  {id:'Z4', sx:253,sy:230, color:'#1a3d2b', name:'Maxfield Park frontage',     desc:'Existing public green space with underutilised road-facing boundary. Adjacent boundary walls face the park. Public land.'},
+  {id:'Z5', sx:100,sy:230, color:'#2d6a4f', name:'Olympic Gardens interior',   desc:'Residential interior streets. Detached housing with yards. Lower traffic. Mix of private and community parcels.'},
+  {id:'Z6', sx:253,sy:320, color:'#1a3d2b', name:'Maxfield / Waltham Park jct',desc:'Secondary junction, moderate traffic. Predominantly hard-paved. NWA reserve applies on Maxfield Ave side.'},
+  {id:'Z7', sx:195,sy:370, color:'#1d6fa5', name:'Sandy Gully south / culvert',desc:'Gully transitions underground via culvert. Back-surge flooding reported during intense rainfall. Concrete infrastructure in poor condition.'},
+  {id:'Z8', sx:90, sy:360, color:'#2d6a4f', name:'Whitfield Town parcel',      desc:'Underutilised land parcel, currently cleared / informal use. Adjacent residential properties. Ownership to be confirmed.'},
+  {id:'Z9', sx:253,sy:420, color:'#1a3d2b', name:'Maxfield Ave south section', desc:'Narrow verge approaching Cross Roads. Significant surface runoff concentration from upslope catchment passes through here.'},
+  {id:'Z10',sx:345,sy:190, color:'#c8973a', name:'Commercial block east',      desc:'2–3 storey commercial buildings, flat/low-pitched rooftops. Privately owned. Owner consent + KSAC building permit required for any building works.'},
+  {id:'Z11',sx:345,sy:390, color:'#c8973a', name:'Cross Roads market approach',desc:'High footfall commercial/market strip. Mix of public realm and private frontages. Proximity to Cross Roads Market.'},
+];
+
+// ══════ STATE ══════
+let tableNum = null;
+let placements = []; // {cardId, zoneId}
+let timerSecs = 18*60, timerRunning = false, timerInt = null;
+let activePopupZone = null;
+
+// ══════ NAVIGATION ══════
+function showTableSelect(){ hide('screenMode'); show('screenTable'); }
+function showPinScreen(){ hide('screenMode'); show('screenPin'); document.getElementById('pinInput').value=''; clearPinError(); }
+function backToMode(){ hideAll(); show('screenMode'); }
+
+function goHome(){
+  if(placements.length){
+    if(!confirm('Go back to the start screen? Your placements are saved — you can re-enter Table '+tableNum+' to pick up where you left off.')) return;
+  }
+  // Stop timer
+  timerRunning = false; clearInterval(timerInt);
+  // Hide app
+  document.getElementById('appWrap').style.display = 'none';
+  closePopup();
+  // Reset to mode screen
+  hideAll(); show('screenMode');
+}
+function hide(id){ document.getElementById(id).classList.add('hidden'); }
+function show(id){ document.getElementById(id).classList.remove('hidden'); }
+function hideAll(){ ['screenMode','screenTable','screenBrief','screenPin'].forEach(hide); }
+
+function checkPin(){
+  const val = document.getElementById('pinInput').value;
+  if(val === FAC_PIN){ hideAll(); document.getElementById('facWrap').classList.add('active'); renderFac(); setInterval(renderFac,10000); }
+  else{ document.getElementById('pinError').textContent = 'Incorrect PIN. Try again.'; document.getElementById('pinInput').value=''; }
+}
+function clearPinError(){ document.getElementById('pinError').textContent=''; }
+
+function startTable(num){
+  tableNum = num;
+  hide('screenTable');
+  document.getElementById('briefTableLabel').textContent = 'Table '+num;
+  show('screenBrief');
+}
+
+function launchExercise(){
+  hide('screenBrief');
+  document.getElementById('appWrap').style.display='flex';
+  document.getElementById('tableBadge').textContent = 'Table '+tableNum;
+  buildZoneHits();
+  renderCards();
+  renderZones();
+  loadFromStorage();
+}
+
+// ══════ SVG → % POSITIONING ══════
+// viewBox is 780×530; convert to percentages for responsive overlay
+function svgPct(sx,sy){ return { left:(sx/780*100)+'%', top:(sy/530*100)+'%' }; }
+
+function buildZoneHits(){
+  const wrap = document.getElementById('zones-overlay');
+  wrap.style.pointerEvents = 'none';
+  wrap.innerHTML = ZONES.map(z => {
+    const p = svgPct(z.sx, z.sy);
+    return `<div class="zone-hit" id="hit-${z.id}" style="left:${p.left};top:${p.top};pointer-events:all;"
+      onclick="openPopup('${z.id}',event)">
+      <div class="zone-hit-inner" id="inner-${z.id}" style="border-color:${z.color};color:${z.color}">${z.id}</div>
+    </div>`;
+  }).join('');
+}
+
+// ══════ POPUP ══════
+function openPopup(zid, e){
+  e.stopPropagation();
+  closePopup();
+  activePopupZone = zid;
+  const zone = ZONES.find(z=>z.id===zid);
+  const spent = getSpent();
+  const remaining = BUDGET - spent;
+
+  const cardBtns = CARDS.map(c => {
+    const alreadyPlaced = placements.some(p=>p.cardId===c.id);
+    const cantAfford = !alreadyPlaced && c.cost > remaining;
+    const dis = (alreadyPlaced||cantAfford) ? 'disabled' : '';
+    const label = alreadyPlaced ? '✓ placed' : cantAfford ? 'over budget' : '';
+    return `<button class="zp-card-btn" ${dis} onclick="placeCard(${c.id},'${zid}')">
+      <div class="zp-dot" style="background:${c.color}"></div>
+      <span class="zp-cname">${c.name}${label?' <span style="font-size:0.6rem;color:#888">('+label+')</span>':''}</span>
+      <span class="zp-ccost">J$${(c.cost/1e6).toFixed(2)}M</span>
+    </button>`;
+  }).join('');
+
+  // Position popup — try right of zone, flip left if near right edge
+  const hitEl = document.getElementById('hit-'+zid);
+  const mapRect = document.getElementById('mapPanel').getBoundingClientRect();
+  const hitRect = hitEl.getBoundingClientRect();
+  const relLeft = hitRect.left - mapRect.left + hitRect.width + 6;
+  const relTop  = hitRect.top  - mapRect.top;
+  const flipLeft = relLeft + 280 > mapRect.width;
+
+  const popup = document.createElement('div');
+  popup.className = 'zone-popup';
+  popup.id = 'activePopup';
+  popup.style.cssText = `pointer-events:all;top:${relTop}px;${flipLeft?'right:'+(mapRect.width-hitRect.left+mapRect.left+6)+'px':'left:'+relLeft+'px'};max-height:${mapRect.height-relTop-10}px;overflow-y:auto;`;
+  popup.innerHTML = `
+    <div class="zp-head">
+      <div class="zp-id" style="color:${zone.color}">${zone.id}</div>
+      <div class="zp-name">${zone.name}</div>
+      <div class="zp-desc">${zone.desc}</div>
+    </div>
+    <div class="zp-body">
+      <div class="zp-lbl">Select a card to place here</div>
+      ${cardBtns}
+      <button class="zp-close" onclick="closePopup()">Cancel</button>
+    </div>`;
+  document.getElementById('popupContainer').appendChild(popup);
+  document.getElementById('popupContainer').style.pointerEvents = 'none';
+  popup.style.pointerEvents = 'all';
+}
+
+function closePopup(){
+  const p = document.getElementById('activePopup');
+  if(p) p.remove();
+  activePopupZone = null;
+}
+
+// Close popup on map click
+document.addEventListener('click', e => {
+  if(activePopupZone && !e.target.closest('#activePopup') && !e.target.closest('.zone-hit'))
+    closePopup();
+});
+
+// ══════ PLACEMENT ══════
+function getCard(id){ return CARDS.find(c=>c.id===id); }
+function getZone(id){ return ZONES.find(z=>z.id===id); }
+function getSpent(){ return placements.reduce((s,p)=>s+getCard(p.cardId).cost,0); }
+
+function placeCard(cardId, zoneId){
+  closePopup();
+  const card = getCard(cardId);
+  if(placements.some(p=>p.cardId===cardId)){ showToast('Card already placed.'); return; }
+  if(getSpent()+card.cost > BUDGET){ showToast('Over budget! Remove a card first.'); return; }
+  placements.push({cardId, zoneId});
+  saveToStorage();
+  updateBudget();
+  renderCards();
+  renderPlaced();
+  renderPlacementDots();
+  updateZoneMarker(zoneId);
+  showToast(card.name+' placed at '+zoneId);
+}
+
+function removeCard(cardId){
+  placements = placements.filter(p=>p.cardId!==cardId);
+  saveToStorage();
+  updateBudget();
+  renderCards();
+  renderPlaced();
+  renderPlacementDots();
+  // reset all zone markers then re-highlight ones that still have placements
+  ZONES.forEach(z=>updateZoneMarker(z.id));
+  showToast('Card removed.');
+}
+
+function clearAll(){
+  if(!confirm('Clear all placements for Table '+tableNum+'?')) return;
+  placements=[];
+  saveToStorage();
+  updateBudget();
+  renderCards();
+  renderPlaced();
+  renderPlacementDots();
+  ZONES.forEach(z=>updateZoneMarker(z.id));
+  showToast('All placements cleared.');
+}
+
+function updateZoneMarker(zid){
+  const el = document.getElementById('inner-'+zid);
+  if(!el) return;
+  const hasAny = placements.some(p=>p.zoneId===zid);
+  el.classList.toggle('has-placement', hasAny);
+}
+
+function renderPlacementDots(){
+  const wrap = document.getElementById('placements-overlay');
+  wrap.innerHTML = placements.map((p,i) => {
+    const card = getCard(p.cardId);
+    const zone = getZone(p.zoneId);
+    // Spiral offset so multiple dots at same zone don't overlap
+    const same = placements.slice(0,i).filter(pp=>pp.zoneId===p.zoneId).length;
+    const angle = same * 1.1;
+    const r = same * 0.9;
+    const offX = r * Math.cos(angle);
+    const offY = r * Math.sin(angle);
+    const px = zone.sx/780*100;
+    const py = zone.sy/530*100;
+    return `<div class="placement-dot" style="left:calc(${px}% + ${offX+18}px);top:calc(${py}% + ${offY}px);background:${card.color}" title="${card.name} @ ${zone.id}">${card.id}</div>`;
+  }).join('');
+}
+
+// ══════ UI RENDERS ══════
+function fmt(n){ return n>=1e6?'J$'+(n/1e6).toFixed(2)+'M':'J$'+n.toLocaleString(); }
+
+function updateBudget(){
+  const spent = getSpent();
+  const pct = Math.min(spent/BUDGET*100,100);
+  document.getElementById('budgetSpent').textContent = fmt(spent);
+  const bar = document.getElementById('budgetBar');
+  bar.style.width = pct+'%';
+  bar.style.background = pct>95?'#f87171':pct>80?'#fbbf24':'#52b788';
+}
+
+function renderCards(){
+  const spent = getSpent();
+  document.getElementById('pane-cards').innerHTML = CARDS.map(c=>{
+    const placed = placements.some(p=>p.cardId===c.id);
+    return `<div class="card-item ${placed?'placed':''}" onclick="highlightCard(${c.id})">
+      <div class="ci-num">${c.id}</div>
+      <div class="ci-dot" style="background:${c.color}"></div>
+      <div class="ci-info">
+        <div class="ci-name">${c.name}</div>
+        <div class="ci-cost">${fmt(c.cost)} · ${c.theme}</div>
+      </div>
+      ${placed?'<span class="ci-badge">✓</span>':''}
+    </div>`;
+  }).join('');
+}
+
+function renderPlaced(){
+  const pane = document.getElementById('pane-placed');
+  if(!placements.length){
+    pane.innerHTML = '<div class="empty-note">No cards placed yet.<br>Click a zone marker on the map to begin.</div>';
+    return;
+  }
+  pane.innerHTML = placements.map(p=>{
+    const c=getCard(p.cardId), z=getZone(p.zoneId);
+    return `<div class="pl-item">
+      <div class="pl-dot" style="background:${c.color}"></div>
+      <div class="pl-info"><div class="pl-name">${c.name}</div><div class="pl-zone">${z.id} — ${z.name}</div></div>
+      <div class="pl-cost">${fmt(c.cost)}</div>
+      <button class="pl-rm" onclick="removeCard(${c.id})" title="Remove">✕</button>
+    </div>`;
+  }).join('');
+}
+
+function renderZones(){
+  document.getElementById('pane-zones').innerHTML = ZONES.map(z=>
+    `<div class="zone-li" onclick="scrollToZone('${z.id}')">
+      <div class="zone-li-id" style="color:${z.color}">${z.id}</div>
+      <div class="zone-li-name">${z.name}</div>
+      <div class="zone-li-desc">${z.desc.slice(0,70)}…</div>
+    </div>`
+  ).join('');
+}
+
+function scrollToZone(zid){
+  const el = document.getElementById('hit-'+zid);
+  if(el) el.scrollIntoView({behavior:'smooth',block:'center'});
+}
+
+function highlightCard(cardId){
+  const p = placements.find(pp=>pp.cardId===cardId);
+  if(p) showToast('Card placed at '+p.zoneId);
+  else showToast('Click a zone marker on the map to place this card.');
+}
+
+function switchTab(name){
+  document.querySelectorAll('.s-tab').forEach((t,i)=>t.classList.toggle('active',['cards','placed','zones'][i]===name));
+  document.querySelectorAll('.s-pane').forEach(p=>p.classList.remove('active'));
+  document.getElementById('pane-'+name).classList.add('active');
+  if(name==='placed') renderPlaced();
+}
+
+// ══════ SUMMARY ══════
+const THEME_COLORS = {
+  'Water & Flood':     '#60a5fa',
+  'Heat & Greening':   '#4ade80',
+  'Flood + Heat':      '#f472b6',
+  'Food & Livelihoods':'#fb923c',
+  'Sustainability':    '#facc15',
+};
+
+function showSummary(){
+  const spent = getSpent(), remain = BUDGET - spent;
+  const pct = Math.min(spent/BUDGET*100, 100);
+
+  document.getElementById('sumTitle').textContent = 'Table '+tableNum+' — Design Brief';
+
+  // Stats
+  document.getElementById('sumStats').innerHTML = `
+    <div class="ss"><div class="ss-val">${placements.length}</div><div class="ss-lbl">Cards placed</div></div>
+    <div class="ss"><div class="ss-val">${fmt(spent)}</div><div class="ss-lbl">Total spend</div></div>
+    <div class="ss"><div class="ss-val">${fmt(remain)}</div><div class="ss-lbl">Remaining</div></div>`;
+
+  // Budget bar
+  document.getElementById('sumBFill').style.width = pct+'%';
+  document.getElementById('sumBFill').style.background = pct>95?'#f87171':pct>80?'#fbbf24':'#52b788';
+  document.getElementById('sumBSpent').textContent = fmt(spent)+' spent';
+  document.getElementById('sumBRemain').textContent = fmt(remain)+' remaining';
+
+  // Placements list
+  document.getElementById('sumPls').innerHTML = placements.length
+    ? placements.map(p => {
+        const c=getCard(p.cardId), z=getZone(p.zoneId);
+        return `<div class="spl">
+          <div class="spl-dot" style="background:${c.color}"></div>
+          <div class="spl-card">${c.name}</div>
+          <div class="spl-zone">${z.id}</div>
+          <div class="spl-cost">${fmt(c.cost)}</div>
+        </div>`;
+      }).join('')
+    : '<div style="color:#aaa;font-size:0.78rem;padding:0.6rem 0">No cards placed yet.</div>';
+
+  // Theme breakdown bars
+  const themes = {};
+  Object.keys(THEME_COLORS).forEach(t => themes[t] = 0);
+  placements.forEach(p => { const c=getCard(p.cardId); themes[c.theme]=(themes[c.theme]||0)+c.cost; });
+  const maxTheme = Math.max(...Object.values(themes), 1);
+  document.getElementById('sumThemes').innerHTML = Object.entries(themes)
+    .filter(([,v])=>v>0)
+    .sort((a,b)=>b[1]-a[1])
+    .map(([theme, val]) => `
+      <div class="theme-bar-row">
+        <div class="theme-bar-label"><span>${theme}</span><span>${fmt(val)}</span></div>
+        <div class="theme-bar-bg"><div class="theme-bar-fill" style="width:${val/maxTheme*100}%;background:${THEME_COLORS[theme]}"></div></div>
+      </div>`).join('') || '<div style="font-size:0.75rem;color:#aaa">No cards placed yet.</div>';
+
+  // Constraint flags
+  const hasGreenRoof = placements.some(p=>p.cardId===5);
+  const hasGreenWall = placements.some(p=>p.cardId===6);
+  const nwaZones = ['Z1','Z2','Z6','Z9'];
+  const hasNWA = placements.some(p=>nwaZones.includes(p.zoneId));
+  let flags = [];
+  if(hasNWA) flags.push({type:'warn', text:'<strong>NWA approval needed</strong> — one or more cards placed within the road reserve. Allow time for NWA permit process.'});
+  if(hasGreenRoof) flags.push({type:'warn', text:'<strong>Green Roofs (Card 5)</strong> — private building works. Owner consent + KSAC building permit required before implementation.'});
+  if(hasGreenWall) flags.push({type:'warn', text:'<strong>Green Walls (Card 6)</strong> — if on private buildings, owner consent and building permit required.'});
+  if(!flags.length) flags.push({type:'ok', text:'<strong>No major constraint flags</strong> for your current selection. Confirm land ownership and any access agreements before implementation.'});
+  document.getElementById('sumFlags').innerHTML = flags.map(f=>
+    `<div class="flag-item flag-${f.type}">${f.text}</div>`).join('');
+
+  // Mini map with placement dots
+  buildSummaryMap();
+
+  document.getElementById('sumOverlay').classList.remove('hidden');
+}
+
+function buildSummaryMap(){
+  const wrap = document.getElementById('sumMapWrap');
+  // Mini SVG — same schematic but condensed, dots overlaid
+  const dotHTML = placements.map((p,i) => {
+    const c=getCard(p.cardId), z=getZone(p.zoneId);
+    const same = placements.slice(0,i).filter(pp=>pp.zoneId===p.zoneId).length;
+    const angle = same*1.1, r=same*5;
+    const cx = z.sx/780*100, cy = z.sy/530*100;
+    const ox = r*Math.cos(angle)+8, oy = r*Math.sin(angle);
+    return `<div class="sum-map-dot" style="left:calc(${cx}% + ${ox}px);top:calc(${cy}% + ${oy}px);width:14px;height:14px;background:${c.color};font-size:6px">${c.id}</div>`;
+  }).join('');
+  wrap.innerHTML = `
+    <svg viewBox="0 0 780 530" xmlns="http://www.w3.org/2000/svg" font-family="'DM Sans',sans-serif">
+      <rect width="780" height="530" fill="#f0ebe0"/>
+      <rect x="30" y="80" width="190" height="200" rx="3" fill="#e8f4ec" opacity="0.7"/>
+      <rect x="30" y="290" width="160" height="180" rx="3" fill="#e8f4ec" opacity="0.6"/>
+      <rect x="218" y="80" width="70" height="420" rx="2" fill="#fef3c7" opacity="0.45"/>
+      <rect x="290" y="80" width="240" height="260" rx="3" fill="#fdf2e0" opacity="0.5"/>
+      <rect x="290" y="370" width="330" height="150" rx="3" fill="#fdf2e0" opacity="0.45"/>
+      <path d="M 200 490 Q 185 400 175 310 Q 165 240 155 160 Q 148 110 140 80" fill="none" stroke="#74b9e8" stroke-width="4" opacity="0.7"/>
+      <path d="M 253 30 L 253 520" stroke="#aaa" stroke-width="18"/>
+      <path d="M 253 30 L 253 520" stroke="#e8e0d0" stroke-width="14"/>
+      <path d="M 253 30 L 253 520" stroke="#f5c842" stroke-width="1" stroke-dasharray="10,7"/>
+      <rect x="230" y="30" width="46" height="490" fill="rgba(239,68,68,0.06)"/>
+      <line x1="230" y1="30" x2="230" y2="520" stroke="#ef4444" stroke-width="0.7" stroke-dasharray="5,4" opacity="0.6"/>
+      <line x1="276" y1="30" x2="276" y2="520" stroke="#ef4444" stroke-width="0.7" stroke-dasharray="5,4" opacity="0.6"/>
+      <path d="M 450 30 L 430 170 L 410 280 L 400 380 L 390 450 L 385 520" stroke="#ccc" stroke-width="12"/>
+      <path d="M 450 30 L 430 170 L 410 280 L 400 380 L 390 450 L 385 520" stroke="#e8e0d0" stroke-width="9"/>
+      <path d="M 420 65 L 30 70" stroke="#ccc" stroke-width="11"/><path d="M 420 65 L 30 70" stroke="#e8e0d0" stroke-width="8"/>
+      <text x="290" y="55" font-size="9" fill="#888" font-weight="600">HAGLEY PARK RD</text>
+      <text transform="translate(248,350) rotate(-90)" font-size="8" fill="#888" font-weight="600">MAXFIELD AVE</text>
+      <text transform="translate(425,230) rotate(-8)" font-size="7" fill="#888">HWT ROAD</text>
+      <g transform="translate(440,52)"><rect x="-30" y="-12" width="60" height="22" rx="3" fill="#1a3d2b" opacity="0.85"/><text x="0" y="5" text-anchor="middle" font-size="7" fill="white" font-weight="600">HALF WAY TREE</text></g>
+      <g transform="translate(390,460)"><rect x="-32" y="-11" width="64" height="20" rx="3" fill="#374151" opacity="0.8"/><text x="0" y="4" text-anchor="middle" font-size="7" fill="white" font-weight="600">CROSS ROADS</text></g>
+      <text x="38" y="95" font-size="7" fill="#2d6a4f" font-weight="600">OLYMPIC GARDENS</text>
+      <text x="38" y="305" font-size="7" fill="#2d6a4f" font-weight="600">WHITFIELD TOWN</text>
+    </svg>
+    ${dotHTML}`;
+}
+
+function hideSummary(){ document.getElementById('sumOverlay').classList.add('hidden'); }
+
+// ══════ TIMER ══════
+function toggleTimer(){
+  timerRunning=!timerRunning;
+  if(timerRunning){
+    timerInt=setInterval(()=>{
+      timerSecs--;
+      if(timerSecs<=0){timerSecs=0;timerRunning=false;clearInterval(timerInt);showToast('⏱ Time is up!');}
+      updateTimer();
+    },1000);
+  } else clearInterval(timerInt);
+  updateTimer();
+}
+function updateTimer(){
+  const m=Math.floor(timerSecs/60), s=timerSecs%60;
+  const el=document.getElementById('timerEl');
+  el.textContent=m+':'+(s<10?'0':'')+s;
+  el.className='timer'+(timerSecs<=60?' danger':timerSecs<=180?' warn':'');
+}
+
+// ══════ STORAGE ══════
+async function saveToStorage(){
+  if(!tableNum) return;
+  try{ await window.storage.set('table_'+tableNum, JSON.stringify(placements.map(p=>({cardId:p.cardId,zoneId:p.zoneId}))), true); }catch(e){}
+}
+async function loadFromStorage(){
+  try{
+    const res = await window.storage.get('table_'+tableNum, true);
+    if(res&&res.value){
+      const data = JSON.parse(res.value);
+      data.forEach(d=>{ placements.push({cardId:d.cardId,zoneId:d.zoneId}); });
+      updateBudget(); renderCards(); renderPlaced(); renderPlacementDots();
+      ZONES.forEach(z=>updateZoneMarker(z.id));
+    }
+  }catch(e){}
+}
+
+// ══════ FACILITATOR ══════
+async function renderFac(){
+  const grid = document.getElementById('facGrid');
+  grid.innerHTML='';
+  for(let t=1;t<=5;t++){
+    let tPls=[];
+    try{ const r=await window.storage.get('table_'+t,true); if(r&&r.value) tPls=JSON.parse(r.value); }catch(e){}
+    const spent=tPls.reduce((s,p)=>{const c=getCard(p.cardId);return s+(c?c.cost:0);},0);
+    const pct=Math.min(spent/BUDGET*100,100);
+    const items=tPls.length
+      ? tPls.map(p=>{const c=getCard(p.cardId),z=getZone(p.zoneId);if(!c||!z)return'';
+          return `<div class="fac-item"><div class="fac-dot" style="background:${c.color}"></div><div class="fac-iname">${c.name}</div><div class="fac-izone">${z.id}</div></div>`;}).join('')
+      : '<div class="fac-empty">No placements yet</div>';
+    const col=document.createElement('div');
+    col.className='fac-col';
+    col.innerHTML=`<div class="fac-col-head"><div class="fac-col-name">Table ${t}</div><div class="fac-col-spend">${fmt(spent)}</div></div>
+      <div class="fac-col-bar"><div class="fac-col-fill" style="width:${pct}%"></div></div>
+      <div class="fac-col-items">${items}</div>`;
+    grid.appendChild(col);
+  }
+  document.getElementById('facUpdate').textContent='Updated: '+new Date().toLocaleTimeString();
+}
+
+// ══════ TOAST ══════
+let toastT;
+function showToast(msg){
+  const el=document.getElementById('toast');
+  el.textContent=msg; el.classList.add('show');
+  clearTimeout(toastT); toastT=setTimeout(()=>el.classList.remove('show'),2400);
+}
+</script>
+</body>
+</html>
