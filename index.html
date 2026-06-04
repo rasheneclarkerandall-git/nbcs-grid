@@ -337,7 +337,8 @@ html, body {
   flex: 1;
   position: relative;
   overflow: hidden;
-  background: #1a1a2e;
+  background: var(--blue-light);
+  min-height: 0;
 }
 .map-container {
   width: 100%; height: 100%;
@@ -558,7 +559,7 @@ html, body {
   display: grid; grid-template-columns: 1fr;
   gap: 16px;
 }
-@media (min-width: 640px) {
+@media (min-width: 600px) {
   .summary-grid { grid-template-columns: 1fr 1fr; }
 }
 .summary-card {
@@ -759,16 +760,23 @@ html, body {
       </div>
     </div>
     <div class="home-footer">J-USE · Environmental Foundation of Jamaica · Global Affairs Canada</div>
-    <!-- Toolkit unlock banner — hidden until facilitator unlocks -->
-    <div id="toolkit-banner" style="display:none;margin-top:24px;width:100%;max-width:420px;margin-left:auto;margin-right:auto;">
+    <!-- Toolkit section — always visible, gated by session code -->
+    <div style="margin-top:24px;width:100%;max-width:420px;margin-left:auto;margin-right:auto;">
       <div style="background:var(--green-light);border:2px solid var(--green);border-radius:var(--radius);padding:20px 24px;text-align:center;">
         <div style="font-size:22px;margin-bottom:8px;">📦</div>
-        <div style="font-size:15px;font-weight:700;color:var(--green);margin-bottom:4px;">Your NbCS Toolkit is ready</div>
-        <div style="font-size:13px;color:var(--charcoal);opacity:0.7;margin-bottom:16px;">Answer a few quick questions to get your personalised toolkit.</div>
-        <a href="https://docs.google.com/forms/d/e/1FAIpQLSdXh_ZspQlibfWXAVR2fXqAjzbK3Q471PNf9YLpoMf4GQzhJQ/viewform" target="_blank"
-          style="display:inline-block;background:var(--green);color:white;text-decoration:none;border-radius:8px;padding:12px 28px;font-size:14px;font-weight:700;font-family:DM Sans,sans-serif;">
-          Get Your Toolkit →
-        </a>
+        <div style="font-size:15px;font-weight:700;color:var(--green);margin-bottom:4px;">Get Your NbCS Toolkit</div>
+        <div style="font-size:13px;color:var(--charcoal);opacity:0.7;margin-bottom:16px;">Enter the session code from your facilitator to access your personalised toolkit.</div>
+        <div style="display:flex;gap:8px;justify-content:center;align-items:center;flex-wrap:wrap;">
+          <input id="session-code-input" type="text" placeholder="Session code"
+            style="padding:10px 14px;border:2px solid var(--border);border-radius:8px;font-size:14px;font-family:DM Sans,sans-serif;width:160px;text-align:center;letter-spacing:0.1em;text-transform:uppercase;outline:none;"
+            onkeydown="if(event.key==='Enter')checkSessionCode()"
+            oninput="document.getElementById('code-err').style.display='none'">
+          <button onclick="checkSessionCode()"
+            style="background:var(--green);color:white;border:none;border-radius:8px;padding:10px 20px;font-size:14px;font-weight:700;cursor:pointer;font-family:DM Sans,sans-serif;">
+            Go →
+          </button>
+        </div>
+        <div id="code-err" style="display:none;margin-top:10px;font-size:12px;color:#DC2626;font-weight:600;">Incorrect code — check with your facilitator.</div>
       </div>
     </div>
   </div>
@@ -895,20 +903,26 @@ html, body {
 <!-- ║  EXERCISE SCREEN             ║ -->
 <!-- ╚══════════════════════════════╝ -->
 <div class="screen" id="screen-exercise">
-  <!-- Header -->
-  <div class="app-header">
-    <div class="header-brand">
-      <button class="home-btn" onclick="confirmHome()" title="Back to home">⌂</button>
-      <div>
-        <div class="header-title" id="ex-scenario-label">NbCS Scenario Retrofit Exercise</div>
-        <div class="header-subtitle" id="ex-table-label">Table —</div>
+  <!-- Header: two rows on mobile -->
+  <div style="background:var(--white);border-bottom:2px solid var(--blue);position:sticky;top:0;z-index:100;">
+    <!-- Row 1: brand + timer -->
+    <div style="padding:8px 12px;display:flex;align-items:center;justify-content:space-between;gap:8px;">
+      <div style="display:flex;align-items:center;gap:8px;min-width:0;">
+        <button class="home-btn" onclick="confirmHome()" title="Back to home" style="flex-shrink:0;">⌂</button>
+        <div style="min-width:0;">
+          <div style="font-size:11px;font-weight:700;color:var(--blue);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:160px;" id="ex-scenario-label">NbCS Scenario Retrofit Exercise</div>
+          <div style="font-size:10px;color:var(--charcoal);opacity:0.6;" id="ex-table-label">Table —</div>
+        </div>
       </div>
+      <div class="timer-pill" id="ex-timer-pill" style="flex-shrink:0;">18:00</div>
     </div>
-    <div class="header-meta">
-      <div class="budget-pill" id="ex-budget-pill">J$0 / J$18.5M</div>
-      <div class="timer-pill" id="ex-timer-pill">18:00</div>
-      <button class="clear-btn" onclick="clearAll()">Clear</button>
-      <button style="background:var(--blue-light);color:var(--blue);border:1.5px solid var(--blue);border-radius:8px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer;" onclick="peekSummary()" title="Quick view — returns you to the exercise">👁 Preview</button><button style="background:var(--green);color:white;border:none;border-radius:8px;padding:6px 14px;font-size:13px;font-weight:700;cursor:pointer;margin-left:6px;" onclick="submitExercise()" title="Submit final design — exercise ends">Submit ✓</button>
+    <!-- Row 2: budget + action buttons -->
+    <div style="padding:4px 12px 8px;display:flex;align-items:center;gap:6px;flex-wrap:nowrap;overflow-x:auto;">
+      <div class="budget-pill" id="ex-budget-pill" style="flex-shrink:0;font-size:11px;">J$0 / J$18.5M</div>
+      <div style="flex:1;"></div>
+      <button class="clear-btn" onclick="clearAll()" style="flex-shrink:0;font-size:11px;padding:4px 10px;">Clear</button>
+      <button style="flex-shrink:0;background:var(--blue-light);color:var(--blue);border:1.5px solid var(--blue);border-radius:8px;padding:5px 10px;font-size:11px;font-weight:600;cursor:pointer;font-family:DM Sans,sans-serif;" onclick="peekSummary()">👁 Preview</button>
+      <button style="flex-shrink:0;background:var(--green);color:white;border:none;border-radius:8px;padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer;font-family:DM Sans,sans-serif;" onclick="submitExercise()">Submit ✓</button>
     </div>
   </div>
   <!-- Body -->
@@ -931,14 +945,7 @@ html, body {
       </div>
       <!-- Mobile sidebar toggle -->
       <button class="sidebar-toggle-btn" id="sidebar-toggle" onclick="openDrawer()">☰</button>
-      <!-- Budget bar (mobile, shown below map) -->
-      <div class="budget-bar-wrap" id="mobile-budget-bar">
-        <div class="budget-bar-label">
-          <span>Budget</span>
-          <span id="mobile-budget-text">J$0 / J$18,500,000</span>
-        </div>
-        <div class="budget-bar-track"><div class="budget-bar-fill" id="mobile-budget-fill" style="width:0%"></div></div>
-      </div>
+
     </div>
     <!-- Sidebar -->
     <div class="sidebar" id="sidebar-desktop">
@@ -987,7 +994,7 @@ html, body {
 <!-- ║  SUMMARY SCREEN              ║ -->
 <!-- ╚══════════════════════════════╝ -->
 <div class="screen" id="screen-summary">
-  <div class="summary-header">
+  <div class="summary-header" style="flex-wrap:wrap;gap:8px;">
     <div>
       <div style="font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--blue);margin-bottom:2px;" id="sum-scenario-label">Scenario A</div>
       <div class="summary-title" id="sum-table-label">Table — Design Brief</div>
@@ -1070,13 +1077,17 @@ html, body {
         Scenario B · Downtown Kingston
       </button>
     </div>
-    <div style="display:flex;gap:8px;margin:8px 0;align-items:center;">
-      <button id="fac-toolkit-btn" onclick="facToggleToolkit()"
-        style="padding:7px 16px;font-size:12px;font-weight:700;font-family:DM Sans,sans-serif;cursor:pointer;background:var(--green-light);color:var(--green);border:1.5px solid var(--green);border-radius:8px;">
-        🔒 Toolkit Locked
+    <div style="display:flex;gap:6px;margin:8px 0;align-items:center;flex-wrap:wrap;">
+      <input id="fac-code-input" type="text" placeholder="Session code"
+        style="padding:6px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:12px;font-family:DM Sans,sans-serif;width:130px;text-transform:uppercase;letter-spacing:0.08em;outline:none;"
+        value="JUSE2026">
+      <button onclick="facSetCode()"
+        style="padding:6px 14px;font-size:12px;font-weight:700;font-family:DM Sans,sans-serif;cursor:pointer;background:var(--green);color:white;border:none;border-radius:8px;">
+        Set Code
       </button>
+      <span id="fac-code-saved" style="font-size:11px;color:var(--green);font-weight:700;display:none;">✓ Saved</span>
       <button id="fac-close-session-btn" onclick="facCloseSession()"
-        style="padding:7px 16px;font-size:12px;font-weight:700;font-family:DM Sans,sans-serif;cursor:pointer;background:#FEE2E2;color:#DC2626;border:1.5px solid #FCA5A5;border-radius:8px;">
+        style="padding:6px 14px;font-size:12px;font-weight:700;font-family:DM Sans,sans-serif;cursor:pointer;background:#FEE2E2;color:#DC2626;border:1.5px solid #FCA5A5;border-radius:8px;">
         🗑 Close Session
       </button>
     </div>
@@ -1481,11 +1492,11 @@ function updateBudget() {
   pill.textContent = `${fmt(spent)} / J$18.5M`;
   pill.className = 'budget-pill' + (over ? ' over' : '');
   // All bars
-  ['sidebar-budget-fill','mobile-budget-fill','drawer-budget-fill'].forEach(id => {
+  ['sidebar-budget-fill','drawer-budget-fill'].forEach(id => {
     const el = document.getElementById(id);
     if (el) { el.style.width = pct+'%'; el.className = 'budget-bar-fill' + (over ? ' over' : ''); }
   });
-  ['sidebar-budget-text','mobile-budget-text','drawer-budget-text'].forEach(id => {
+  ['sidebar-budget-text','drawer-budget-text'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.textContent = `${fmt(spent)} / J$18,500,000`;
   });
@@ -1740,75 +1751,44 @@ function facCancelClose() {
   document.getElementById('fac-close-confirm').style.display = 'none';
 }
 
+function facSetCode() {
+  const input = document.getElementById('fac-code-input');
+  const saved = document.getElementById('fac-code-saved');
+  if (!input || !input.value.trim()) return;
+  saveSessionCode(input.value);
+  input.value = getSessionCode();
+  saved.style.display = 'inline';
+  setTimeout(() => { saved.style.display = 'none'; }, 2000);
+}
+
 // ── TOOLKIT UNLOCK ──
-const TOOLKIT_KEY = 'juse_toolkit_unlocked';
 
-const GAS_URL = 'https://script.google.com/macros/s/AKfycbyKUajxiMpeXlUy40gYyXzRf_wubMZHaYSDmglnJCVDqA8WSa5SASaraPrxAMvtu-NF/exec';
+// ── TOOLKIT SESSION CODE ──
+const FORM_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSdXh_ZspQlibfWXAVR2fXqAjzbK3Q471PNf9YLpoMf4GQzhJQ/viewform';
+const DEFAULT_SESSION_CODE = 'JUSE2026';
 
-async function getToolkitState() {
-  // Primary: Google Sheet (works across all devices on GitHub Pages)
-  try {
-    const res = await fetch(`${GAS_URL}?action=get`, {mode:'cors'});
-    if (res.ok) {
-      const val = (await res.text()).trim();
-      localStorage.setItem(TOOLKIT_KEY, val); // cache locally
-      return val === 'true';
-    }
-  } catch(e) {}
-  // Fallback: localStorage cache
-  try { return localStorage.getItem(TOOLKIT_KEY) === 'true'; } catch(e) {}
-  return false;
+function getSessionCode() {
+  try { return localStorage.getItem('juse_session_code') || DEFAULT_SESSION_CODE; } catch(e) {}
+  return DEFAULT_SESSION_CODE;
+}
+function saveSessionCode(code) {
+  try { localStorage.setItem('juse_session_code', code.toUpperCase().trim()); } catch(e) {}
 }
 
-async function setToolkitState(val) {
-  // Primary: write to Google Sheet
-  try {
-    await fetch(`${GAS_URL}?action=set&value=${val}`, {mode:'cors'});
-  } catch(e) {}
-  // Always cache locally too
-  try { localStorage.setItem(TOOLKIT_KEY, String(val)); } catch(e) {}
-}
-
-async function facToggleToolkit() {
-  const current = await getToolkitState();
-  const next = !current;
-  await setToolkitState(next);
-  updateFacToolkitBtn(next);
-  updateHomeBanner(next);
-}
-
-function updateFacToolkitBtn(unlocked) {
-  const btn = document.getElementById('fac-toolkit-btn');
-  if (!btn) return;
-  if (unlocked) {
-    btn.textContent = '🔓 Toolkit Unlocked';
-    btn.style.background = 'var(--green)';
-    btn.style.color = 'white';
-    btn.style.borderColor = 'var(--green)';
+function checkSessionCode() {
+  const input = document.getElementById('session-code-input');
+  const err = document.getElementById('code-err');
+  if (!input) return;
+  const entered = input.value.toUpperCase().trim();
+  const correct = getSessionCode();
+  if (entered === correct) {
+    window.open(FORM_URL, '_blank');
+    input.value = '';
   } else {
-    btn.textContent = '🔒 Toolkit Locked';
-    btn.style.background = 'var(--green-light)';
-    btn.style.color = 'var(--green)';
-    btn.style.borderColor = 'var(--green)';
+    err.style.display = 'block';
+    input.style.borderColor = '#DC2626';
+    setTimeout(() => { input.style.borderColor = 'var(--border)'; }, 2000);
   }
-}
-
-function updateHomeBanner(unlocked) {
-  const banner = document.getElementById('toolkit-banner');
-  if (banner) banner.style.display = unlocked ? 'block' : 'none';
-}
-
-// Poll for toolkit unlock on home screen every 15s
-let toolkitPollTimer = null;
-function startToolkitPoll() {
-  stopToolkitPoll();
-  toolkitPollTimer = setInterval(async () => {
-    const unlocked = await getToolkitState();
-    updateHomeBanner(unlocked);
-  }, 15000);
-}
-function stopToolkitPoll() {
-  if (toolkitPollTimer) { clearInterval(toolkitPollTimer); toolkitPollTimer = null; }
 }
 
 async function facConfirmClose() {
@@ -1885,18 +1865,18 @@ async function showFacilitator() {
   showScreen('screen-facilitator');
   facSwitchScenario(facActiveScenario);
   await renderFacGrid();
-  const unlocked = await getToolkitState();
-  updateFacToolkitBtn(unlocked);
+  // Sync code input with stored value
+  const codeInput = document.getElementById('fac-code-input');
+  if (codeInput) codeInput.value = getSessionCode();
   // Auto-refresh - cancellable
   facRefreshTimer = setTimeout(showFacilitator, 10000);
 }
 
 // Init
-document.addEventListener('DOMContentLoaded', async () => {
-  // Check toolkit unlock state and start polling
-  const unlocked = await getToolkitState();
-  updateHomeBanner(unlocked);
-  startToolkitPoll();
+document.addEventListener('DOMContentLoaded', () => {
+  // Sync code input if on facilitator screen
+  const codeInput = document.getElementById('fac-code-input');
+  if (codeInput) codeInput.value = getSessionCode();
 });
 </script>
 </body>
