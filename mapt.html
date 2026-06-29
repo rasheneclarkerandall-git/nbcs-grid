@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mapt — St. Elizabeth Discovery Pilot</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<style>
+/* ── tokens ─────────────────────────────────────────────────── */
+:root {
+  --blue:       #518eb4;
+  --blue-dark:  #3b6682;
+  --gray:       #444444;
+  --white:      #ffffff;
+  --surface:    #f7f9fb;
+  --border:     rgba(59,102,130,0.18);
+  --shadow-sm:  0 1px 4px rgba(59,102,130,0.08);
+  --shadow-md:  0 4px 20px rgba(59,102,130,0.12);
+  --shadow-lg:  0 8px 40px rgba(59,102,130,0.16);
+  --radius:     10px;
+  --panel-w:    340px;
+  --nav-h:      56px;
+  --ease:       cubic-bezier(0.4,0,0.2,1);
+  --font:       'Inter', system-ui, sans-serif;
+}
+
+/* ── reset ───────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--font); background: var(--surface); color: var(--gray); overflow: hidden; height: 100dvh; }
+
+/* ── layout shell ─────────────────────────────────────────────── */
+#app { display: flex; flex-direction: column; height: 100dvh; }
+
+/* ── nav ──────────────────────────────────────────────────────── */
+nav {
+  height: var(--nav-h); flex-shrink: 0;
+  background: var(--blue-dark);
+  display: flex; align-items: center; gap: 0;
+  padding: 0 20px;
+  z-index: 400;
+  box-shadow: 0 1px 0 rgba(0,0,0,0.12), var(--shadow-sm);
+}
+.wordmark {
+  font-size: 18px; font-weight: 700; letter-spacing: -0.5px;
+  color: var(--white); margin-right: 24px; flex-shrink: 0;
+}
+.wordmark span { color: var(--blue); }
+
+/* search bar in nav */
+.search-wrap {
+  flex: 1; max-width: 480px;
+  position: relative;
+}
+.search-wrap input {
+  width: 100%; height: 36px;
+  padding: 0 12px 0 36px;
+  font-family: var(--font); font-size: 13.5px;
+  background: rgba(255,255,255,0.10);
+  border: 1px solid rgba(255,255,255,0.18);
+  border-radius: 8px; outline: none; color: var(--white);
+  transition: background 0.15s var(--ease), border-color 0.15s var(--ease);
+}
+.search-wrap input::placeholder { color: rgba(255,255,255,0.45); }
+.search-wrap input:focus {
+  background: rgba(255,255,255,0.16);
+  border-color: rgba(255,255,255,0.4);
+}
+.search-icon {
+  position: absolute; left: 10px; top: 50%; transform: translateY(-50%);
+  color: rgba(255,255,255,0.45); pointer-events: none;
+}
+.search-btn {
+  position: absolute; right: 6px; top: 50%; transform: translateY(-50%);
+  height: 24px; padding: 0 10px; font-size: 12px; font-family: var(--font); font-weight: 500;
+  background: var(--blue); color: var(--white);
+  border: none; border-radius: 5px; cursor: pointer;
+  transition: background 0.12s;
+}
+.search-btn:hover { background: #5fa0c8; }
+
+.basemap-toggle {
+  margin-left: 12px; display: flex; gap: 4px;
+}
+.bm-btn {
+  height: 30px; padding: 0 11px; font-size: 12px; font-family: var(--font); font-weight: 500;
+  border: 1px solid rgba(255,255,255,0.22); border-radius: 6px;
+  background: transparent; color: rgba(255,255,255,0.7); cursor: pointer;
+  transition: background 0.12s, color 0.12s, border-color 0.12s;
+}
+.bm-btn:hover { background: rgba(255,255,255,0.08); color: var(--white); }
+.bm-btn.active { background: rgba(255,255,255,0.15); color: var(--white); border-color: rgba(255,255,255,0.45); }
+
+.nav-right { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+.pilot-badge {
+  font-size: 11px; font-weight: 600; letter-spacing: 0.4px;
+  padding: 3px 9px; border-radius: 20px;
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.18);
+  color: rgba(255,255,255,0.65);
+  text-transform: uppercase;
+}
+
+/* ── main area ────────────────────────────────────────────────── */
+.main { flex: 1; position: relative; overflow: hidden; }
+
+/* ── map ──────────────────────────────────────────────────────── */
+#map { position: absolute; inset: 0; z-index: 1; cursor: crosshair; }
+
+/* ── left panel (D1 results) ─────────────────────────────────── */
+#panel-d1 {
+  position: absolute; top: 12px; left: 12px; bottom: 12px;
+  width: var(--panel-w);
+  background: var(--white); border-radius: var(--radius);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-md);
+  display: flex; flex-direction: column;
+  z-index: 100;
+  transform: translateX(0);
+  transition: transform 0.3s var(--ease), opacity 0.3s var(--ease);
+  overflow: hidden;
+}
+#panel-d1.hidden {
+  transform: translateX(calc(-100% - 20px));
+  opacity: 0;
+  pointer-events: none;
+}
+
+.panel-header {
+  padding: 16px 16px 12px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.panel-title {
+  font-size: 11px; font-weight: 600; letter-spacing: 0.6px;
+  text-transform: uppercase; color: var(--blue-dark); margin-bottom: 4px;
+}
+.panel-sub { font-size: 12px; color: rgba(68,68,68,0.55); }
+.panel-body { flex: 1; overflow-y: auto; padding: 8px 0; }
+.panel-body::-webkit-scrollbar { width: 4px; }
+.panel-body::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+/* status line */
+.status-line {
+  padding: 8px 16px; font-size: 12px; color: rgba(68,68,68,0.6);
+}
+.status-line.error { color: #a32d2d; }
+
+/* result card */
+.result-card {
+  margin: 4px 10px; padding: 12px;
+  border: 1px solid var(--border); border-radius: 8px;
+  cursor: pointer; transition: border-color 0.12s, box-shadow 0.12s, background 0.12s;
+}
+.result-card:hover { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(81,142,180,0.1); }
+.result-card.selected { border-color: var(--blue); background: rgba(81,142,180,0.05); }
+.result-card .rc-scheme {
+  font-size: 13.5px; font-weight: 600; color: var(--blue-dark); margin-bottom: 8px;
+}
+.rc-row { display: flex; justify-content: space-between; font-size: 12px; padding: 2px 0; }
+.rc-label { color: rgba(68,68,68,0.6); }
+.rc-val { font-weight: 500; color: var(--gray); }
+.rc-badge {
+  display: inline-block; margin-top: 8px;
+  font-size: 10.5px; font-weight: 600; letter-spacing: 0.3px;
+  padding: 2px 8px; border-radius: 20px;
+}
+.badge-residential { background: #e8f4ec; color: #2d6e3e; }
+.badge-agricultural { background: #fef3e2; color: #8a5800; }
+.badge-commercial   { background: #e8edf8; color: #2d3e6e; }
+.badge-default      { background: #f0f0f0; color: #555; }
+
+.divider-info {
+  margin: 16px 10px 4px; padding: 0 6px;
+  font-size: 10px; font-weight: 600; letter-spacing: 0.5px;
+  text-transform: uppercase; color: rgba(68,68,68,0.35);
+}
+.hint-box {
+  margin: 8px 10px; padding: 10px 12px;
+  background: var(--surface); border-radius: 8px;
+  font-size: 12px; color: rgba(68,68,68,0.65); line-height: 1.5;
+}
+.hint-box strong { color: var(--blue-dark); }
+
+/* ── right panel (D2 zoning) ─────────────────────────────────── */
+#panel-d2 {
+  position: absolute; top: 12px; right: 12px; bottom: 12px;
+  width: var(--panel-w);
+  background: var(--white); border-radius: var(--radius);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-md);
+  display: flex; flex-direction: column;
+  z-index: 100;
+  transform: translateX(0);
+  transition: transform 0.3s var(--ease), opacity 0.3s var(--ease);
+  overflow: hidden;
+}
+#panel-d2.hidden {
+  transform: translateX(calc(100% + 20px));
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* zoning content */
+.zone-hero {
+  padding: 16px 16px 14px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.zone-hero .ztag {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 11px; font-weight: 700; letter-spacing: 0.5px;
+  text-transform: uppercase; padding: 4px 12px;
+  border-radius: 20px; margin-bottom: 10px;
+}
+.ztag-residential { background: #e8f4ec; color: #2d6e3e; }
+.ztag-agricultural { background: #fef3e2; color: #8a5800; }
+.ztag-mixed       { background: #ede8f8; color: #4a2d8a; }
+.ztag-pending     { background: #f0f0f0; color: #666; }
+
+.zone-hero h2 { font-size: 15px; font-weight: 600; color: var(--gray); margin-bottom: 3px; }
+.zone-hero .zone-ref { font-size: 11.5px; color: rgba(68,68,68,0.5); }
+
+.zone-section { padding: 14px 16px; border-bottom: 1px solid var(--border); }
+.zone-section:last-child { border-bottom: none; }
+.zone-sec-title {
+  font-size: 10px; font-weight: 700; letter-spacing: 0.6px; text-transform: uppercase;
+  color: var(--blue-dark); margin-bottom: 10px;
+}
+
+/* validator verdict */
+.verdict-row {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 10px;
+}
+.verdict-pill {
+  padding: 4px 12px; border-radius: 20px;
+  font-size: 11.5px; font-weight: 700; letter-spacing: 0.3px;
+}
+.verdict-pass         { background: #e8f4ec; color: #2d6e3e; }
+.verdict-needs-review { background: #fff7e0; color: #8a5800; }
+.verdict-fail         { background: #fce8e8; color: #a32d2d; }
+
+.verdict-desc { font-size: 12px; color: rgba(68,68,68,0.7); line-height: 1.4; }
+
+/* flag cards */
+.flag-card {
+  padding: 9px 10px; border-radius: 7px; margin-bottom: 6px;
+  font-size: 12px; line-height: 1.45;
+}
+.flag-card:last-child { margin-bottom: 0; }
+.flag-card .flag-rule { font-weight: 600; margin-bottom: 3px; }
+.flag-card .flag-detail { color: rgba(68,68,68,0.75); }
+.flag-fail   { background: #fce8e8; }
+.flag-fail .flag-rule { color: #a32d2d; }
+.flag-review { background: #fff7e0; }
+.flag-review .flag-rule { color: #8a5800; }
+.flag-pass   { background: #e8f4ec; }
+.flag-pass .flag-rule { color: #2d6e3e; }
+
+/* zone detail rows */
+.zd-row { display: flex; justify-content: space-between; font-size: 12.5px; padding: 4px 0; border-bottom: 1px solid rgba(59,102,130,0.07); }
+.zd-row:last-child { border-bottom: none; }
+.zd-key { color: rgba(68,68,68,0.6); }
+.zd-val { font-weight: 500; }
+
+/* policy refs */
+.policy-list { list-style: none; }
+.policy-list li {
+  font-size: 12px; padding: 5px 0;
+  border-bottom: 1px solid rgba(59,102,130,0.07);
+  color: rgba(68,68,68,0.75); line-height: 1.4;
+}
+.policy-list li:last-child { border-bottom: none; }
+.policy-list .pkey { font-weight: 600; color: var(--blue-dark); margin-right: 4px; }
+
+/* 2024 amendment notice */
+.amendment-notice {
+  margin: 0; padding: 8px 10px;
+  background: #ede8f8; border-radius: 6px;
+  font-size: 11.5px; color: #4a2d8a; line-height: 1.4;
+}
+.amendment-notice strong { font-weight: 700; }
+
+/* ── zoom hint overlay ────────────────────────────────────────── */
+#zoom-hint {
+  position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
+  background: rgba(59,102,130,0.9); color: var(--white);
+  font-size: 12.5px; padding: 8px 16px; border-radius: 20px;
+  pointer-events: none; z-index: 200;
+  opacity: 0; transition: opacity 0.3s;
+}
+#zoom-hint.show { opacity: 1; }
+
+/* ── map attribution override ─────────────────────────────────── */
+.leaflet-control-attribution { font-size: 10px !important; }
+
+/* ── toggle btns for panels ───────────────────────────────────── */
+.panel-toggle {
+  position: absolute; top: 12px; z-index: 150;
+  height: 36px; width: 36px;
+  background: var(--white); border: 1px solid var(--border);
+  border-radius: 8px; box-shadow: var(--shadow-sm);
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: box-shadow 0.12s, background 0.12s;
+  color: var(--blue-dark);
+}
+.panel-toggle:hover { box-shadow: var(--shadow-md); background: var(--surface); }
+#toggle-d1 { left: 12px; }
+#toggle-d2 { right: 12px; }
+
+/* ── map zoom corner ─────────────────────────────────────────── */
+.leaflet-top.leaflet-right { top: auto; bottom: 20px; }
+
+/* ── empty state in D2 ───────────────────────────────────────── */
+.d2-empty {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 32px 24px; text-align: center;
+}
+.d2-empty-icon {
+  width: 48px; height: 48px; border-radius: 12px;
+  background: var(--surface); border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 16px; color: var(--blue);
+}
+.d2-empty h3 { font-size: 14px; font-weight: 600; color: var(--gray); margin-bottom: 6px; }
+.d2-empty p  { font-size: 12.5px; color: rgba(68,68,68,0.6); line-height: 1.5; }
+
+/* referral flag */
+.referral-row {
+  display: flex; align-items: flex-start; gap: 8px;
+  padding: 10px 12px; background: #e8edf8; border-radius: 7px;
+  font-size: 12px; color: #2d3e6e; line-height: 1.4;
+}
+.referral-row svg { flex-shrink: 0; margin-top: 1px; }
+
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- ── Nav ─────────────────────────────────────────────────── -->
+  <nav>
+    <span class="wordmark">ma<span>pt</span></span>
+
+    <div class="search-wrap">
+      <svg class="search-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input id="search" type="text" placeholder="Valuation no., Volume/folio, scheme name…">
+      <button class="search-btn" id="search-btn">Search</button>
+    </div>
+
+    <div class="basemap-toggle">
+      <button class="bm-btn active" id="base-default">Map</button>
+      <button class="bm-btn" id="base-satellite">Satellite</button>
+      <button class="bm-btn" id="base-terrain">Terrain</button>
+    </div>
+
+    <div class="nav-right">
+      <span class="pilot-badge">St. Elizabeth pilot</span>
+    </div>
+  </nav>
+
+  <!-- ── Main ────────────────────────────────────────────────── -->
+  <div class="main">
+
+    <div id="map"></div>
+
+    <!-- Panel toggles (shown when panels are hidden) -->
+    <button class="panel-toggle" id="toggle-d1" style="display:none" title="Show search results">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+    </button>
+    <button class="panel-toggle" id="toggle-d2" style="display:none" title="Show zoning panel">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+    </button>
+
+    <!-- ── D1 Panel ─────────────────────────────────────────── -->
+    <div id="panel-d1">
+      <div class="panel-header">
+        <div class="panel-title">Parcel search — D1</div>
+        <div class="panel-sub">7 parcels · Bybrook scheme · Santa Cruz</div>
+      </div>
+      <div class="panel-body" id="d1-body">
+        <div class="hint-box">
+          Search by <strong>Valuation number</strong>, <strong>Volume/folio</strong>, or <strong>scheme name</strong> above, or click a parcel on the map. Separate multiple identifiers with commas for batch search.
+        </div>
+        <div class="divider-info">Click to explore</div>
+        <div id="d1-cards"></div>
+      </div>
+    </div>
+
+    <!-- ── D2 Panel ─────────────────────────────────────────── -->
+    <div id="panel-d2">
+      <div class="panel-header">
+        <div class="panel-title">Zoning &amp; Development Order — D2</div>
+        <div class="panel-sub">St. Elizabeth DO 2018 · 2024 amendments applied</div>
+      </div>
+      <div id="d2-body" style="flex:1;overflow-y:auto;display:flex;flex-direction:column;">
+        <div class="d2-empty">
+          <div class="d2-empty-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/><line x1="9" y1="3" x2="9" y2="18"/><line x1="15" y1="6" x2="15" y2="21"/></svg>
+          </div>
+          <h3>No parcel selected</h3>
+          <p>Select a parcel from the results panel or click a highlighted lot on the map to see its zoning classification and run the V1 rules check.</p>
+        </div>
+      </div>
+    </div>
+
+    <div id="zoom-hint">Zoom in to zoom ≥16 to identify parcels by clicking</div>
+
+  </div><!-- .main -->
+</div><!-- #app -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>
+(function () {
+'use strict';
+
+/* ── PARCEL DATA (D1) ─────────────────────────────────────────── */
+var PARCELS = [
+  {
+    id: 'p1', lv: '14204012097', volfol: '1353/905', lot: '112',
+    scheme: '112 Bybrook', location: 'Santa Cruz P.O.', landClass: 'Residential', landType: 'Vacant lot', size: 447,
+    coords: [[18.062348,-77.675672],[18.062257,-77.675953],[18.062386,-77.676008],[18.062466,-77.675728],[18.062348,-77.675672]]
+  },
+  {
+    id: 'p2', lv: '14204014035', volfol: '1383/898', lot: '55',
+    scheme: '55 Bybrook', location: 'Santa Cruz P.O.', landClass: 'Residential', landType: 'Vacant lot', size: 547,
+    coords: [[18.058169,-77.672584],[18.058004,-77.672603],[18.058025,-77.672839],[18.058076,-77.672833],[18.058334,-77.672565],[18.058169,-77.672584]]
+  },
+  {
+    id: 'p3', lv: '14204012036', volfol: '1160/264', lot: '',
+    scheme: 'Bybrook (large parcel)', location: 'Santa Cruz P.O.', landClass: 'Agricultural', landType: 'Ruinate — suitable for intensive agriculture', size: 2023,
+    coords: [[18.067732,-77.676334],[18.066171,-77.675959],[18.066210,-77.676630],[18.066709,-77.677230],[18.067029,-77.677614],[18.067231,-77.677291],[18.067361,-77.677125],[18.067655,-77.676824],[18.067735,-77.676697],[18.067769,-77.676544],[18.067757,-77.676430],[18.067732,-77.676334]]
+  },
+  {
+    id: 'p4', lv: '14204014013', volfol: '1383/875', lot: '32',
+    scheme: '32 Bybrook', location: 'Santa Cruz P.O.', landClass: 'Residential', landType: 'Vacant lot', size: 563,
+    coords: [[18.059148,-77.673492],[18.059005,-77.673508],[18.059035,-77.673866],[18.059073,-77.673862],[18.059173,-77.673851],[18.059148,-77.673492]]
+  },
+  {
+    id: 'p5', lv: '14204014031', volfol: '1383/894', lot: '51',
+    scheme: '51 Bybrook', location: 'Santa Cruz P.O.', landClass: 'Residential', landType: 'Vacant lot', size: 465,
+    coords: [[18.057991,-77.673049],[18.057714,-77.673082],[18.057728,-77.673223],[18.058007,-77.673195],[18.057991,-77.673049]]
+  },
+  {
+    id: 'p6', lv: '14204012085', volfol: '1353/893', lot: '100',
+    scheme: '100 Bybrook', location: 'Santa Cruz P.O.', landClass: 'Residential', landType: 'Single family dwelling', size: 584,
+    coords: [[18.061880,-77.675864],[18.061766,-77.675859],[18.061657,-77.675926],[18.061778,-77.676175],[18.061815,-77.676151],[18.061885,-77.676154],[18.061880,-77.675864]]
+  },
+  {
+    id: 'p7', lv: '14204012073', volfol: '1353/881', lot: '88',
+    scheme: '88 Bybrook', location: 'Santa Cruz P.O.', landClass: 'Residential', landType: 'Vacant lot', size: 551,
+    coords: [[18.062617,-77.676562],[18.062520,-77.676863],[18.062674,-77.676935],[18.062739,-77.676618],[18.062617,-77.676562]]
+  }
+];
+
+/* ── ZONING DATA (D2) ─────────────────────────────────────────── */
+/* Per St. Elizabeth Provisional Development Order 2018 + 2024 Confirmation */
+var ZONING = {
+  p1: {
+    lpa: 'Santa Cruz', zone: 'Residential', zoneClass: 'residential',
+    doRef: 'SC LPA — Inset 2', amendment: null,
+    permittedUses: ['Dwelling House (Use Class 12)', 'Limited essential commercial per SC H10'],
+    restrictions: ['No non-residential uses normally permitted (SC H1)', 'Character of surrounding development considered for multi-family (SC H2)'],
+    minLotMultiFamily: 0.2,
+    floodRisk: 'Not identified in order text — verify against hazard layer'
+  },
+  p2: {
+    lpa: 'Santa Cruz', zone: 'Residential', zoneClass: 'residential',
+    doRef: 'SC LPA — Inset 2', amendment: null,
+    permittedUses: ['Dwelling House (Use Class 12)', 'Limited essential commercial per SC H10'],
+    restrictions: ['SC H1, SC H2 apply', 'Density band requires zoning map (Inset 2) confirmation'],
+    minLotMultiFamily: 0.2,
+    floodRisk: 'Not identified in order text — verify against hazard layer'
+  },
+  p3: {
+    lpa: 'Santa Cruz', zone: 'Agricultural → Residential (2024)', zoneClass: 'agricultural',
+    doRef: 'SC LPA — 2024 amendment (SC2)', amendment: 'Agricultural→Residential rezoning confirmed by 2024 Confirmation Notification. Lot SC2, north of Malvern–Santa Cruz Rd.',
+    permittedUses: ['Dwelling House (Use Class 12) — now permitted under rezoning', 'Agricultural use remains lawful existing use until redevelopment'],
+    restrictions: ['Density band for this lot not explicit in text — needs Inset 2 zoning map', 'SC H12: flood susceptibility of this lot unknown from text alone', 'SC H2: multi-family requires ≥0.2 ha min. lot (this parcel: 0.20 ha — borderline)'],
+    minLotMultiFamily: 0.2,
+    floodRisk: 'Unknown — SC H12 cites New River community; proximity to this lot unclear without hazard layer'
+  },
+  p4: {
+    lpa: 'Santa Cruz', zone: 'Residential', zoneClass: 'residential',
+    doRef: 'SC LPA — Inset 2', amendment: null,
+    permittedUses: ['Dwelling House (Use Class 12)'],
+    restrictions: ['SC H1, SC H2 apply', 'Small lot (563 m² / 0.056 ha) — does not meet 0.2 ha min. for multi-family (SC H2)'],
+    minLotMultiFamily: 0.2,
+    floodRisk: 'Not identified in order text'
+  },
+  p5: {
+    lpa: 'Santa Cruz', zone: 'Residential', zoneClass: 'residential',
+    doRef: 'SC LPA — Inset 2', amendment: null,
+    permittedUses: ['Dwelling House (Use Class 12)'],
+    restrictions: ['SC H1 applies', 'Lot (465 m² / 0.047 ha) below 0.2 ha — multi-family not eligible (SC H2)'],
+    minLotMultiFamily: 0.2,
+    floodRisk: 'Not identified in order text'
+  },
+  p6: {
+    lpa: 'Santa Cruz', zone: 'Residential', zoneClass: 'residential',
+    doRef: 'SC LPA — Inset 2', amendment: null,
+    permittedUses: ['Dwelling House (Use Class 12) — existing use: single family'],
+    restrictions: ['Existing single-family use — change of use to multi-family or commercial requires permission', 'SC H5: any intensification assessed against low-income housing mix requirements if applicable'],
+    minLotMultiFamily: 0.2,
+    floodRisk: 'Not identified in order text'
+  },
+  p7: {
+    lpa: 'Santa Cruz', zone: 'Residential', zoneClass: 'residential',
+    doRef: 'SC LPA — Inset 2', amendment: null,
+    permittedUses: ['Dwelling House (Use Class 12)'],
+    restrictions: ['SC H1, SC H2 apply', 'Small lot (551 m² / 0.055 ha) — below 0.2 ha multi-family minimum'],
+    minLotMultiFamily: 0.2,
+    floodRisk: 'Not identified in order text'
+  }
+};
+
+/* ── V1 RULES ENGINE (simplified deterministic layer) ─────────── */
+function runV1(parcelId, proposedUseClass, units) {
+  var p = PARCELS.find(function(x){ return x.id === parcelId; });
+  var z = ZONING[parcelId];
+  if (!p || !z) return null;
+
+  var flags = [];
+  var verdict = 'PASS';
+  var sizeHa = p.size / 10000;
+
+  // H1 — residential use only
+  if (proposedUseClass !== 12) {
+    flags.push({ rule: 'SC H1', detail: 'Non-residential use not normally permitted on this residential/residentially-zoned lot.', sev: 'FAIL' });
+    verdict = 'FAIL';
+  }
+
+  // H2 — multi-family lot size
+  if (units > 1) {
+    if (sizeHa < z.minLotMultiFamily) {
+      flags.push({ rule: 'SC H2', detail: 'Lot is ' + (sizeHa * 10000).toFixed(0) + ' m² (' + sizeHa.toFixed(3) + ' ha) — below the 0.2 ha minimum for multi-family development.', sev: 'FAIL' });
+      verdict = 'FAIL';
+    } else {
+      flags.push({ rule: 'SC H2', detail: 'Lot (' + (sizeHa * 10000).toFixed(0) + ' m² / ' + sizeHa.toFixed(3) + ' ha) meets 0.2 ha minimum. LPA will consider character of surrounding development.', sev: 'REVIEW' });
+      if (verdict === 'PASS') verdict = 'REVIEW';
+    }
+    // H3 — density band unknown
+    flags.push({ rule: 'SC H3', detail: 'Density band (250 / 125 / 75 habitable rooms/ha) for this lot is shown on Inset 2 of the zoning map — not determinable from order text alone.', sev: 'REVIEW' });
+    if (verdict === 'PASS') verdict = 'REVIEW';
+  }
+
+  // H12 — flood
+  if (z.floodRisk && z.floodRisk.toLowerCase().indexOf('unknown') !== -1) {
+    flags.push({ rule: 'SC H12', detail: 'Flood susceptibility of this specific lot cannot be confirmed from the Development Order text alone — requires the hazard/flood layer or LPA guidance.', sev: 'REVIEW' });
+    if (verdict === 'PASS') verdict = 'REVIEW';
+  }
+
+  // NWA / NEPA referral threshold (300 m²)
+  if (units > 1 && p.size >= 300) {
+    flags.push({ rule: 'Referral threshold', detail: 'Proposed multi-unit development on a lot ≥300 m² — NWA and NEPA referral likely required (St. Elizabeth Municipal Corporation guidance).', sev: 'REVIEW' });
+    if (verdict === 'PASS') verdict = 'REVIEW';
+  }
+
+  // 2024 amendment note for p3
+  if (parcelId === 'p3' && proposedUseClass === 12) {
+    flags.unshift({ rule: 'SC2 — 2024 amendment', detail: 'This lot was rezoned Agricultural→Residential by the 2024 Confirmation Notification. Residential development (Use Class 12) is now the permitted use. Agricultural use lawful until redevelopment.', sev: 'INFO' });
+  }
+
+  return { verdict: verdict, flags: flags, sizeHa: sizeHa };
+}
+
+/* ── MAP SETUP ────────────────────────────────────────────────── */
+var map = L.map('map', { zoomControl: false, attributionControl: true })
+            .setView([18.061, -77.675], 15);
+
+L.control.zoom({ position: 'bottomright' }).addTo(map);
+
+var baseLayers = {
+  'default':   L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', { maxZoom: 19, attribution: '© CARTO © OpenStreetMap contributors' }),
+  'satellite': L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19, maxNativeZoom: 17, attribution: 'Esri' }),
+  'terrain':   L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19, maxNativeZoom: 15, attribution: 'Esri' })
+};
+var activeBase = baseLayers['default'].addTo(map);
+
+['default','satellite','terrain'].forEach(function(k) {
+  document.getElementById('base-'+k).addEventListener('click', function() {
+    map.removeLayer(activeBase);
+    activeBase = baseLayers[k].addTo(map);
+    document.querySelectorAll('.bm-btn').forEach(function(b){ b.classList.remove('active'); });
+    this.classList.add('active');
+  });
+});
+
+/* ── STATE ────────────────────────────────────────────────────── */
+var matched = [];        // current result set
+var selectedId = null;  // currently selected parcel id
+var layers = {};        // parcelId -> leaflet layer
+
+/* ── RENDER PARCEL POLYGONS ───────────────────────────────────── */
+function styleForParcel(p, isSelected) {
+  return {
+    color: isSelected ? '#3b6682' : '#518eb4',
+    weight: isSelected ? 2 : 1.5,
+    fillColor: isSelected ? '#3b6682' : '#518eb4',
+    fillOpacity: isSelected ? 0.45 : 0.25
+  };
+}
+
+PARCELS.forEach(function(p) {
+  var layer = L.polygon(p.coords, styleForParcel(p, false)).addTo(map);
+  layer.on('click', function(e) {
+    L.DomEvent.stopPropagation(e);
+    selectParcel(p.id);
+  });
+  layers[p.id] = layer;
+});
+
+/* ── POINT-IN-POLYGON ─────────────────────────────────────────── */
+function pip(lat, lng, ring) {
+  var inside = false;
+  for (var i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+    var yi = ring[i][0], xi = ring[i][1], yj = ring[j][0], xj = ring[j][1];
+    if (((yi > lat) !== (yj > lat)) && (lng < (xj - xi) * (lat - yi) / (yj - yi) + xi))
+      inside = !inside;
+  }
+  return inside;
+}
+
+/* ── MAP CLICK ────────────────────────────────────────────────── */
+var zoomHint = document.getElementById('zoom-hint');
+var zoomHintTimer;
+
+map.on('click', function(e) {
+  if (map.getZoom() < 15) {
+    showZoomHint();
+    return;
+  }
+  var found = PARCELS.find(function(p){ return pip(e.latlng.lat, e.latlng.lng, p.coords); });
+  if (found) {
+    selectParcel(found.id);
+  }
+});
+
+function showZoomHint() {
+  zoomHint.classList.add('show');
+  clearTimeout(zoomHintTimer);
+  zoomHintTimer = setTimeout(function(){ zoomHint.classList.remove('show'); }, 2500);
+}
+
+/* ── SELECT / DESELECT ────────────────────────────────────────── */
+function selectParcel(id) {
+  selectedId = id;
+
+  // update polygon styles
+  PARCELS.forEach(function(p) {
+    if (layers[p.id]) layers[p.id].setStyle(styleForParcel(p, p.id === id));
+    if (p.id === id) layers[p.id].bringToFront();
+  });
+
+  // highlight card
+  document.querySelectorAll('.result-card').forEach(function(c) {
+    c.classList.toggle('selected', c.dataset.id === id);
+  });
+
+  renderD2(id);
+
+  // make sure D2 panel is visible
+  document.getElementById('panel-d2').classList.remove('hidden');
+  document.getElementById('toggle-d2').style.display = 'none';
+}
+
+/* ── D1: SEARCH ───────────────────────────────────────────────── */
+function runSearch() {
+  var raw = document.getElementById('search').value.trim();
+  if (!raw) { matched = PARCELS; renderD1Cards(); return; }
+
+  var tokens = raw.split(/[,\n]/).map(function(t){ return t.trim().toLowerCase(); }).filter(Boolean);
+  var found = [], notFound = [];
+
+  tokens.forEach(function(tok) {
+    var hit = PARCELS.find(function(p) {
+      return p.lv.toLowerCase().includes(tok) ||
+             p.volfol.toLowerCase().includes(tok) ||
+             p.scheme.toLowerCase().includes(tok) ||
+             p.lot.toLowerCase() === tok;
+    });
+    if (hit && !found.find(function(m){ return m.id === hit.id; })) found.push(hit);
+    else if (!hit) notFound.push(tok);
+  });
+
+  matched = found;
+  renderD1Status(found.length, tokens.length, notFound);
+  renderD1Cards();
+
+  if (found.length) {
+    var group = L.featureGroup(found.map(function(p){ return layers[p.id]; }));
+    map.fitBounds(group.getBounds(), { padding: [60, 60], maxZoom: 17 });
+    if (found.length === 1) selectParcel(found[0].id);
+  }
+}
+
+function renderD1Status(matched, total, notFound) {
+  var body = document.getElementById('d1-body');
+  // remove existing status
+  var old = body.querySelector('.status-line');
+  if (old) old.remove();
+  var div = document.createElement('div');
+  div.className = 'status-line' + (notFound.length ? ' error' : '');
+  div.textContent = matched + ' of ' + total + ' identifier' + (total === 1 ? '' : 's') + ' matched.' +
+    (notFound.length ? ' Not found: ' + notFound.join(', ') : '');
+  body.insertBefore(div, body.firstChild);
+}
+
+function renderD1Cards() {
+  var container = document.getElementById('d1-cards');
+  container.innerHTML = '';
+
+  var list = matched.length ? matched : PARCELS;
+  list.forEach(function(p) {
+    var badgeClass = p.landClass === 'Residential' ? 'badge-residential' :
+                     p.landClass === 'Agricultural' ? 'badge-agricultural' : 'badge-default';
+    var card = document.createElement('div');
+    card.className = 'result-card' + (p.id === selectedId ? ' selected' : '');
+    card.dataset.id = p.id;
+    card.innerHTML =
+      '<div class="rc-scheme">' + esc(p.scheme) + '</div>' +
+      '<div class="rc-row"><span class="rc-label">Valuation no.</span><span class="rc-val">' + esc(p.lv) + '</span></div>' +
+      '<div class="rc-row"><span class="rc-label">Volume/folio</span><span class="rc-val">' + (p.volfol || '<span style="color:#aaa">Not titled</span>') + '</span></div>' +
+      '<div class="rc-row"><span class="rc-label">Area</span><span class="rc-val">' + p.size + ' m²</span></div>' +
+      '<span class="rc-badge ' + badgeClass + '">' + esc(p.landClass) + '</span>';
+
+    card.addEventListener('click', function() {
+      map.fitBounds(layers[p.id].getBounds(), { padding: [80, 80], maxZoom: 18 });
+      selectParcel(p.id);
+    });
+    container.appendChild(card);
+  });
+}
+
+// Show all cards on load
+renderD1Cards();
+
+document.getElementById('search-btn').addEventListener('click', runSearch);
+document.getElementById('search').addEventListener('keydown', function(e){ if (e.key === 'Enter') runSearch(); });
+
+/* ── D2: ZONING PANEL ─────────────────────────────────────────── */
+function renderD2(parcelId) {
+  var p = PARCELS.find(function(x){ return x.id === parcelId; });
+  var z = ZONING[parcelId];
+  var body = document.getElementById('d2-body');
+  if (!p || !z) return;
+
+  var sizeHa = (p.size / 10000).toFixed(3);
+  var ztagClass = z.zoneClass === 'residential' ? 'ztag-residential' :
+                  z.zoneClass === 'agricultural' ? 'ztag-agricultural' : 'ztag-pending';
+
+  // Run V1 with default: single-family (use class 12, units=1)
+  var v1single = runV1(parcelId, 12, 1);
+  // Run V1 with: multi-family (use class 12, units=6) for comparison
+  var v1multi  = runV1(parcelId, 12, 6);
+
+  body.innerHTML = '';
+
+  // Zone hero
+  var hero = document.createElement('div');
+  hero.className = 'zone-hero';
+  hero.innerHTML =
+    '<div class="ztag ' + ztagClass + '">' +
+    svgMapPin() + esc(z.zone) + '</div>' +
+    '<h2>' + esc(p.scheme) + '</h2>' +
+    '<div class="zone-ref">LPA: ' + esc(z.lpa) + ' · ' + esc(z.doRef) + '</div>';
+  body.appendChild(hero);
+
+  // Amendment notice
+  if (z.amendment) {
+    var sec = document.createElement('div');
+    sec.className = 'zone-section';
+    sec.innerHTML = '<div class="zone-sec-title">2024 Amendment</div>' +
+      '<p class="amendment-notice"><strong>Rezoned:</strong> ' + esc(z.amendment) + '</p>';
+    body.appendChild(sec);
+  }
+
+  // Parcel details
+  var detSec = document.createElement('div');
+  detSec.className = 'zone-section';
+  detSec.innerHTML = '<div class="zone-sec-title">Parcel details</div>' +
+    zdRow('Valuation no.', p.lv) +
+    zdRow('Volume/folio', p.volfol || 'Not titled') +
+    zdRow('Recorded use', p.landType) +
+    zdRow('Lot size', p.size + ' m² (' + sizeHa + ' ha)') +
+    zdRow('Location', p.location);
+  body.appendChild(detSec);
+
+  // Permitted uses
+  var usesSec = document.createElement('div');
+  usesSec.className = 'zone-section';
+  usesSec.innerHTML = '<div class="zone-sec-title">Permitted uses</div>' +
+    '<ul class="policy-list">' +
+    z.permittedUses.map(function(u){ return '<li><span class="pkey">✓</span>' + esc(u) + '</li>'; }).join('') +
+    '</ul>';
+  body.appendChild(usesSec);
+
+  // V1 — single family verdict
+  appendV1Section(body, 'V1 Check — Single family dwelling', v1single, 1);
+  // V1 — multi-family verdict
+  appendV1Section(body, 'V1 Check — 6-unit multi-family (scenario)', v1multi, 6);
+
+  // Flood / referral note
+  var refSec = document.createElement('div');
+  refSec.className = 'zone-section';
+  refSec.innerHTML = '<div class="zone-sec-title">Referral & risk notes</div>' +
+    '<div class="referral-row">' +
+    svgAlert() +
+    '<span><strong>Flood risk (SC H12):</strong> ' + esc(z.floodRisk) + '</span>' +
+    '</div>';
+  body.appendChild(refSec);
+}
+
+function appendV1Section(body, title, v1, units) {
+  var sec = document.createElement('div');
+  sec.className = 'zone-section';
+
+  var vpClass = v1.verdict === 'PASS' ? 'verdict-pass' :
+                v1.verdict === 'FAIL' ? 'verdict-fail' : 'verdict-needs-review';
+  var vpLabel = v1.verdict === 'PASS' ? 'PASS' :
+                v1.verdict === 'FAIL' ? 'FAIL' : 'NEEDS REVIEW';
+
+  var flagsHtml = v1.flags.map(function(f) {
+    var fc = f.sev === 'FAIL' ? 'flag-fail' : f.sev === 'REVIEW' ? 'flag-review' : 'flag-pass';
+    return '<div class="flag-card ' + fc + '">' +
+      '<div class="flag-rule">' + esc(f.rule) + '</div>' +
+      '<div class="flag-detail">' + esc(f.detail) + '</div>' +
+      '</div>';
+  }).join('');
+
+  sec.innerHTML =
+    '<div class="zone-sec-title">' + esc(title) + '</div>' +
+    '<div class="verdict-row"><span class="verdict-pill ' + vpClass + '">' + vpLabel + '</span>' +
+    '<span class="verdict-desc">' + v1.flags.length + ' flag' + (v1.flags.length !== 1 ? 's' : '') + '</span></div>' +
+    flagsHtml;
+  body.appendChild(sec);
+}
+
+function zdRow(k, v) {
+  return '<div class="zd-row"><span class="zd-key">' + esc(k) + '</span><span class="zd-val">' + esc(String(v)) + '</span></div>';
+}
+
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function svgMapPin() {
+  return '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> ';
+}
+
+function svgAlert() {
+  return '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:1px"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>';
+}
+
+/* ── PANEL TOGGLES ────────────────────────────────────────────── */
+function wireToggle(panelId, btnId) {
+  var panel = document.getElementById(panelId);
+  var btn   = document.getElementById(btnId);
+
+  // close button inside panel header
+  var closeBtn = document.createElement('button');
+  closeBtn.style.cssText = 'position:absolute;top:10px;right:10px;background:none;border:none;cursor:pointer;color:rgba(68,68,68,0.4);padding:4px;line-height:0;';
+  closeBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
+  closeBtn.title = 'Close panel';
+  panel.querySelector('.panel-header').style.position = 'relative';
+  panel.querySelector('.panel-header').appendChild(closeBtn);
+
+  closeBtn.addEventListener('click', function() {
+    panel.classList.add('hidden');
+    btn.style.display = 'flex';
+  });
+  btn.addEventListener('click', function() {
+    panel.classList.remove('hidden');
+    btn.style.display = 'none';
+  });
+}
+
+wireToggle('panel-d1', 'toggle-d1');
+wireToggle('panel-d2', 'toggle-d2');
+
+})();
+</script>
+</body>
+</html>
