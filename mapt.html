@@ -710,8 +710,12 @@ nav {
 .wordmark span { color: var(--blue); }
 
 /* search bar in nav */
+.search-group {
+  flex: 1; max-width: 540px;
+  display: flex; align-items: center; gap: 6px;
+}
 .search-wrap {
-  flex: 1; max-width: 480px;
+  flex: 1;
   position: relative;
 }
 .search-wrap input {
@@ -733,13 +737,20 @@ nav {
   color: rgba(255,255,255,0.45); pointer-events: none;
 }
 .search-btn {
-  position: absolute; right: 6px; top: 50%; transform: translateY(-50%);
-  height: 24px; padding: 0 10px; font-size: 12px; font-family: var(--font); font-weight: 500;
-  background: var(--blue); color: var(--white);
-  border: none; border-radius: 5px; cursor: pointer;
-  transition: background 0.12s;
+  flex-shrink: 0;
+  height: 36px; padding: 0 14px; font-size: 12.5px; font-family: var(--font); font-weight: 500;
+  border-radius: 8px; cursor: pointer;
+  transition: background 0.12s, border-color 0.12s;
 }
-.search-btn:hover { background: #5fa0c8; }
+.search-btn.primary {
+  background: var(--blue); color: var(--white); border: none;
+}
+.search-btn.primary:hover { background: #5fa0c8; }
+.search-btn.ghost {
+  background: transparent; color: rgba(255,255,255,0.75);
+  border: 1px solid rgba(255,255,255,0.28);
+}
+.search-btn.ghost:hover { background: rgba(255,255,255,0.08); color: var(--white); border-color: rgba(255,255,255,0.45); }
 
 .basemap-toggle {
   margin-left: 12px; display: flex; gap: 4px;
@@ -1005,11 +1016,13 @@ nav {
   <nav>
     <span class="wordmark">ma<span>pt</span></span>
 
-    <div class="search-wrap">
-      <svg class="search-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-      <input id="search" type="text" placeholder="Valuation no., Volume/folio, scheme name…">
-      <button class="search-btn" id="search-btn">Search</button>
-      <button class="search-btn" id="clear-btn" style="right:78px;background:transparent;border:1px solid rgba(255,255,255,0.3);">Clear</button>
+    <div class="search-group">
+      <div class="search-wrap">
+        <svg class="search-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input id="search" type="text" placeholder="Valuation no., Volume/folio, scheme name…">
+      </div>
+      <button class="search-btn primary" id="search-btn">Search</button>
+      <button class="search-btn ghost" id="clear-btn">Clear</button>
     </div>
 
     <div class="basemap-toggle">
