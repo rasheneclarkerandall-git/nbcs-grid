@@ -1,1 +1,5 @@
 node_modules/
+
+# Shapefile too large for git — store separately, re-run build_zone_data.py to reproduce
+georef/shapefile/
+georef/__pycache__/
