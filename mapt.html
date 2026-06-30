@@ -1103,39 +1103,98 @@ var PARCELS = [
   {
     id: 'p1', lv: '14204012097', volfol: '1353/905', lot: '112',
     scheme: '112 Bybrook', location: 'Santa Cruz P.O.', landClass: 'Residential', landType: 'Vacant lot', size: 447,
+    jad2001: {e: 678450.5, n: 657032.9},
     coords: [[18.062348,-77.675672],[18.062257,-77.675953],[18.062386,-77.676008],[18.062466,-77.675728],[18.062348,-77.675672]]
   },
   {
     id: 'p2', lv: '14204014035', volfol: '1383/898', lot: '55',
     scheme: '55 Bybrook', location: 'Santa Cruz P.O.', landClass: 'Residential', landType: 'Vacant lot', size: 547,
+    jad2001: {e: 678782.8, n: 656562.1},
     coords: [[18.058169,-77.672584],[18.058004,-77.672603],[18.058025,-77.672839],[18.058076,-77.672833],[18.058334,-77.672565],[18.058169,-77.672584]]
   },
   {
     id: 'p3', lv: '14204012036', volfol: '1160/264', lot: '',
     scheme: 'Bybrook (large parcel)', location: 'Santa Cruz P.O.', landClass: 'Agricultural', landType: 'Ruinate — suitable for intensive agriculture', size: 2023,
+    jad2001: {e: 678352.0, n: 657570.1},
     coords: [[18.067732,-77.676334],[18.066171,-77.675959],[18.066210,-77.676630],[18.066709,-77.677230],[18.067029,-77.677614],[18.067231,-77.677291],[18.067361,-77.677125],[18.067655,-77.676824],[18.067735,-77.676697],[18.067769,-77.676544],[18.067757,-77.676430],[18.067732,-77.676334]]
   },
   {
     id: 'p4', lv: '14204014013', volfol: '1383/875', lot: '32',
     scheme: '32 Bybrook', location: 'Santa Cruz P.O.', landClass: 'Residential', landType: 'Vacant lot', size: 563,
+    jad2001: {e: 678674.1, n: 656669.4},
     coords: [[18.059148,-77.673492],[18.059005,-77.673508],[18.059035,-77.673866],[18.059073,-77.673862],[18.059173,-77.673851],[18.059148,-77.673492]]
   },
   {
     id: 'p5', lv: '14204014031', volfol: '1383/894', lot: '51',
     scheme: '51 Bybrook', location: 'Santa Cruz P.O.', landClass: 'Residential', landType: 'Vacant lot', size: 465,
+    jad2001: {e: 678734.8, n: 656533.4},
     coords: [[18.057991,-77.673049],[18.057714,-77.673082],[18.057728,-77.673223],[18.058007,-77.673195],[18.057991,-77.673049]]
   },
   {
     id: 'p6', lv: '14204012085', volfol: '1353/893', lot: '100',
     scheme: '100 Bybrook', location: 'Santa Cruz P.O.', landClass: 'Residential', landType: 'Single family dwelling', size: 584,
+    jad2001: {e: 678431.1, n: 656970.2},
     coords: [[18.061880,-77.675864],[18.061766,-77.675859],[18.061657,-77.675926],[18.061778,-77.676175],[18.061815,-77.676151],[18.061885,-77.676154],[18.061880,-77.675864]]
   },
   {
     id: 'p7', lv: '14204012073', volfol: '1353/881', lot: '88',
     scheme: '88 Bybrook', location: 'Santa Cruz P.O.', landClass: 'Residential', landType: 'Vacant lot', size: 551,
+    jad2001: {e: 678354.8, n: 657063.5},
     coords: [[18.062617,-77.676562],[18.062520,-77.676863],[18.062674,-77.676935],[18.062739,-77.676618],[18.062617,-77.676562]]
   }
 ];
+
+/* ── ZONE POLYGONS (JAD2001 EPSG:3448) ───────────────────────────────────────
+   Exterior rings in [easting, northing] order.
+   Empty arrays = stub awaiting digitizing from the PDO raster insets.
+   Once digitized, lookupZone() below performs point-in-polygon to replace
+   the hardcoded ZONING entries with spatially-derived zone data. ─────────── */
+var ZONE_POLYGONS = [
+  {id:'SC1', lpa:'Santa Cruz', zoneType:'Residential',           doRef:'SC H1', mapKey:'santa_cruz',           ring:[]},
+  {id:'SC2', lpa:'Santa Cruz', zoneType:'Residential (2024)',    doRef:'SC H2', mapKey:'santa_cruz',           ring:[]},
+  {id:'SC3', lpa:'Santa Cruz', zoneType:'Commercial',            doRef:'SC H3', mapKey:'santa_cruz',           ring:[]},
+  {id:'SC4', lpa:'Santa Cruz', zoneType:'Residential',           doRef:'SC H4', mapKey:'santa_cruz',           ring:[]},
+  {id:'SC5', lpa:'Santa Cruz', zoneType:'Open Space',            doRef:'SC H5', mapKey:'santa_cruz',           ring:[]},
+  {id:'BR1', lpa:'Black River', zoneType:'Residential',          doRef:'BR H1', mapKey:'black_river',          ring:[]},
+  {id:'BR2', lpa:'Black River', zoneType:'Commercial / Mixed',   doRef:'BR H2', mapKey:'black_river',          ring:[]},
+  {id:'BR3', lpa:'Black River', zoneType:'Industrial / Port',    doRef:'BR H3', mapKey:'black_river',          ring:[]},
+  {id:'JBS1',lpa:'Junction / Bull Savanna', zoneType:'Residential', doRef:'JBS H1', mapKey:'junction_bull_savanna', ring:[]},
+  {id:'JBS2',lpa:'Junction / Bull Savanna', zoneType:'Commercial',  doRef:'JBS H2', mapKey:'junction_bull_savanna', ring:[]},
+  {id:'JBS3',lpa:'Junction / Bull Savanna', zoneType:'Residential', doRef:'JBS H3', mapKey:'junction_bull_savanna', ring:[]},
+  {id:'JBS4',lpa:'Junction / Bull Savanna', zoneType:'Agricultural',doRef:'JBS H4', mapKey:'junction_bull_savanna', ring:[]},
+  {id:'TB1', lpa:'Treasure Beach', zoneType:'Tourist / Resort',  doRef:'TB H1', mapKey:'treasure_beach',       ring:[]},
+  {id:'TB2', lpa:'Treasure Beach', zoneType:'Residential',       doRef:'TB H2', mapKey:'treasure_beach',       ring:[]},
+  {id:'TB3', lpa:'Treasure Beach', zoneType:'Open Space / Beach',doRef:'TB H3', mapKey:'treasure_beach',       ring:[]},
+  {id:'TB4', lpa:'Treasure Beach', zoneType:'Agricultural',      doRef:'TB H4', mapKey:'treasure_beach',       ring:[]},
+  {id:'TB5', lpa:'Treasure Beach', zoneType:'Residential',       doRef:'TB H5', mapKey:'treasure_beach',       ring:[]},
+  {id:'TB6', lpa:'Treasure Beach', zoneType:'Tourist / Resort',  doRef:'TB H6', mapKey:'treasure_beach',       ring:[]},
+  {id:'TB7', lpa:'Treasure Beach', zoneType:'Commercial',        doRef:'TB H7', mapKey:'treasure_beach',       ring:[]},
+  {id:'TB8', lpa:'Treasure Beach', zoneType:'Conservation',      doRef:'TB H8', mapKey:'treasure_beach',       ring:[]},
+  {id:'S1',  lpa:'Southfield',     zoneType:'Residential',       doRef:'S H1',  mapKey:'southfield',           ring:[]},
+];
+
+/* Point-in-polygon (ray-casting) for JAD2001 coordinates. */
+function pointInRing(e, n, ring) {
+  var inside = false, j = ring.length - 1;
+  for (var i = 0; i < ring.length; i++) {
+    var xi = ring[i][0], yi = ring[i][1];
+    var xj = ring[j][0], yj = ring[j][1];
+    if (((yi > n) !== (yj > n)) && (e < (xj - xi) * (n - yi) / (yj - yi) + xi))
+      inside = !inside;
+    j = i;
+  }
+  return inside;
+}
+
+function lookupZone(jad2001) {
+  if (!jad2001) return null;
+  for (var i = 0; i < ZONE_POLYGONS.length; i++) {
+    var z = ZONE_POLYGONS[i];
+    if (z.ring && z.ring.length >= 3 && pointInRing(jad2001.e, jad2001.n, z.ring))
+      return z;
+  }
+  return null; // falls back to ZONING object
+}
 
 /* ── ZONING DATA (D2) ─────────────────────────────────────────── */
 /* Per St. Elizabeth Provisional Development Order 2018 + 2024 Confirmation */
@@ -1495,9 +1554,18 @@ document.getElementById('search').addEventListener('keydown', function(e){ if (e
 /* ── D2: ZONING PANEL ─────────────────────────────────────────── */
 function renderD2(parcelId) {
   var p = PARCELS.find(function(x){ return x.id === parcelId; });
-  var z = ZONING[parcelId];
   var body = document.getElementById('d2-body');
-  if (!p || !z) return;
+  if (!p) return;
+
+  // Prefer spatial zone lookup; fall back to ZONING object while polygons are stubs
+  var spatialZone = lookupZone(p.jad2001);
+  var z = ZONING[parcelId];
+  if (!z) return;
+
+  // Annotate zone header with spatial match if available
+  var spatialNote = spatialZone
+    ? ' <span style="font-size:10px;opacity:0.6;">[spatial: ' + spatialZone.id + ']</span>'
+    : '';
 
   var sizeHa = (p.size / 10000).toFixed(3);
   var ztagClass = z.zoneClass === 'residential' ? 'ztag-residential' :
@@ -1537,7 +1605,8 @@ function renderD2(parcelId) {
     zdRow('Volume/folio', p.volfol || 'Not titled') +
     zdRow('Recorded use', p.landType) +
     zdRow('Lot size', p.size + ' m² (' + sizeHa + ' ha)') +
-    zdRow('Location', p.location);
+    zdRow('Location', p.location) +
+    (p.jad2001 ? zdRow('Centroid (JAD2001)', 'E ' + p.jad2001.e.toFixed(0) + '  N ' + p.jad2001.n.toFixed(0)) : '');
   body.appendChild(detSec);
 
   // Permitted uses

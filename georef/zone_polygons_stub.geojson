@@ -1,0 +1,390 @@
+{
+  "type": "FeatureCollection",
+  "crs": {
+    "type": "name",
+    "properties": {
+      "name": "EPSG:3448"
+    }
+  },
+  "notes": "JAD2001 (EPSG:3448) coordinates. All coordinate arrays are empty stubs. Digitize from the rasterized PDO inset images using transforms.json: click polygon vertices on the image, convert pixel->JAD2001 via pixel_to_jad2001().",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "zone_id": "SC1",
+        "lpa": "Santa Cruz",
+        "zone_type": "Residential",
+        "do_ref": "SC H1",
+        "map_key": "santa_cruz",
+        "description": "Amendment zone SC1 \u2014 residential, north of Malvern\u2013Santa Cruz Rd",
+        "digitized": false
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          []
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "zone_id": "SC2",
+        "lpa": "Santa Cruz",
+        "zone_type": "Residential (rezoned 2024)",
+        "do_ref": "SC H2",
+        "map_key": "santa_cruz",
+        "description": "Large parcel rezoned from Agricultural to Residential in 2024 Confirmation Notification",
+        "digitized": false
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          []
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "zone_id": "SC3",
+        "lpa": "Santa Cruz",
+        "zone_type": "Commercial",
+        "do_ref": "SC H3",
+        "map_key": "santa_cruz",
+        "description": "Town-centre commercial strip",
+        "digitized": false
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          []
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "zone_id": "SC4",
+        "lpa": "Santa Cruz",
+        "zone_type": "Residential",
+        "do_ref": "SC H4",
+        "map_key": "santa_cruz",
+        "description": "Residential zone east of town centre",
+        "digitized": false
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          []
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "zone_id": "SC5",
+        "lpa": "Santa Cruz",
+        "zone_type": "Open Space",
+        "do_ref": "SC H5",
+        "map_key": "santa_cruz",
+        "description": "Open space / recreation buffer",
+        "digitized": false
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          []
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "zone_id": "BR1",
+        "lpa": "Black River",
+        "zone_type": "Residential",
+        "do_ref": "BR H1",
+        "map_key": "black_river",
+        "description": "Residential zone, northern Black River",
+        "digitized": false
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          []
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "zone_id": "BR2",
+        "lpa": "Black River",
+        "zone_type": "Commercial / Mixed",
+        "do_ref": "BR H2",
+        "map_key": "black_river",
+        "description": "Urban-core commercial zone \u2014 see also Inset 1.1",
+        "digitized": false
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          []
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "zone_id": "BR3",
+        "lpa": "Black River",
+        "zone_type": "Industrial / Port",
+        "do_ref": "BR H3",
+        "map_key": "black_river",
+        "description": "Port and light-industrial zone, Black River waterfront",
+        "digitized": false
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          []
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "zone_id": "JBS1",
+        "lpa": "Junction / Bull Savanna",
+        "zone_type": "Residential",
+        "do_ref": "JBS H1",
+        "map_key": "junction_bull_savanna",
+        "description": "Residential zone, Junction",
+        "digitized": false
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          []
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "zone_id": "JBS2",
+        "lpa": "Junction / Bull Savanna",
+        "zone_type": "Commercial",
+        "do_ref": "JBS H2",
+        "map_key": "junction_bull_savanna",
+        "description": "Commercial strip, Junction main road",
+        "digitized": false
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          []
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "zone_id": "JBS3",
+        "lpa": "Junction / Bull Savanna",
+        "zone_type": "Residential",
+        "do_ref": "JBS H3",
+        "map_key": "junction_bull_savanna",
+        "description": "Residential zone, Bull Savanna",
+        "digitized": false
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          []
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "zone_id": "JBS4",
+        "lpa": "Junction / Bull Savanna",
+        "zone_type": "Agricultural",
+        "do_ref": "JBS H4",
+        "map_key": "junction_bull_savanna",
+        "description": "Agricultural buffer, outskirts",
+        "digitized": false
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          []
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "zone_id": "TB1",
+        "lpa": "Treasure Beach",
+        "zone_type": "Tourist / Resort",
+        "do_ref": "TB H1",
+        "map_key": "treasure_beach",
+        "description": "Coastal tourist zone, Treasure Beach",
+        "digitized": false
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          []
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "zone_id": "TB2",
+        "lpa": "Treasure Beach",
+        "zone_type": "Residential",
+        "do_ref": "TB H2",
+        "map_key": "treasure_beach",
+        "description": "Residential zone behind coast",
+        "digitized": false
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          []
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "zone_id": "TB3",
+        "lpa": "Treasure Beach",
+        "zone_type": "Open Space / Beach",
+        "do_ref": "TB H3",
+        "map_key": "treasure_beach",
+        "description": "Beach and open-space buffer",
+        "digitized": false
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          []
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "zone_id": "TB4",
+        "lpa": "Treasure Beach",
+        "zone_type": "Agricultural",
+        "do_ref": "TB H4",
+        "map_key": "treasure_beach",
+        "description": "Agricultural hinterland",
+        "digitized": false
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          []
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "zone_id": "TB5",
+        "lpa": "Treasure Beach",
+        "zone_type": "Residential",
+        "do_ref": "TB H5",
+        "map_key": "treasure_beach",
+        "description": "Residential, inland Treasure Beach",
+        "digitized": false
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          []
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "zone_id": "TB6",
+        "lpa": "Treasure Beach",
+        "zone_type": "Tourist / Resort",
+        "do_ref": "TB H6",
+        "map_key": "treasure_beach",
+        "description": "Secondary tourist zone",
+        "digitized": false
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          []
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "zone_id": "TB7",
+        "lpa": "Treasure Beach",
+        "zone_type": "Commercial",
+        "do_ref": "TB H7",
+        "map_key": "treasure_beach",
+        "description": "Small commercial node",
+        "digitized": false
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          []
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "zone_id": "TB8",
+        "lpa": "Treasure Beach",
+        "zone_type": "Conservation",
+        "do_ref": "TB H8",
+        "map_key": "treasure_beach",
+        "description": "Coastal conservation zone",
+        "digitized": false
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          []
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "zone_id": "S1",
+        "lpa": "Southfield",
+        "zone_type": "Residential",
+        "do_ref": "S H1",
+        "map_key": "southfield",
+        "description": "Southfield residential zone",
+        "digitized": false
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          []
+        ]
+      }
+    }
+  ]
+}

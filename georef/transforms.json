@@ -1,0 +1,213 @@
+{
+  "map1_parish_overview": {
+    "easting_per_px": 12.70100464219553,
+    "easting_offset": 633067.2929297299,
+    "easting_r2": 0.9999999922840153,
+    "northing_per_py": -12.698412084128337,
+    "northing_offset": 690460.950907407,
+    "northing_r2": 0.9999999516250968,
+    "n_x_ticks": 7,
+    "n_y_ticks": 5,
+    "image_size": [
+      7200,
+      4800
+    ]
+  },
+  "map2_density": {
+    "easting_per_px": 24.129929859995254,
+    "easting_offset": 603396.7532152864,
+    "easting_r2": 0.9999999778517255,
+    "northing_per_py": -24.12787669537327,
+    "northing_offset": 721279.4450558714,
+    "northing_r2": 0.9999999562036576,
+    "n_x_ticks": 13,
+    "n_y_ticks": 9,
+    "image_size": [
+      7200,
+      4800
+    ]
+  },
+  "black_river": {
+    "easting_per_px": 2.159093456211543,
+    "easting_offset": 653317.2559636832,
+    "easting_r2": 0.9999999877278096,
+    "northing_per_py": -2.1588834817698044,
+    "northing_offset": 660183.8004866295,
+    "northing_r2": 0.9999999689545681,
+    "n_x_ticks": 12,
+    "n_y_ticks": 8,
+    "image_size": [
+      7200,
+      4800
+    ]
+  },
+  "santa_cruz": {
+    "easting_per_px": 1.3970661471495496,
+    "easting_offset": 671956.5911988317,
+    "easting_r2": 0.9999999900418681,
+    "northing_per_py": -1.396843107261274,
+    "northing_offset": 658901.5224828913,
+    "northing_r2": 0.999999980488293,
+    "n_x_ticks": 7,
+    "n_y_ticks": 5,
+    "image_size": [
+      7200,
+      4800
+    ]
+  },
+  "junction_bull_savanna": {
+    "easting_per_px": 1.7144816307814414,
+    "easting_offset": 682082.4856870015,
+    "easting_r2": 0.9999999858471056,
+    "northing_per_py": -1.7142681976565548,
+    "northing_offset": 643636.8505792044,
+    "northing_r2": 0.999999985943644,
+    "n_x_ticks": 9,
+    "n_y_ticks": 7,
+    "image_size": [
+      7200,
+      4800
+    ]
+  },
+  "treasure_beach": {
+    "easting_per_px": 2.540107827036166,
+    "easting_offset": 661788.047700315,
+    "easting_r2": 0.9999999772585355,
+    "northing_per_py": -2.540044102519883,
+    "northing_offset": 645518.7768662887,
+    "northing_r2": 0.9999999689554095,
+    "n_x_ticks": 13,
+    "n_y_ticks": 10,
+    "image_size": [
+      7200,
+      4800
+    ]
+  },
+  "balaclava": {
+    "easting_per_px": 1.460615505376695,
+    "easting_offset": 677790.9234322201,
+    "easting_r2": 0.9999999727882944,
+    "northing_per_py": -1.4604326900905626,
+    "northing_offset": 673924.8293987103,
+    "northing_r2": 0.9999999895533208,
+    "n_x_ticks": 7,
+    "n_y_ticks": 4,
+    "image_size": [
+      7200,
+      4800
+    ]
+  },
+  "southfield": {
+    "easting_per_px": 1.5239753535369618,
+    "easting_offset": 675744.6254062072,
+    "easting_r2": 0.9999999703762634,
+    "northing_per_py": -1.5240915152429046,
+    "northing_offset": 640970.5414370862,
+    "northing_r2": 0.9999999886227512,
+    "n_x_ticks": 8,
+    "n_y_ticks": 6,
+    "image_size": [
+      7200,
+      4800
+    ]
+  },
+  "malvern": {
+    "easting_per_px": 2.222524415408194,
+    "easting_offset": 669306.2874801774,
+    "easting_r2": 0.9999999933068369,
+    "northing_per_py": -2.2224279644782365,
+    "northing_offset": 653813.7789453351,
+    "northing_r2": 0.9999999828500481,
+    "n_x_ticks": 12,
+    "n_y_ticks": 8,
+    "image_size": [
+      7200,
+      4800
+    ]
+  },
+  "lacovia": {
+    "easting_per_px": 1.1430810662085944,
+    "easting_offset": 665858.3342365703,
+    "easting_r2": 0.9999999761783669,
+    "northing_per_py": -1.143053072414062,
+    "northing_offset": 662552.3803482477,
+    "northing_r2": 0.9999999804014448,
+    "n_x_ticks": 6,
+    "n_y_ticks": 4,
+    "image_size": [
+      7200,
+      4800
+    ]
+  },
+  "maggotty": {
+    "easting_per_px": 0.9524716553272427,
+    "easting_offset": 666950.281006808,
+    "easting_r2": 0.9999999909279774,
+    "northing_per_py": -0.9523809523808399,
+    "northing_offset": 670726.6666666662,
+    "northing_r2": 1.0,
+    "n_x_ticks": 5,
+    "n_y_ticks": 3,
+    "image_size": [
+      7200,
+      4800
+    ]
+  },
+  "elderslie": {
+    "easting_per_px": 0.8890074179424498,
+    "easting_offset": 663740.3209450741,
+    "easting_r2": 0.9999999940724935,
+    "northing_per_py": -0.8890864636585767,
+    "northing_offset": 678169.5932429428,
+    "northing_r2": 1.0,
+    "n_x_ticks": 5,
+    "n_y_ticks": 2,
+    "image_size": [
+      7200,
+      4800
+    ]
+  },
+  "new_market": {
+    "easting_per_px": 1.3969615885073885,
+    "easting_offset": 649784.3690577673,
+    "easting_r2": 0.9999999856873281,
+    "northing_per_py": -1.3972333958812821,
+    "northing_offset": 671982.9535182994,
+    "northing_r2": 0.9999999414321618,
+    "n_x_ticks": 7,
+    "n_y_ticks": 5,
+    "image_size": [
+      7200,
+      4800
+    ]
+  },
+  "middle_quarters": {
+    "easting_per_px": 0.9524715689185316,
+    "easting_offset": 658638.2514977094,
+    "easting_r2": 0.9999999002077602,
+    "northing_per_py": -0.9523809523810197,
+    "northing_offset": 664550.952380953,
+    "northing_r2": 1.0,
+    "n_x_ticks": 5,
+    "n_y_ticks": 3,
+    "image_size": [
+      7200,
+      4800
+    ]
+  },
+  "black_river_urban_core_1_1": {
+    "easting_per_px": 2.1551724137931036,
+    "easting_offset": 655838.3620689656,
+    "easting_r2": null,
+    "northing_per_py": -2.1551724137931036,
+    "northing_offset": 658588.4137931034,
+    "northing_r2": null,
+    "n_x_ticks": 2,
+    "n_y_ticks": 0,
+    "image_size": [
+      7200,
+      4800
+    ],
+    "notes": "Easting from 2 printed ticks (659000, 660000). Northing scale from square-pixel assumption (|n/px|=|e/px|). Northing offset from single geographic anchor \u2014 VALIDATE visually before using. See close_gap_1_1.py for anchor details."
+  }
+}

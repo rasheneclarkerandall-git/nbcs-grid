@@ -1,0 +1,135 @@
+[
+  {
+    "id": "p1",
+    "lv": "14204012097",
+    "lot": "112",
+    "scheme": "112 Bybrook",
+    "centroid_jad2001": {
+      "easting": 678450.47,
+      "northing": 657032.92
+    },
+    "centroid_wgs84": {
+      "lat": 18.062364,
+      "lon": -77.67584
+    },
+    "santa_cruz_pixel": {
+      "px": 4648.2,
+      "py": 1337.7
+    },
+    "in_santa_cruz_extent": true
+  },
+  {
+    "id": "p2",
+    "lv": "14204014035",
+    "lot": "55",
+    "scheme": "55 Bybrook",
+    "centroid_jad2001": {
+      "easting": 678782.82,
+      "northing": 656562.13
+    },
+    "centroid_wgs84": {
+      "lat": 18.058122,
+      "lon": -77.672685
+    },
+    "santa_cruz_pixel": {
+      "px": 4886.1,
+      "py": 1674.8
+    },
+    "in_santa_cruz_extent": true
+  },
+  {
+    "id": "p3",
+    "lv": "14204012036",
+    "lot": "",
+    "scheme": "Bybrook large parcel",
+    "centroid_jad2001": {
+      "easting": 678352.0,
+      "northing": 657570.11
+    },
+    "centroid_wgs84": {
+      "lat": 18.067214,
+      "lon": -77.676789
+    },
+    "santa_cruz_pixel": {
+      "px": 4577.7,
+      "py": 953.2
+    },
+    "in_santa_cruz_extent": true
+  },
+  {
+    "id": "p4",
+    "lv": "14204014013",
+    "lot": "32",
+    "scheme": "32 Bybrook",
+    "centroid_jad2001": {
+      "easting": 678674.06,
+      "northing": 656669.36
+    },
+    "centroid_wgs84": {
+      "lat": 18.059087,
+      "lon": -77.673716
+    },
+    "santa_cruz_pixel": {
+      "px": 4808.3,
+      "py": 1598.0
+    },
+    "in_santa_cruz_extent": true
+  },
+  {
+    "id": "p5",
+    "lv": "14204014031",
+    "lot": "51",
+    "scheme": "51 Bybrook",
+    "centroid_jad2001": {
+      "easting": 678734.82,
+      "northing": 656533.35
+    },
+    "centroid_wgs84": {
+      "lat": 18.05786,
+      "lon": -77.673137
+    },
+    "santa_cruz_pixel": {
+      "px": 4851.8,
+      "py": 1695.4
+    },
+    "in_santa_cruz_extent": true
+  },
+  {
+    "id": "p6",
+    "lv": "14204012085",
+    "lot": "100",
+    "scheme": "100 Bybrook",
+    "centroid_jad2001": {
+      "easting": 678431.05,
+      "northing": 656970.19
+    },
+    "centroid_wgs84": {
+      "lat": 18.061797,
+      "lon": -77.676022
+    },
+    "santa_cruz_pixel": {
+      "px": 4634.3,
+      "py": 1382.6
+    },
+    "in_santa_cruz_extent": true
+  },
+  {
+    "id": "p7",
+    "lv": "14204012073",
+    "lot": "88",
+    "scheme": "88 Bybrook",
+    "centroid_jad2001": {
+      "easting": 678354.85,
+      "northing": 657063.52
+    },
+    "centroid_wgs84": {
+      "lat": 18.062638,
+      "lon": -77.676745
+    },
+    "santa_cruz_pixel": {
+      "px": 4579.8,
+      "py": 1315.8
+    },
+    "in_santa_cruz_extent": true
+  }
+]
