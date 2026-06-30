@@ -196,11 +196,11 @@
     ]
   },
   "black_river_urban_core_1_1": {
-    "easting_per_px": 2.1551724137931036,
-    "easting_offset": 655838.3620689656,
-    "easting_r2": null,
-    "northing_per_py": -2.1551724137931036,
-    "northing_offset": 658588.4137931034,
+    "easting_per_px": 0.3175107159866545,
+    "easting_offset": 658851.1631602849,
+    "easting_r2": 1.0,
+    "northing_per_py": -0.3175107159866545,
+    "northing_offset": 654021.4655176129,
     "northing_r2": null,
     "n_x_ticks": 2,
     "n_y_ticks": 0,
@@ -208,6 +208,6 @@
       7200,
       4800
     ],
-    "notes": "Easting from 2 printed ticks (659000, 660000). Northing scale from square-pixel assumption (|n/px|=|e/px|). Northing offset from single geographic anchor \u2014 VALIDATE visually before using. See close_gap_1_1.py for anchor details."
+    "confidence": "APPROXIMATE -- derived via single shared-landmark anchor (historic district boundary corner), not independently gridded on the northing axis. Estimated uncertainty ~40-50m. Use map1/map2/black_river-grade transforms for anything precision-critical; treat this one as good enough for amendment-zone shape capture, not survey-grade boundary work."
   }
 }

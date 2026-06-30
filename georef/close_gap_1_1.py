@@ -1,33 +1,52 @@
 """
 close_gap_1_1.py
 -----------------
-Closes the Inset 1.1 (Black River Urban Core) georeferencing gap.
+Documents and closes the Inset 1.1 (Black River Urban Core) georeferencing gap.
 
-Inset 1.1 has only 2 easting tick labels (659000, 660000) and zero northing
-labels. Strategy:
-  1. Re-detect the 2 x-ticks to fit easting.
-  2. Apply square-pixel assumption: northing_per_py = -easting_per_px
-     (all other 14 maps confirm |e_per_px| == |n_per_py| to 4 decimal places).
-  3. Estimate northing_offset from a single anchor: the Black River Court House /
-     Magdala House cluster, which appears in both Inset 1 and Inset 1.1.
-     JAD2001 coordinate derived from the validated black_river transform in
-     transforms.json.
-  4. Writes the completed entry into transforms.json and prints a validation
-     summary.
+STATUS: RESOLVED. The authoritative transform is now in transforms.json under
+"black_river_urban_core_1_1" (confidence: APPROXIMATE, ~40-50m uncertainty).
 
-Usage:
+== Method actually used (not the image-centre heuristic below) ==
+
+1. Easting: fitted from 2 printed tick labels (659000, 660000) on Inset 1.1.
+   Result: easting_per_px = 0.3175 m/px (Inset 1.1 is a tight urban-core zoom
+   — much finer scale than Inset 1's 2.16 m/px; each pixel covers ~32cm of
+   ground).
+
+2. Scale: square-pixel assumption → northing_per_py = -easting_per_px = -0.3175.
+   (Holds for every other map in this set to 3+ decimal places.)
+
+3. Northing offset: derived from the "Black River Protected Historic District"
+   boundary — a magenta/violet line present on BOTH Inset 1 and Inset 1.1 as
+   a pre-existing 2018 PDO feature (NOT the unrelated magenta highlight boxes
+   in the separate 2024 notification PDF).
+
+   Method:
+   a. Auto-detect magenta pixels (R>180, G<80, B>180) on both images.
+   b. Pick the leftmost magenta pixel (sharp inward corner near the coast) as
+      the shared landmark — visually confirmed in both rasters.
+   c. Convert that pixel to JAD2001 using the already-validated black_river
+      transform (Inset 1).
+   d. The same corner's pixel position on Inset 1.1 + the JAD2001 coordinate
+      from step (c) gives northing_offset.
+
+   Note: the two independent easting estimates for this anchor point (one from
+   Inset 1.1's own ticks, one carried from Inset 1) disagreed by ~44m. The
+   transform uses the midpoint. This is the source of the ~40-50m uncertainty.
+
+== Why the script below is kept ==
+
+The script below implements the image-centre heuristic (a rougher estimate
+used before the historic-district landmark method was tried). It is preserved
+for reference and as a template if a tighter anchor is ever found. The
+authoritative values are already in transforms.json — re-running this script
+with --dry-run will show the cruder estimate; do NOT overwrite transforms.json
+from this script unless the upstream transform has been lost.
+
+Usage (for reference / re-derivation only):
+    python3 close_gap_1_1.py --dry-run
     python3 close_gap_1_1.py --image /tmp/maps/inset-366.jpg \
-        --anchor-px PX --anchor-py PY   # pixel coords on inset-366.jpg
-
-    If you don't have the image in this environment, pass --dry-run to compute
-    the transform using the geographic prior (image-centre heuristic) and print
-    it without saving, for review.
-
-Anchor derivation (documented here for audit trail):
-    Black River Court House is visible in both Inset 1 (black_river) and
-    Inset 1.1. From the black_river transform, the court house cluster sits at
-    approximately JAD2001 E=659573, N=653529 (derived from pixel ~(2897, 3081)
-    on inset-365.jpg). This is the anchor used for northing_offset.
+        --anchor-px PX --anchor-py PY
 """
 
 import json
