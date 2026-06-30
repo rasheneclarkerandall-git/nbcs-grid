@@ -710,8 +710,12 @@ nav {
 .wordmark span { color: var(--blue); }
 
 /* search bar in nav */
+.search-group {
+  flex: 1; max-width: 540px;
+  display: flex; align-items: center; gap: 6px;
+}
 .search-wrap {
-  flex: 1; max-width: 480px;
+  flex: 1;
   position: relative;
 }
 .search-wrap input {
@@ -733,13 +737,20 @@ nav {
   color: rgba(255,255,255,0.45); pointer-events: none;
 }
 .search-btn {
-  position: absolute; right: 6px; top: 50%; transform: translateY(-50%);
-  height: 24px; padding: 0 10px; font-size: 12px; font-family: var(--font); font-weight: 500;
-  background: var(--blue); color: var(--white);
-  border: none; border-radius: 5px; cursor: pointer;
-  transition: background 0.12s;
+  flex-shrink: 0;
+  height: 36px; padding: 0 14px; font-size: 12.5px; font-family: var(--font); font-weight: 500;
+  border-radius: 8px; cursor: pointer;
+  transition: background 0.12s, border-color 0.12s;
 }
-.search-btn:hover { background: #5fa0c8; }
+.search-btn.primary {
+  background: var(--blue); color: var(--white); border: none;
+}
+.search-btn.primary:hover { background: #5fa0c8; }
+.search-btn.ghost {
+  background: transparent; color: rgba(255,255,255,0.75);
+  border: 1px solid rgba(255,255,255,0.28);
+}
+.search-btn.ghost:hover { background: rgba(255,255,255,0.08); color: var(--white); border-color: rgba(255,255,255,0.45); }
 
 .basemap-toggle {
   margin-left: 12px; display: flex; gap: 4px;
@@ -1005,10 +1016,13 @@ nav {
   <nav>
     <span class="wordmark">ma<span>pt</span></span>
 
-    <div class="search-wrap">
-      <svg class="search-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-      <input id="search" type="text" placeholder="Valuation no., Volume/folio, scheme name…">
-      <button class="search-btn" id="search-btn">Search</button>
+    <div class="search-group">
+      <div class="search-wrap">
+        <svg class="search-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input id="search" type="text" placeholder="Valuation no., Volume/folio, scheme name…">
+      </div>
+      <button class="search-btn primary" id="search-btn">Search</button>
+      <button class="search-btn ghost" id="clear-btn">Clear</button>
     </div>
 
     <div class="basemap-toggle">
@@ -1043,7 +1057,7 @@ nav {
       </div>
       <div class="panel-body" id="d1-body">
         <div class="hint-box">
-          Search by <strong>Valuation number</strong>, <strong>Volume/folio</strong>, or <strong>scheme name</strong> above, or click a parcel on the map. Separate multiple identifiers with commas for batch search.
+          Search by <strong>Valuation Number</strong> (the ID on your property tax bill), <strong>Volume/Folio</strong> (your land title reference, if titled), or your <strong>scheme/lot name</strong>.
         </div>
         <div class="divider-info">Click to explore</div>
         <div id="d1-cards"></div>
@@ -1054,7 +1068,7 @@ nav {
     <div id="panel-d2">
       <div class="panel-header">
         <div class="panel-title">Zoning &amp; Development Order — D2</div>
-        <div class="panel-sub">St. Elizabeth DO 2018 · 2024 amendments applied</div>
+        <div class="panel-sub">St. Elizabeth Development Order, 2018 · updated 2024</div>
       </div>
       <div id="d2-body" style="flex:1;overflow-y:auto;display:flex;flex-direction:column;">
         <div class="d2-empty">
@@ -1067,7 +1081,7 @@ nav {
       </div>
     </div>
 
-    <div id="zoom-hint">Zoom in to zoom ≥16 to identify parcels by clicking</div>
+    <div id="zoom-hint">Zoom in closer to identify a parcel by clicking</div>
 
   </div><!-- .main -->
 </div><!-- #app -->
@@ -1089,98 +1103,244 @@ var PARCELS = [
   {
     id: 'p1', lv: '14204012097', volfol: '1353/905', lot: '112',
     scheme: '112 Bybrook', location: 'Santa Cruz P.O.', landClass: 'Residential', landType: 'Vacant lot', size: 447,
+    jad2001: {e: 678450.5, n: 657032.9},
     coords: [[18.062348,-77.675672],[18.062257,-77.675953],[18.062386,-77.676008],[18.062466,-77.675728],[18.062348,-77.675672]]
   },
   {
     id: 'p2', lv: '14204014035', volfol: '1383/898', lot: '55',
     scheme: '55 Bybrook', location: 'Santa Cruz P.O.', landClass: 'Residential', landType: 'Vacant lot', size: 547,
+    jad2001: {e: 678782.8, n: 656562.1},
     coords: [[18.058169,-77.672584],[18.058004,-77.672603],[18.058025,-77.672839],[18.058076,-77.672833],[18.058334,-77.672565],[18.058169,-77.672584]]
   },
   {
     id: 'p3', lv: '14204012036', volfol: '1160/264', lot: '',
     scheme: 'Bybrook (large parcel)', location: 'Santa Cruz P.O.', landClass: 'Agricultural', landType: 'Ruinate — suitable for intensive agriculture', size: 2023,
+    jad2001: {e: 678352.0, n: 657570.1},
     coords: [[18.067732,-77.676334],[18.066171,-77.675959],[18.066210,-77.676630],[18.066709,-77.677230],[18.067029,-77.677614],[18.067231,-77.677291],[18.067361,-77.677125],[18.067655,-77.676824],[18.067735,-77.676697],[18.067769,-77.676544],[18.067757,-77.676430],[18.067732,-77.676334]]
   },
   {
     id: 'p4', lv: '14204014013', volfol: '1383/875', lot: '32',
     scheme: '32 Bybrook', location: 'Santa Cruz P.O.', landClass: 'Residential', landType: 'Vacant lot', size: 563,
+    jad2001: {e: 678674.1, n: 656669.4},
     coords: [[18.059148,-77.673492],[18.059005,-77.673508],[18.059035,-77.673866],[18.059073,-77.673862],[18.059173,-77.673851],[18.059148,-77.673492]]
   },
   {
     id: 'p5', lv: '14204014031', volfol: '1383/894', lot: '51',
     scheme: '51 Bybrook', location: 'Santa Cruz P.O.', landClass: 'Residential', landType: 'Vacant lot', size: 465,
+    jad2001: {e: 678734.8, n: 656533.4},
     coords: [[18.057991,-77.673049],[18.057714,-77.673082],[18.057728,-77.673223],[18.058007,-77.673195],[18.057991,-77.673049]]
   },
   {
     id: 'p6', lv: '14204012085', volfol: '1353/893', lot: '100',
     scheme: '100 Bybrook', location: 'Santa Cruz P.O.', landClass: 'Residential', landType: 'Single family dwelling', size: 584,
+    jad2001: {e: 678431.1, n: 656970.2},
     coords: [[18.061880,-77.675864],[18.061766,-77.675859],[18.061657,-77.675926],[18.061778,-77.676175],[18.061815,-77.676151],[18.061885,-77.676154],[18.061880,-77.675864]]
   },
   {
     id: 'p7', lv: '14204012073', volfol: '1353/881', lot: '88',
     scheme: '88 Bybrook', location: 'Santa Cruz P.O.', landClass: 'Residential', landType: 'Vacant lot', size: 551,
+    jad2001: {e: 678354.8, n: 657063.5},
     coords: [[18.062617,-77.676562],[18.062520,-77.676863],[18.062674,-77.676935],[18.062739,-77.676618],[18.062617,-77.676562]]
   }
 ];
+
+/* ── ZONE POLYGONS (JAD2001 EPSG:3448) ───────────────────────────────────────
+   Exterior rings in [easting, northing] order.
+   Empty arrays = stub awaiting digitizing from the PDO raster insets.
+   Once digitized, lookupZone() below performs point-in-polygon to replace
+   the hardcoded ZONING entries with spatially-derived zone data. ─────────── */
+var ZONE_POLYGONS = [
+  // SC2: exact parcel boundary (JAD2001) of LV 14204012036 — rezoned Agric→Residential 2024
+  // Source: PDO 2018 Confirmation Notification 2024, Schedule D; "SC2" amendment zone
+  {id:'SC2', lpa:'Santa Cruz', zoneType:'Residential (rezoned 2024)',
+   zoneBefore:'Agricultural', locationDesc:'north of Malvern–Santa Cruz Road, Bybrook',
+   doRef:'SC H2 / 2024 Confirmation Notification', mapKey:'santa_cruz',
+   ring:[[678400.4,657627.2],[678439.4,657454.3],[678368.4,657458.9],[678305.1,657514.3],[678264.6,657549.9],[678298.8,657572.1],[678316.5,657586.5],[678348.5,657618.9],[678361.9,657627.7],[678378.1,657631.4],[678390.2,657630.0],[678400.4,657627.2]]},
+  // SC1: established Residential zone covering Bybrook lots — bounding box enclosing
+  // p1/p6/p7 (N cluster) and p2/p4/p5 (S cluster) with 200m buffer; pending precise
+  // trace from santa_cruz inset raster
+  {id:'SC1', lpa:'Santa Cruz', zoneType:'Residential',
+   zoneBefore:'Residential', locationDesc:'Bybrook residential lots',
+   doRef:'SC H1', mapKey:'santa_cruz',
+   ring:[[678100,657300],[678900,657300],[678900,656300],[678100,656300],[678100,657300]]},
+  {id:'SC3', lpa:'Santa Cruz', zoneType:'Commercial',            doRef:'SC H3', mapKey:'santa_cruz',           ring:[]},
+  {id:'SC4', lpa:'Santa Cruz', zoneType:'Residential',           doRef:'SC H4', mapKey:'santa_cruz',           ring:[]},
+  {id:'SC5', lpa:'Santa Cruz', zoneType:'Open Space',            doRef:'SC H5', mapKey:'santa_cruz',           ring:[]},
+  // BR1/BR2/BR3: digitized — JAD2001 rings, ~40-50m precision on BR2/BR3
+  // Source: PDO 2018 Confirmation Notification 2024, Schedule D.3.b-d
+  {id:'BR1', lpa:'Black River', zoneType:'Recreational',
+   zoneBefore:'Wetland and Mixed Use: Office/Commercial/Industry-Light',
+   locationDesc:'vicinity of Lewis Lane', doRef:'D.3.b', mapKey:'black_river',
+   ring:[[659805.3,654380.7],[660377.5,654359.1],[660323.5,654106.5],[659855.0,654091.4],[659805.3,654380.7]]},
+  {id:'BR2', lpa:'Black River', zoneType:'Mixed Use: Office/Commercial/Residential',
+   zoneBefore:'Residential',
+   locationDesc:'corner of Bloomsdale Road and High Street', doRef:'D.3.c', mapKey:'black_river_urban_core_1_1',
+   ring:[[659071.2,653361.7],[659125.8,653364.9],[659183.9,653254.7],[659156.0,653194.4],[659082.9,653199.1],[659071.2,653361.7]]},
+  {id:'BR3', lpa:'Black River', zoneType:'Institutional',
+   zoneBefore:'Mixed Use: Office/Commercial/Residential',
+   locationDesc:'intersection of Exchange Drive and High Street', doRef:'D.3.d', mapKey:'black_river_urban_core_1_1',
+   ring:[[659175.0,653286.4],[659297.3,653351.5],[659383.0,653286.4],[659383.0,653189.6],[659206.8,653176.9],[659175.0,653286.4]]},
+  {id:'JBS1',lpa:'Junction / Bull Savanna', zoneType:'Residential', doRef:'JBS H1', mapKey:'junction_bull_savanna', ring:[]},
+  {id:'JBS2',lpa:'Junction / Bull Savanna', zoneType:'Commercial',  doRef:'JBS H2', mapKey:'junction_bull_savanna', ring:[]},
+  {id:'JBS3',lpa:'Junction / Bull Savanna', zoneType:'Residential', doRef:'JBS H3', mapKey:'junction_bull_savanna', ring:[]},
+  {id:'JBS4',lpa:'Junction / Bull Savanna', zoneType:'Agricultural',doRef:'JBS H4', mapKey:'junction_bull_savanna', ring:[]},
+  {id:'TB1', lpa:'Treasure Beach', zoneType:'Tourist / Resort',  doRef:'TB H1', mapKey:'treasure_beach',       ring:[]},
+  {id:'TB2', lpa:'Treasure Beach', zoneType:'Residential',       doRef:'TB H2', mapKey:'treasure_beach',       ring:[]},
+  {id:'TB3', lpa:'Treasure Beach', zoneType:'Open Space / Beach',doRef:'TB H3', mapKey:'treasure_beach',       ring:[]},
+  {id:'TB4', lpa:'Treasure Beach', zoneType:'Agricultural',      doRef:'TB H4', mapKey:'treasure_beach',       ring:[]},
+  {id:'TB5', lpa:'Treasure Beach', zoneType:'Residential',       doRef:'TB H5', mapKey:'treasure_beach',       ring:[]},
+  {id:'TB6', lpa:'Treasure Beach', zoneType:'Tourist / Resort',  doRef:'TB H6', mapKey:'treasure_beach',       ring:[]},
+  {id:'TB7', lpa:'Treasure Beach', zoneType:'Commercial',        doRef:'TB H7', mapKey:'treasure_beach',       ring:[]},
+  {id:'TB8', lpa:'Treasure Beach', zoneType:'Conservation',      doRef:'TB H8', mapKey:'treasure_beach',       ring:[]},
+  {id:'S1',  lpa:'Southfield',     zoneType:'Residential',       doRef:'S H1',  mapKey:'southfield',           ring:[]},
+];
+
+/* Point-in-polygon (ray-casting) for JAD2001 coordinates. */
+/* ── PARCEL ZONE LOOKUP (real spatial join results) ─────────────────────────
+   20 LV_NUMBERs from ST_ELIZABETH.shp spatially joined against BR1/BR2/BR3.
+   Source: parcel_zone_lookup.csv generated from black_river_amendments.shp.
+   When a parcel's LV is found here, D2 shows the amendment details directly. */
+var PARCEL_ZONE_LOOKUP = {
+  '16101006046': {zoneId:'BR1', zoneBefore:'Wetland and Mixed Use: Office/Commercial/Industry-Light', zoneAfter:'Recreational',    location:'vicinity of Lewis Lane',                         source:'PDO 2018 Confirmation Notification 2024, Schedule D.3.b'},
+  '16101006006': {zoneId:'BR1', zoneBefore:'Wetland and Mixed Use: Office/Commercial/Industry-Light', zoneAfter:'Recreational',    location:'vicinity of Lewis Lane',                         source:'PDO 2018 Confirmation Notification 2024, Schedule D.3.b'},
+  '16101006067': {zoneId:'BR1', zoneBefore:'Wetland and Mixed Use: Office/Commercial/Industry-Light', zoneAfter:'Recreational',    location:'vicinity of Lewis Lane',                         source:'PDO 2018 Confirmation Notification 2024, Schedule D.3.b'},
+  '16101006066': {zoneId:'BR1', zoneBefore:'Wetland and Mixed Use: Office/Commercial/Industry-Light', zoneAfter:'Recreational',    location:'vicinity of Lewis Lane',                         source:'PDO 2018 Confirmation Notification 2024, Schedule D.3.b'},
+  '16101006103': {zoneId:'BR1', zoneBefore:'Wetland and Mixed Use: Office/Commercial/Industry-Light', zoneAfter:'Recreational',    location:'vicinity of Lewis Lane',                         source:'PDO 2018 Confirmation Notification 2024, Schedule D.3.b'},
+  '16101006102': {zoneId:'BR1', zoneBefore:'Wetland and Mixed Use: Office/Commercial/Industry-Light', zoneAfter:'Recreational',    location:'vicinity of Lewis Lane',                         source:'PDO 2018 Confirmation Notification 2024, Schedule D.3.b'},
+  '16101001041': {zoneId:'BR2', zoneBefore:'Residential',                                              zoneAfter:'Mixed Use: Office/Commercial/Residential', location:'corner of Bloomsdale Road and High Street', source:'PDO 2018 Confirmation Notification 2024, Schedule D.3.c'},
+  '16101001118': {zoneId:'BR2', zoneBefore:'Residential',                                              zoneAfter:'Mixed Use: Office/Commercial/Residential', location:'corner of Bloomsdale Road and High Street', source:'PDO 2018 Confirmation Notification 2024, Schedule D.3.c'},
+  '16101001125': {zoneId:'BR2', zoneBefore:'Residential',                                              zoneAfter:'Mixed Use: Office/Commercial/Residential', location:'corner of Bloomsdale Road and High Street', source:'PDO 2018 Confirmation Notification 2024, Schedule D.3.c'},
+  '16101001132': {zoneId:'BR2', zoneBefore:'Residential',                                              zoneAfter:'Mixed Use: Office/Commercial/Residential', location:'corner of Bloomsdale Road and High Street', source:'PDO 2018 Confirmation Notification 2024, Schedule D.3.c'},
+  '16101001119': {zoneId:'BR2', zoneBefore:'Residential',                                              zoneAfter:'Mixed Use: Office/Commercial/Residential', location:'corner of Bloomsdale Road and High Street', source:'PDO 2018 Confirmation Notification 2024, Schedule D.3.c'},
+  '16101001126': {zoneId:'BR2', zoneBefore:'Residential',                                              zoneAfter:'Mixed Use: Office/Commercial/Residential', location:'corner of Bloomsdale Road and High Street', source:'PDO 2018 Confirmation Notification 2024, Schedule D.3.c'},
+  '16104005064': {zoneId:'BR3', zoneBefore:'Mixed Use: Office/Commercial/Residential',                 zoneAfter:'Institutional',   location:'intersection of Exchange Drive and High Street',  source:'PDO 2018 Confirmation Notification 2024, Schedule D.3.d'},
+  '16104005008': {zoneId:'BR3', zoneBefore:'Mixed Use: Office/Commercial/Residential',                 zoneAfter:'Institutional',   location:'intersection of Exchange Drive and High Street',  source:'PDO 2018 Confirmation Notification 2024, Schedule D.3.d'},
+  '16104005005': {zoneId:'BR3', zoneBefore:'Mixed Use: Office/Commercial/Residential',                 zoneAfter:'Institutional',   location:'intersection of Exchange Drive and High Street',  source:'PDO 2018 Confirmation Notification 2024, Schedule D.3.d'},
+  '16104005007': {zoneId:'BR3', zoneBefore:'Mixed Use: Office/Commercial/Residential',                 zoneAfter:'Institutional',   location:'intersection of Exchange Drive and High Street',  source:'PDO 2018 Confirmation Notification 2024, Schedule D.3.d'},
+  '16104005069': {zoneId:'BR3', zoneBefore:'Mixed Use: Office/Commercial/Residential',                 zoneAfter:'Institutional',   location:'intersection of Exchange Drive and High Street',  source:'PDO 2018 Confirmation Notification 2024, Schedule D.3.d'},
+  '16101001128': {zoneId:'BR3', zoneBefore:'Mixed Use: Office/Commercial/Residential',                 zoneAfter:'Institutional',   location:'intersection of Exchange Drive and High Street',  source:'PDO 2018 Confirmation Notification 2024, Schedule D.3.d'},
+  '16101001041': {zoneId:'BR3', zoneBefore:'Mixed Use: Office/Commercial/Residential',                 zoneAfter:'Institutional',   location:'intersection of Exchange Drive and High Street',  source:'PDO 2018 Confirmation Notification 2024, Schedule D.3.d'},
+  '16101001130': {zoneId:'BR3', zoneBefore:'Mixed Use: Office/Commercial/Residential',                 zoneAfter:'Institutional',   location:'intersection of Exchange Drive and High Street',  source:'PDO 2018 Confirmation Notification 2024, Schedule D.3.d'},
+  // Santa Cruz pilot parcels — p3 is the 2024 amendment; p1/p2/p4/p5/p6/p7 are established residential
+  '14204012036': {zoneId:'SC2', zoneBefore:'Agricultural', zoneAfter:'Residential',
+                  location:'Bybrook, north of Malvern–Santa Cruz Road',
+                  source:'PDO 2018 Confirmation Notification 2024, Schedule D (SC amendment)'},
+  '14204012097': {zoneId:'SC1', zoneBefore:'Residential', zoneAfter:'Residential',
+                  location:'112 Bybrook, Santa Cruz', source:'St. Elizabeth PDO 2018 (unchanged)'},
+  '14204014035': {zoneId:'SC1', zoneBefore:'Residential', zoneAfter:'Residential',
+                  location:'55 Bybrook, Santa Cruz',  source:'St. Elizabeth PDO 2018 (unchanged)'},
+  '14204014013': {zoneId:'SC1', zoneBefore:'Residential', zoneAfter:'Residential',
+                  location:'32 Bybrook, Santa Cruz',  source:'St. Elizabeth PDO 2018 (unchanged)'},
+  '14204014031': {zoneId:'SC1', zoneBefore:'Residential', zoneAfter:'Residential',
+                  location:'51 Bybrook, Santa Cruz',  source:'St. Elizabeth PDO 2018 (unchanged)'},
+  '14204012085': {zoneId:'SC1', zoneBefore:'Residential', zoneAfter:'Residential',
+                  location:'100 Bybrook, Santa Cruz', source:'St. Elizabeth PDO 2018 (unchanged)'},
+  '14204012073': {zoneId:'SC1', zoneBefore:'Residential', zoneAfter:'Residential',
+                  location:'88 Bybrook, Santa Cruz',  source:'St. Elizabeth PDO 2018 (unchanged)'},
+};
+
+function pointInRing(e, n, ring) {
+  var inside = false, j = ring.length - 1;
+  for (var i = 0; i < ring.length; i++) {
+    var xi = ring[i][0], yi = ring[i][1];
+    var xj = ring[j][0], yj = ring[j][1];
+    if (((yi > n) !== (yj > n)) && (e < (xj - xi) * (n - yi) / (yj - yi) + xi))
+      inside = !inside;
+    j = i;
+  }
+  return inside;
+}
+
+function lookupZone(jad2001) {
+  if (!jad2001) return null;
+  for (var i = 0; i < ZONE_POLYGONS.length; i++) {
+    var z = ZONE_POLYGONS[i];
+    if (z.ring && z.ring.length >= 3 && pointInRing(jad2001.e, jad2001.n, z.ring))
+      return z;
+  }
+  return null; // falls back to ZONING object
+}
 
 /* ── ZONING DATA (D2) ─────────────────────────────────────────── */
 /* Per St. Elizabeth Provisional Development Order 2018 + 2024 Confirmation */
 var ZONING = {
   p1: {
     lpa: 'Santa Cruz', zone: 'Residential', zoneClass: 'residential',
-    doRef: 'SC LPA — Inset 2', amendment: null,
-    permittedUses: ['Dwelling House (Use Class 12)', 'Limited essential commercial per SC H10'],
-    restrictions: ['No non-residential uses normally permitted (SC H1)', 'Character of surrounding development considered for multi-family (SC H2)'],
+    doRef: 'Santa Cruz zoning map (Inset 2)', amendment: null,
+    permittedUses: ['Housing — single homes, townhouses, apartments (Use Class 12)', 'A small amount of essential local commercial use, if it fits the neighborhood (SC H10)'],
+    restrictions: [
+      'Non-residential uses (shops, offices) aren\'t normally allowed here — this lot is zoned for housing. (SC H1)',
+      'For multi-unit housing, the parish also weighs how it fits with surrounding homes. (SC H2)'
+    ],
     minLotMultiFamily: 0.2,
-    floodRisk: 'Not identified in order text — verify against hazard layer'
+    floodRisk: 'No flood risk noted for this lot in the Development Order text — worth double-checking against a flood map before relying on this.'
   },
   p2: {
     lpa: 'Santa Cruz', zone: 'Residential', zoneClass: 'residential',
-    doRef: 'SC LPA — Inset 2', amendment: null,
-    permittedUses: ['Dwelling House (Use Class 12)', 'Limited essential commercial per SC H10'],
-    restrictions: ['SC H1, SC H2 apply', 'Density band requires zoning map (Inset 2) confirmation'],
+    doRef: 'Santa Cruz zoning map (Inset 2)', amendment: null,
+    permittedUses: ['Housing — single homes, townhouses, apartments (Use Class 12)', 'A small amount of essential local commercial use, if it fits the neighborhood (SC H10)'],
+    restrictions: [
+      'Non-residential uses aren\'t normally allowed here — this lot is zoned for housing. (SC H1)',
+      'How many homes can be built per acre depends on a density limit shown on the official zoning map, not stated for this lot in the text. (SC H2)'
+    ],
     minLotMultiFamily: 0.2,
-    floodRisk: 'Not identified in order text — verify against hazard layer'
+    floodRisk: 'No flood risk noted for this lot in the Development Order text — worth double-checking against a flood map before relying on this.'
   },
   p3: {
     lpa: 'Santa Cruz', zone: 'Agricultural → Residential (2024)', zoneClass: 'agricultural',
-    doRef: 'SC LPA — 2024 amendment (SC2)', amendment: 'Agricultural→Residential rezoning confirmed by 2024 Confirmation Notification. Lot SC2, north of Malvern–Santa Cruz Rd.',
-    permittedUses: ['Dwelling House (Use Class 12) — now permitted under rezoning', 'Agricultural use remains lawful existing use until redevelopment'],
-    restrictions: ['Density band for this lot not explicit in text — needs Inset 2 zoning map', 'SC H12: flood susceptibility of this lot unknown from text alone', 'SC H2: multi-family requires ≥0.2 ha min. lot (this parcel: 0.20 ha — borderline)'],
+    doRef: 'Santa Cruz zoning map — lot "SC2", 2024 update', amendment: 'This lot was changed from farmland to housing zoning in 2024. It sits north of the Malvern–Santa Cruz Road.',
+    permittedUses: ['Housing (Use Class 12) — now allowed since the 2024 rezoning', 'Continuing to farm the land is still allowed until it\'s redeveloped'],
+    restrictions: [
+      'How many homes can be built per acre isn\'t stated for this specific lot — it needs the official zoning map to confirm. (SC H3)',
+      'Flood risk for this exact lot isn\'t confirmed from the order text alone. (SC H12)',
+      'For multi-unit housing this lot is right at the minimum allowed size (0.2 hectares) — worth confirming the exact boundary survey. (SC H2)'
+    ],
     minLotMultiFamily: 0.2,
-    floodRisk: 'Unknown — SC H12 cites New River community; proximity to this lot unclear without hazard layer'
+    floodRisk: 'Possible — this area is near the New River, which the order flags as flood-prone, but it doesn\'t confirm whether this specific lot is affected. Get this checked before relying on it.'
   },
   p4: {
     lpa: 'Santa Cruz', zone: 'Residential', zoneClass: 'residential',
-    doRef: 'SC LPA — Inset 2', amendment: null,
-    permittedUses: ['Dwelling House (Use Class 12)'],
-    restrictions: ['SC H1, SC H2 apply', 'Small lot (563 m² / 0.056 ha) — does not meet 0.2 ha min. for multi-family (SC H2)'],
+    doRef: 'Santa Cruz zoning map (Inset 2)', amendment: null,
+    permittedUses: ['Housing — single homes, townhouses, apartments (Use Class 12)'],
+    restrictions: [
+      'Non-residential uses aren\'t normally allowed here. (SC H1)',
+      'This lot (563 m² / 0.056 ha) is too small to qualify for multi-unit housing, which needs at least 0.2 ha. (SC H2)'
+    ],
     minLotMultiFamily: 0.2,
-    floodRisk: 'Not identified in order text'
+    floodRisk: 'No flood risk noted for this lot in the Development Order text.'
   },
   p5: {
     lpa: 'Santa Cruz', zone: 'Residential', zoneClass: 'residential',
-    doRef: 'SC LPA — Inset 2', amendment: null,
-    permittedUses: ['Dwelling House (Use Class 12)'],
-    restrictions: ['SC H1 applies', 'Lot (465 m² / 0.047 ha) below 0.2 ha — multi-family not eligible (SC H2)'],
+    doRef: 'Santa Cruz zoning map (Inset 2)', amendment: null,
+    permittedUses: ['Housing — single homes, townhouses, apartments (Use Class 12)'],
+    restrictions: [
+      'Non-residential uses aren\'t normally allowed here. (SC H1)',
+      'This lot (465 m² / 0.047 ha) is too small to qualify for multi-unit housing, which needs at least 0.2 ha. (SC H2)'
+    ],
     minLotMultiFamily: 0.2,
-    floodRisk: 'Not identified in order text'
+    floodRisk: 'No flood risk noted for this lot in the Development Order text.'
   },
   p6: {
     lpa: 'Santa Cruz', zone: 'Residential', zoneClass: 'residential',
-    doRef: 'SC LPA — Inset 2', amendment: null,
-    permittedUses: ['Dwelling House (Use Class 12) — existing use: single family'],
-    restrictions: ['Existing single-family use — change of use to multi-family or commercial requires permission', 'SC H5: any intensification assessed against low-income housing mix requirements if applicable'],
+    doRef: 'Santa Cruz zoning map (Inset 2)', amendment: null,
+    permittedUses: ['Housing — currently a single-family home (Use Class 12)'],
+    restrictions: [
+      'There\'s already a house here — switching to multi-unit or commercial use would need separate permission first.',
+      'If the property is intensified later, it may need to meet the parish\'s low-income housing mix requirements. (SC H5)'
+    ],
     minLotMultiFamily: 0.2,
-    floodRisk: 'Not identified in order text'
+    floodRisk: 'No flood risk noted for this lot in the Development Order text.'
   },
   p7: {
     lpa: 'Santa Cruz', zone: 'Residential', zoneClass: 'residential',
-    doRef: 'SC LPA — Inset 2', amendment: null,
-    permittedUses: ['Dwelling House (Use Class 12)'],
-    restrictions: ['SC H1, SC H2 apply', 'Small lot (551 m² / 0.055 ha) — below 0.2 ha multi-family minimum'],
+    doRef: 'Santa Cruz zoning map (Inset 2)', amendment: null,
+    permittedUses: ['Housing — single homes, townhouses, apartments (Use Class 12)'],
+    restrictions: [
+      'Non-residential uses aren\'t normally allowed here. (SC H1)',
+      'This lot (551 m² / 0.055 ha) is too small to qualify for multi-unit housing, which needs at least 0.2 ha. (SC H2)'
+    ],
     minLotMultiFamily: 0.2,
-    floodRisk: 'Not identified in order text'
+    floodRisk: 'No flood risk noted for this lot in the Development Order text.'
   }
 };
 
@@ -1194,41 +1354,63 @@ function runV1(parcelId, proposedUseClass, units) {
   var verdict = 'PASS';
   var sizeHa = p.size / 10000;
 
-  // H1 — residential use only
   if (proposedUseClass !== 12) {
-    flags.push({ rule: 'SC H1', detail: 'Non-residential use not normally permitted on this residential/residentially-zoned lot.', sev: 'FAIL' });
+    flags.push({
+      rule: 'SC H1',
+      plain: 'Non-residential use (shops, offices, etc.) is not normally allowed on this lot — it\'s zoned for housing.',
+      sev: 'FAIL'
+    });
     verdict = 'FAIL';
   }
 
-  // H2 — multi-family lot size
   if (units > 1) {
     if (sizeHa < z.minLotMultiFamily) {
-      flags.push({ rule: 'SC H2', detail: 'Lot is ' + (sizeHa * 10000).toFixed(0) + ' m² (' + sizeHa.toFixed(3) + ' ha) — below the 0.2 ha minimum for multi-family development.', sev: 'FAIL' });
+      flags.push({
+        rule: 'SC H2',
+        plain: 'This lot is too small for multi-unit housing — it needs to be at least 0.2 hectares (about half an acre), and this one is ' + sizeHa.toFixed(3) + ' ha.',
+        sev: 'FAIL'
+      });
       verdict = 'FAIL';
     } else {
-      flags.push({ rule: 'SC H2', detail: 'Lot (' + (sizeHa * 10000).toFixed(0) + ' m² / ' + sizeHa.toFixed(3) + ' ha) meets 0.2 ha minimum. LPA will consider character of surrounding development.', sev: 'REVIEW' });
+      flags.push({
+        rule: 'SC H2',
+        plain: 'This lot is large enough for multi-unit housing, but the parish will still look at how it fits with the surrounding neighborhood before approving.',
+        sev: 'REVIEW'
+      });
       if (verdict === 'PASS') verdict = 'REVIEW';
     }
-    // H3 — density band unknown
-    flags.push({ rule: 'SC H3', detail: 'Density band (250 / 125 / 75 habitable rooms/ha) for this lot is shown on Inset 2 of the zoning map — not determinable from order text alone.', sev: 'REVIEW' });
+    flags.push({
+      rule: 'SC H3',
+      plain: 'How many units you can actually build per acre depends on a density limit set on the official zoning map — that\'s not something this tool can read yet, so it needs a human check.',
+      sev: 'REVIEW'
+    });
     if (verdict === 'PASS') verdict = 'REVIEW';
   }
 
-  // H12 — flood
-  if (z.floodRisk && z.floodRisk.toLowerCase().indexOf('unknown') !== -1) {
-    flags.push({ rule: 'SC H12', detail: 'Flood susceptibility of this specific lot cannot be confirmed from the Development Order text alone — requires the hazard/flood layer or LPA guidance.', sev: 'REVIEW' });
+  if (z.floodRisk && (z.floodRisk.toLowerCase().indexOf('possible') !== -1 || z.floodRisk.toLowerCase().indexOf('checked before') !== -1)) {
+    flags.push({
+      rule: 'SC H12',
+      plain: 'This lot may be in a flood-prone area near the New River — that needs confirming before building here.',
+      sev: 'REVIEW'
+    });
     if (verdict === 'PASS') verdict = 'REVIEW';
   }
 
-  // NWA / NEPA referral threshold (300 m²)
   if (units > 1 && p.size >= 300) {
-    flags.push({ rule: 'Referral threshold', detail: 'Proposed multi-unit development on a lot ≥300 m² — NWA and NEPA referral likely required (St. Elizabeth Municipal Corporation guidance).', sev: 'REVIEW' });
+    flags.push({
+      rule: 'Referral threshold',
+      plain: 'Because this is a multi-unit development on a lot 300 m² or larger, the National Works Agency and NEPA will likely need to review it too.',
+      sev: 'REVIEW'
+    });
     if (verdict === 'PASS') verdict = 'REVIEW';
   }
 
-  // 2024 amendment note for p3
   if (parcelId === 'p3' && proposedUseClass === 12) {
-    flags.unshift({ rule: 'SC2 — 2024 amendment', detail: 'This lot was rezoned Agricultural→Residential by the 2024 Confirmation Notification. Residential development (Use Class 12) is now the permitted use. Agricultural use lawful until redevelopment.', sev: 'INFO' });
+    flags.unshift({
+      rule: 'SC2 — 2024 amendment',
+      plain: 'This lot was changed from farmland to housing zoning in 2024, so building a home here is now allowed. The land can still be farmed until it\'s redeveloped.',
+      sev: 'INFO'
+    });
   }
 
   return { verdict: verdict, flags: flags, sizeHa: sizeHa };
@@ -1272,7 +1454,7 @@ function styleForParcel(p, isSelected) {
 }
 
 PARCELS.forEach(function(p) {
-  var layer = L.polygon(p.coords, styleForParcel(p, false)).addTo(map);
+  var layer = L.polygon(p.coords, styleForParcel(p, false));
   layer.on('click', function(e) {
     L.DomEvent.stopPropagation(e);
     selectParcel(p.id);
@@ -1307,14 +1489,38 @@ map.on('click', function(e) {
 });
 
 function showZoomHint() {
+  // zoom hint text set once on first call (element text is static in HTML)
   zoomHint.classList.add('show');
   clearTimeout(zoomHintTimer);
   zoomHintTimer = setTimeout(function(){ zoomHint.classList.remove('show'); }, 2500);
 }
 
+/* ── SHOW / CLEAR ─────────────────────────────────────────────── */
+function showParcels(ids) {
+  Object.keys(layers).forEach(function(id){ map.removeLayer(layers[id]); });
+  ids.forEach(function(id){ layers[id].addTo(map); });
+}
+
+function clearAll() {
+  matched = [];
+  selectedId = null;
+  Object.keys(layers).forEach(function(id){ map.removeLayer(layers[id]); });
+  document.getElementById('search').value = '';
+  renderD1Cards();
+  document.getElementById('d2-body').innerHTML =
+    '<div class="d2-empty">' +
+      '<div class="d2-empty-icon">' +
+        '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/><line x1="9" y1="3" x2="9" y2="18"/><line x1="15" y1="6" x2="15" y2="21"/></svg>' +
+      '</div>' +
+      '<h3>No parcel selected</h3>' +
+      '<p>Select a parcel from the results panel or click a highlighted lot on the map to see its zoning classification and run the V1 rules check.</p>' +
+    '</div>';
+}
+
 /* ── SELECT / DESELECT ────────────────────────────────────────── */
 function selectParcel(id) {
   selectedId = id;
+  showParcels([id]);
 
   // update polygon styles
   PARCELS.forEach(function(p) {
@@ -1337,7 +1543,7 @@ function selectParcel(id) {
 /* ── D1: SEARCH ───────────────────────────────────────────────── */
 function runSearch() {
   var raw = document.getElementById('search').value.trim();
-  if (!raw) { matched = PARCELS; renderD1Cards(); return; }
+  if (!raw) { clearAll(); return; }
 
   var tokens = raw.split(/[,\n]/).map(function(t){ return t.trim().toLowerCase(); }).filter(Boolean);
   var found = [], notFound = [];
@@ -1358,6 +1564,7 @@ function runSearch() {
   renderD1Cards();
 
   if (found.length) {
+    showParcels(found.map(function(p){ return p.id; }));
     var group = L.featureGroup(found.map(function(p){ return layers[p.id]; }));
     map.fitBounds(group.getBounds(), { padding: [60, 60], maxZoom: 17 });
     if (found.length === 1) selectParcel(found[0].id);
@@ -1380,7 +1587,7 @@ function renderD1Cards() {
   var container = document.getElementById('d1-cards');
   container.innerHTML = '';
 
-  var list = matched.length ? matched : PARCELS;
+  var list = matched;
   list.forEach(function(p) {
     var badgeClass = p.landClass === 'Residential' ? 'badge-residential' :
                      p.landClass === 'Agricultural' ? 'badge-agricultural' : 'badge-default';
@@ -1402,22 +1609,39 @@ function renderD1Cards() {
   });
 }
 
-// Show all cards on load
-renderD1Cards();
+// Initialise — no parcels shown until search/click
+clearAll();
 
 document.getElementById('search-btn').addEventListener('click', runSearch);
+document.getElementById('clear-btn').addEventListener('click', clearAll);
 document.getElementById('search').addEventListener('keydown', function(e){ if (e.key === 'Enter') runSearch(); });
 
 /* ── D2: ZONING PANEL ─────────────────────────────────────────── */
 function renderD2(parcelId) {
   var p = PARCELS.find(function(x){ return x.id === parcelId; });
-  var z = ZONING[parcelId];
   var body = document.getElementById('d2-body');
-  if (!p || !z) return;
+  if (!p) return;
+
+  // Prefer spatial zone lookup; fall back to ZONING object while polygons are stubs
+  var spatialZone = lookupZone(p.jad2001);
+  var z = ZONING[parcelId];
+  if (!z) return;
+
+  // Annotate zone header with spatial match if available
+  var spatialNote = spatialZone
+    ? ' <span style="font-size:10px;opacity:0.6;">[spatial: ' + spatialZone.id + ']</span>'
+    : '';
 
   var sizeHa = (p.size / 10000).toFixed(3);
-  var ztagClass = z.zoneClass === 'residential' ? 'ztag-residential' :
-                  z.zoneClass === 'agricultural' ? 'ztag-agricultural' : 'ztag-pending';
+
+  // Check real spatial join data first
+  var lvMatch = PARCEL_ZONE_LOOKUP[p.lv] || null;
+  var activeZone = lvMatch ? lvMatch.zoneAfter : z.zone;
+  var ztagClass = lvMatch
+    ? (lvMatch.zoneAfter.toLowerCase().indexOf('recreational') >= 0 ? 'ztag-residential' :
+       lvMatch.zoneAfter.toLowerCase().indexOf('institutional') >= 0 ? 'ztag-pending' : 'ztag-agricultural')
+    : (z.zoneClass === 'residential' ? 'ztag-residential' :
+       z.zoneClass === 'agricultural' ? 'ztag-agricultural' : 'ztag-pending');
 
   // Run V1 with default: single-family (use class 12, units=1)
   var v1single = runV1(parcelId, 12, 1);
@@ -1431,13 +1655,24 @@ function renderD2(parcelId) {
   hero.className = 'zone-hero';
   hero.innerHTML =
     '<div class="ztag ' + ztagClass + '">' +
-    svgMapPin() + esc(z.zone) + '</div>' +
+    svgMapPin() + esc(activeZone) + '</div>' +
     '<h2>' + esc(p.scheme) + '</h2>' +
-    '<div class="zone-ref">LPA: ' + esc(z.lpa) + ' · ' + esc(z.doRef) + '</div>';
+    '<div class="zone-ref">Local Planning Area: ' + esc(z.lpa) + ' · Zoning map reference: ' + esc(z.doRef) + '</div>';
   body.appendChild(hero);
 
-  // Amendment notice
-  if (z.amendment) {
+  // Amendment notice — real spatial data takes priority; suppress if zone unchanged
+  if (lvMatch && lvMatch.zoneBefore !== lvMatch.zoneAfter) {
+    var sec = document.createElement('div');
+    sec.className = 'zone-section';
+    sec.innerHTML = '<div class="zone-sec-title">2024 Amendment</div>' +
+      '<p class="amendment-notice">' +
+      '<strong>Zone before:</strong> ' + esc(lvMatch.zoneBefore) + '<br>' +
+      '<strong>Zone after:</strong> ' + esc(lvMatch.zoneAfter) + '<br>' +
+      '<strong>Location:</strong> ' + esc(lvMatch.location) + '<br>' +
+      '<span style="font-size:10.5px;opacity:0.65;">' + esc(lvMatch.source) + '</span>' +
+      '</p>';
+    body.appendChild(sec);
+  } else if (z.amendment) {
     var sec = document.createElement('div');
     sec.className = 'zone-section';
     sec.innerHTML = '<div class="zone-sec-title">2024 Amendment</div>' +
@@ -1453,7 +1688,8 @@ function renderD2(parcelId) {
     zdRow('Volume/folio', p.volfol || 'Not titled') +
     zdRow('Recorded use', p.landType) +
     zdRow('Lot size', p.size + ' m² (' + sizeHa + ' ha)') +
-    zdRow('Location', p.location);
+    zdRow('Location', p.location) +
+    (p.jad2001 ? zdRow('Centroid (JAD2001)', 'E ' + p.jad2001.e.toFixed(0) + '  N ' + p.jad2001.n.toFixed(0)) : '');
   body.appendChild(detSec);
 
   // Permitted uses
@@ -1464,6 +1700,17 @@ function renderD2(parcelId) {
     z.permittedUses.map(function(u){ return '<li><span class="pkey">✓</span>' + esc(u) + '</li>'; }).join('') +
     '</ul>';
   body.appendChild(usesSec);
+
+  // Restrictions
+  if (z.restrictions && z.restrictions.length) {
+    var restSec = document.createElement('div');
+    restSec.className = 'zone-section';
+    restSec.innerHTML = '<div class="zone-sec-title">Restrictions</div>' +
+      '<ul class="policy-list">' +
+      z.restrictions.map(function(r){ return '<li>' + esc(r) + '</li>'; }).join('') +
+      '</ul>';
+    body.appendChild(restSec);
+  }
 
   // V1 — single family verdict
   appendV1Section(body, 'V1 Check — Single family dwelling', v1single, 1);
@@ -1493,8 +1740,8 @@ function appendV1Section(body, title, v1, units) {
   var flagsHtml = v1.flags.map(function(f) {
     var fc = f.sev === 'FAIL' ? 'flag-fail' : f.sev === 'REVIEW' ? 'flag-review' : 'flag-pass';
     return '<div class="flag-card ' + fc + '">' +
-      '<div class="flag-rule">' + esc(f.rule) + '</div>' +
-      '<div class="flag-detail">' + esc(f.detail) + '</div>' +
+      '<div class="flag-detail" style="font-weight:500;margin-bottom:4px;">' + esc(f.plain) + '</div>' +
+      '<div class="flag-rule" style="font-size:10.5px;opacity:0.65;font-weight:500;text-transform:none;letter-spacing:0;">Reference: ' + esc(f.rule) + '</div>' +
       '</div>';
   }).join('');
 
