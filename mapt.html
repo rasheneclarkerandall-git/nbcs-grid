@@ -1150,8 +1150,19 @@ var PARCELS = [
    Once digitized, lookupZone() below performs point-in-polygon to replace
    the hardcoded ZONING entries with spatially-derived zone data. ─────────── */
 var ZONE_POLYGONS = [
-  {id:'SC1', lpa:'Santa Cruz', zoneType:'Residential',           doRef:'SC H1', mapKey:'santa_cruz',           ring:[]},
-  {id:'SC2', lpa:'Santa Cruz', zoneType:'Residential (2024)',    doRef:'SC H2', mapKey:'santa_cruz',           ring:[]},
+  // SC2: exact parcel boundary (JAD2001) of LV 14204012036 — rezoned Agric→Residential 2024
+  // Source: PDO 2018 Confirmation Notification 2024, Schedule D; "SC2" amendment zone
+  {id:'SC2', lpa:'Santa Cruz', zoneType:'Residential (rezoned 2024)',
+   zoneBefore:'Agricultural', locationDesc:'north of Malvern–Santa Cruz Road, Bybrook',
+   doRef:'SC H2 / 2024 Confirmation Notification', mapKey:'santa_cruz',
+   ring:[[678400.4,657627.2],[678439.4,657454.3],[678368.4,657458.9],[678305.1,657514.3],[678264.6,657549.9],[678298.8,657572.1],[678316.5,657586.5],[678348.5,657618.9],[678361.9,657627.7],[678378.1,657631.4],[678390.2,657630.0],[678400.4,657627.2]]},
+  // SC1: established Residential zone covering Bybrook lots — bounding box enclosing
+  // p1/p6/p7 (N cluster) and p2/p4/p5 (S cluster) with 200m buffer; pending precise
+  // trace from santa_cruz inset raster
+  {id:'SC1', lpa:'Santa Cruz', zoneType:'Residential',
+   zoneBefore:'Residential', locationDesc:'Bybrook residential lots',
+   doRef:'SC H1', mapKey:'santa_cruz',
+   ring:[[678100,657300],[678900,657300],[678900,656300],[678100,656300],[678100,657300]]},
   {id:'SC3', lpa:'Santa Cruz', zoneType:'Commercial',            doRef:'SC H3', mapKey:'santa_cruz',           ring:[]},
   {id:'SC4', lpa:'Santa Cruz', zoneType:'Residential',           doRef:'SC H4', mapKey:'santa_cruz',           ring:[]},
   {id:'SC5', lpa:'Santa Cruz', zoneType:'Open Space',            doRef:'SC H5', mapKey:'santa_cruz',           ring:[]},
@@ -1210,6 +1221,22 @@ var PARCEL_ZONE_LOOKUP = {
   '16101001128': {zoneId:'BR3', zoneBefore:'Mixed Use: Office/Commercial/Residential',                 zoneAfter:'Institutional',   location:'intersection of Exchange Drive and High Street',  source:'PDO 2018 Confirmation Notification 2024, Schedule D.3.d'},
   '16101001041': {zoneId:'BR3', zoneBefore:'Mixed Use: Office/Commercial/Residential',                 zoneAfter:'Institutional',   location:'intersection of Exchange Drive and High Street',  source:'PDO 2018 Confirmation Notification 2024, Schedule D.3.d'},
   '16101001130': {zoneId:'BR3', zoneBefore:'Mixed Use: Office/Commercial/Residential',                 zoneAfter:'Institutional',   location:'intersection of Exchange Drive and High Street',  source:'PDO 2018 Confirmation Notification 2024, Schedule D.3.d'},
+  // Santa Cruz pilot parcels — p3 is the 2024 amendment; p1/p2/p4/p5/p6/p7 are established residential
+  '14204012036': {zoneId:'SC2', zoneBefore:'Agricultural', zoneAfter:'Residential',
+                  location:'Bybrook, north of Malvern–Santa Cruz Road',
+                  source:'PDO 2018 Confirmation Notification 2024, Schedule D (SC amendment)'},
+  '14204012097': {zoneId:'SC1', zoneBefore:'Residential', zoneAfter:'Residential',
+                  location:'112 Bybrook, Santa Cruz', source:'St. Elizabeth PDO 2018 (unchanged)'},
+  '14204014035': {zoneId:'SC1', zoneBefore:'Residential', zoneAfter:'Residential',
+                  location:'55 Bybrook, Santa Cruz',  source:'St. Elizabeth PDO 2018 (unchanged)'},
+  '14204014013': {zoneId:'SC1', zoneBefore:'Residential', zoneAfter:'Residential',
+                  location:'32 Bybrook, Santa Cruz',  source:'St. Elizabeth PDO 2018 (unchanged)'},
+  '14204014031': {zoneId:'SC1', zoneBefore:'Residential', zoneAfter:'Residential',
+                  location:'51 Bybrook, Santa Cruz',  source:'St. Elizabeth PDO 2018 (unchanged)'},
+  '14204012085': {zoneId:'SC1', zoneBefore:'Residential', zoneAfter:'Residential',
+                  location:'100 Bybrook, Santa Cruz', source:'St. Elizabeth PDO 2018 (unchanged)'},
+  '14204012073': {zoneId:'SC1', zoneBefore:'Residential', zoneAfter:'Residential',
+                  location:'88 Bybrook, Santa Cruz',  source:'St. Elizabeth PDO 2018 (unchanged)'},
 };
 
 function pointInRing(e, n, ring) {
@@ -1633,8 +1660,8 @@ function renderD2(parcelId) {
     '<div class="zone-ref">Local Planning Area: ' + esc(z.lpa) + ' · Zoning map reference: ' + esc(z.doRef) + '</div>';
   body.appendChild(hero);
 
-  // Amendment notice — real spatial data takes priority
-  if (lvMatch) {
+  // Amendment notice — real spatial data takes priority; suppress if zone unchanged
+  if (lvMatch && lvMatch.zoneBefore !== lvMatch.zoneAfter) {
     var sec = document.createElement('div');
     sec.className = 'zone-section';
     sec.innerHTML = '<div class="zone-sec-title">2024 Amendment</div>' +
