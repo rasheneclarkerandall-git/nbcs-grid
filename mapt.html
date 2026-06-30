@@ -1155,9 +1155,20 @@ var ZONE_POLYGONS = [
   {id:'SC3', lpa:'Santa Cruz', zoneType:'Commercial',            doRef:'SC H3', mapKey:'santa_cruz',           ring:[]},
   {id:'SC4', lpa:'Santa Cruz', zoneType:'Residential',           doRef:'SC H4', mapKey:'santa_cruz',           ring:[]},
   {id:'SC5', lpa:'Santa Cruz', zoneType:'Open Space',            doRef:'SC H5', mapKey:'santa_cruz',           ring:[]},
-  {id:'BR1', lpa:'Black River', zoneType:'Residential',          doRef:'BR H1', mapKey:'black_river',          ring:[]},
-  {id:'BR2', lpa:'Black River', zoneType:'Commercial / Mixed',   doRef:'BR H2', mapKey:'black_river',          ring:[]},
-  {id:'BR3', lpa:'Black River', zoneType:'Industrial / Port',    doRef:'BR H3', mapKey:'black_river',          ring:[]},
+  // BR1/BR2/BR3: digitized — JAD2001 rings, ~40-50m precision on BR2/BR3
+  // Source: PDO 2018 Confirmation Notification 2024, Schedule D.3.b-d
+  {id:'BR1', lpa:'Black River', zoneType:'Recreational',
+   zoneBefore:'Wetland and Mixed Use: Office/Commercial/Industry-Light',
+   locationDesc:'vicinity of Lewis Lane', doRef:'D.3.b', mapKey:'black_river',
+   ring:[[659805.3,654380.7],[660377.5,654359.1],[660323.5,654106.5],[659855.0,654091.4],[659805.3,654380.7]]},
+  {id:'BR2', lpa:'Black River', zoneType:'Mixed Use: Office/Commercial/Residential',
+   zoneBefore:'Residential',
+   locationDesc:'corner of Bloomsdale Road and High Street', doRef:'D.3.c', mapKey:'black_river_urban_core_1_1',
+   ring:[[659071.2,653361.7],[659125.8,653364.9],[659183.9,653254.7],[659156.0,653194.4],[659082.9,653199.1],[659071.2,653361.7]]},
+  {id:'BR3', lpa:'Black River', zoneType:'Institutional',
+   zoneBefore:'Mixed Use: Office/Commercial/Residential',
+   locationDesc:'intersection of Exchange Drive and High Street', doRef:'D.3.d', mapKey:'black_river_urban_core_1_1',
+   ring:[[659175.0,653286.4],[659297.3,653351.5],[659383.0,653286.4],[659383.0,653189.6],[659206.8,653176.9],[659175.0,653286.4]]},
   {id:'JBS1',lpa:'Junction / Bull Savanna', zoneType:'Residential', doRef:'JBS H1', mapKey:'junction_bull_savanna', ring:[]},
   {id:'JBS2',lpa:'Junction / Bull Savanna', zoneType:'Commercial',  doRef:'JBS H2', mapKey:'junction_bull_savanna', ring:[]},
   {id:'JBS3',lpa:'Junction / Bull Savanna', zoneType:'Residential', doRef:'JBS H3', mapKey:'junction_bull_savanna', ring:[]},
@@ -1174,6 +1185,33 @@ var ZONE_POLYGONS = [
 ];
 
 /* Point-in-polygon (ray-casting) for JAD2001 coordinates. */
+/* ── PARCEL ZONE LOOKUP (real spatial join results) ─────────────────────────
+   20 LV_NUMBERs from ST_ELIZABETH.shp spatially joined against BR1/BR2/BR3.
+   Source: parcel_zone_lookup.csv generated from black_river_amendments.shp.
+   When a parcel's LV is found here, D2 shows the amendment details directly. */
+var PARCEL_ZONE_LOOKUP = {
+  '16101006046': {zoneId:'BR1', zoneBefore:'Wetland and Mixed Use: Office/Commercial/Industry-Light', zoneAfter:'Recreational',    location:'vicinity of Lewis Lane',                         source:'PDO 2018 Confirmation Notification 2024, Schedule D.3.b'},
+  '16101006006': {zoneId:'BR1', zoneBefore:'Wetland and Mixed Use: Office/Commercial/Industry-Light', zoneAfter:'Recreational',    location:'vicinity of Lewis Lane',                         source:'PDO 2018 Confirmation Notification 2024, Schedule D.3.b'},
+  '16101006067': {zoneId:'BR1', zoneBefore:'Wetland and Mixed Use: Office/Commercial/Industry-Light', zoneAfter:'Recreational',    location:'vicinity of Lewis Lane',                         source:'PDO 2018 Confirmation Notification 2024, Schedule D.3.b'},
+  '16101006066': {zoneId:'BR1', zoneBefore:'Wetland and Mixed Use: Office/Commercial/Industry-Light', zoneAfter:'Recreational',    location:'vicinity of Lewis Lane',                         source:'PDO 2018 Confirmation Notification 2024, Schedule D.3.b'},
+  '16101006103': {zoneId:'BR1', zoneBefore:'Wetland and Mixed Use: Office/Commercial/Industry-Light', zoneAfter:'Recreational',    location:'vicinity of Lewis Lane',                         source:'PDO 2018 Confirmation Notification 2024, Schedule D.3.b'},
+  '16101006102': {zoneId:'BR1', zoneBefore:'Wetland and Mixed Use: Office/Commercial/Industry-Light', zoneAfter:'Recreational',    location:'vicinity of Lewis Lane',                         source:'PDO 2018 Confirmation Notification 2024, Schedule D.3.b'},
+  '16101001041': {zoneId:'BR2', zoneBefore:'Residential',                                              zoneAfter:'Mixed Use: Office/Commercial/Residential', location:'corner of Bloomsdale Road and High Street', source:'PDO 2018 Confirmation Notification 2024, Schedule D.3.c'},
+  '16101001118': {zoneId:'BR2', zoneBefore:'Residential',                                              zoneAfter:'Mixed Use: Office/Commercial/Residential', location:'corner of Bloomsdale Road and High Street', source:'PDO 2018 Confirmation Notification 2024, Schedule D.3.c'},
+  '16101001125': {zoneId:'BR2', zoneBefore:'Residential',                                              zoneAfter:'Mixed Use: Office/Commercial/Residential', location:'corner of Bloomsdale Road and High Street', source:'PDO 2018 Confirmation Notification 2024, Schedule D.3.c'},
+  '16101001132': {zoneId:'BR2', zoneBefore:'Residential',                                              zoneAfter:'Mixed Use: Office/Commercial/Residential', location:'corner of Bloomsdale Road and High Street', source:'PDO 2018 Confirmation Notification 2024, Schedule D.3.c'},
+  '16101001119': {zoneId:'BR2', zoneBefore:'Residential',                                              zoneAfter:'Mixed Use: Office/Commercial/Residential', location:'corner of Bloomsdale Road and High Street', source:'PDO 2018 Confirmation Notification 2024, Schedule D.3.c'},
+  '16101001126': {zoneId:'BR2', zoneBefore:'Residential',                                              zoneAfter:'Mixed Use: Office/Commercial/Residential', location:'corner of Bloomsdale Road and High Street', source:'PDO 2018 Confirmation Notification 2024, Schedule D.3.c'},
+  '16104005064': {zoneId:'BR3', zoneBefore:'Mixed Use: Office/Commercial/Residential',                 zoneAfter:'Institutional',   location:'intersection of Exchange Drive and High Street',  source:'PDO 2018 Confirmation Notification 2024, Schedule D.3.d'},
+  '16104005008': {zoneId:'BR3', zoneBefore:'Mixed Use: Office/Commercial/Residential',                 zoneAfter:'Institutional',   location:'intersection of Exchange Drive and High Street',  source:'PDO 2018 Confirmation Notification 2024, Schedule D.3.d'},
+  '16104005005': {zoneId:'BR3', zoneBefore:'Mixed Use: Office/Commercial/Residential',                 zoneAfter:'Institutional',   location:'intersection of Exchange Drive and High Street',  source:'PDO 2018 Confirmation Notification 2024, Schedule D.3.d'},
+  '16104005007': {zoneId:'BR3', zoneBefore:'Mixed Use: Office/Commercial/Residential',                 zoneAfter:'Institutional',   location:'intersection of Exchange Drive and High Street',  source:'PDO 2018 Confirmation Notification 2024, Schedule D.3.d'},
+  '16104005069': {zoneId:'BR3', zoneBefore:'Mixed Use: Office/Commercial/Residential',                 zoneAfter:'Institutional',   location:'intersection of Exchange Drive and High Street',  source:'PDO 2018 Confirmation Notification 2024, Schedule D.3.d'},
+  '16101001128': {zoneId:'BR3', zoneBefore:'Mixed Use: Office/Commercial/Residential',                 zoneAfter:'Institutional',   location:'intersection of Exchange Drive and High Street',  source:'PDO 2018 Confirmation Notification 2024, Schedule D.3.d'},
+  '16101001041': {zoneId:'BR3', zoneBefore:'Mixed Use: Office/Commercial/Residential',                 zoneAfter:'Institutional',   location:'intersection of Exchange Drive and High Street',  source:'PDO 2018 Confirmation Notification 2024, Schedule D.3.d'},
+  '16101001130': {zoneId:'BR3', zoneBefore:'Mixed Use: Office/Commercial/Residential',                 zoneAfter:'Institutional',   location:'intersection of Exchange Drive and High Street',  source:'PDO 2018 Confirmation Notification 2024, Schedule D.3.d'},
+};
+
 function pointInRing(e, n, ring) {
   var inside = false, j = ring.length - 1;
   for (var i = 0; i < ring.length; i++) {
@@ -1568,8 +1606,15 @@ function renderD2(parcelId) {
     : '';
 
   var sizeHa = (p.size / 10000).toFixed(3);
-  var ztagClass = z.zoneClass === 'residential' ? 'ztag-residential' :
-                  z.zoneClass === 'agricultural' ? 'ztag-agricultural' : 'ztag-pending';
+
+  // Check real spatial join data first
+  var lvMatch = PARCEL_ZONE_LOOKUP[p.lv] || null;
+  var activeZone = lvMatch ? lvMatch.zoneAfter : z.zone;
+  var ztagClass = lvMatch
+    ? (lvMatch.zoneAfter.toLowerCase().indexOf('recreational') >= 0 ? 'ztag-residential' :
+       lvMatch.zoneAfter.toLowerCase().indexOf('institutional') >= 0 ? 'ztag-pending' : 'ztag-agricultural')
+    : (z.zoneClass === 'residential' ? 'ztag-residential' :
+       z.zoneClass === 'agricultural' ? 'ztag-agricultural' : 'ztag-pending');
 
   // Run V1 with default: single-family (use class 12, units=1)
   var v1single = runV1(parcelId, 12, 1);
@@ -1583,13 +1628,24 @@ function renderD2(parcelId) {
   hero.className = 'zone-hero';
   hero.innerHTML =
     '<div class="ztag ' + ztagClass + '">' +
-    svgMapPin() + esc(z.zone) + '</div>' +
+    svgMapPin() + esc(activeZone) + '</div>' +
     '<h2>' + esc(p.scheme) + '</h2>' +
     '<div class="zone-ref">Local Planning Area: ' + esc(z.lpa) + ' · Zoning map reference: ' + esc(z.doRef) + '</div>';
   body.appendChild(hero);
 
-  // Amendment notice
-  if (z.amendment) {
+  // Amendment notice — real spatial data takes priority
+  if (lvMatch) {
+    var sec = document.createElement('div');
+    sec.className = 'zone-section';
+    sec.innerHTML = '<div class="zone-sec-title">2024 Amendment</div>' +
+      '<p class="amendment-notice">' +
+      '<strong>Zone before:</strong> ' + esc(lvMatch.zoneBefore) + '<br>' +
+      '<strong>Zone after:</strong> ' + esc(lvMatch.zoneAfter) + '<br>' +
+      '<strong>Location:</strong> ' + esc(lvMatch.location) + '<br>' +
+      '<span style="font-size:10.5px;opacity:0.65;">' + esc(lvMatch.source) + '</span>' +
+      '</p>';
+    body.appendChild(sec);
+  } else if (z.amendment) {
     var sec = document.createElement('div');
     sec.className = 'zone-section';
     sec.innerHTML = '<div class="zone-sec-title">2024 Amendment</div>' +
