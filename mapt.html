@@ -1022,7 +1022,6 @@ nav {
         <input id="search" type="text" placeholder="Valuation no., Volume/folio, scheme name…">
       </div>
       <button class="search-btn primary" id="search-btn">Search</button>
-      <button class="search-btn ghost" id="clear-btn">Clear</button>
     </div>
 
     <div class="basemap-toggle">
@@ -1061,6 +1060,9 @@ nav {
         </div>
         <div class="divider-info">Click to explore</div>
         <div id="d1-cards"></div>
+        <div id="d1-clear-wrap" style="display:none;padding:8px 16px 12px;text-align:right;">
+          <button id="clear-btn" style="background:none;border:none;cursor:pointer;font-size:12px;color:rgba(68,68,68,0.5);text-decoration:underline;padding:0;">Clear results</button>
+        </div>
       </div>
     </div>
 
@@ -1908,6 +1910,7 @@ function clearAll() {
   selectedId = null;
   Object.keys(layers).forEach(function(id){ map.removeLayer(layers[id]); });
   document.getElementById('search').value = '';
+  document.getElementById('d1-clear-wrap').style.display = 'none';
   renderD1Cards();
   document.getElementById('d2-body').innerHTML =
     '<div class="d2-empty">' +
@@ -1988,6 +1991,7 @@ function renderD1Status(matched, total, notFound) {
 function renderD1Cards() {
   var container = document.getElementById('d1-cards');
   container.innerHTML = '';
+  document.getElementById('d1-clear-wrap').style.display = matched.length ? 'block' : 'none';
 
   var list = matched;
   list.forEach(function(p) {
@@ -2017,6 +2021,23 @@ clearAll();
 document.getElementById('search-btn').addEventListener('click', runSearch);
 document.getElementById('clear-btn').addEventListener('click', clearAll);
 document.getElementById('search').addEventListener('keydown', function(e){ if (e.key === 'Enter') runSearch(); });
+
+// Read URL params from onboarding flow
+(function() {
+  var params = new URLSearchParams(window.location.search);
+  var parcel = params.get('parcel');
+  var devtype = params.get('devtype');
+  var units = params.get('units');
+
+  if (parcel) {
+    document.getElementById('search').value = parcel;
+    runSearch();
+  }
+
+  // stash devtype/units so renderD2 can pre-fill the intent form
+  window._onboardDevtype = devtype || null;
+  window._onboardUnits = units ? parseInt(units, 10) : null;
+})();
 
 /* ── D2: ZONING PANEL ─────────────────────────────────────────── */
 function renderD2(parcelId) {
@@ -2083,11 +2104,6 @@ function renderD2(parcelId) {
     : (z.zoneClass === 'residential' ? 'ztag-residential' :
        z.zoneClass === 'agricultural' ? 'ztag-agricultural' : 'ztag-pending');
 
-  // Run V1 with default: single-family (use class 12, units=1)
-  var v1single = runV1(parcelId, 12, 1);
-  // Run V1 with: multi-family (use class 12, units=6) for comparison
-  var v1multi  = runV1(parcelId, 12, 6);
-
   body.innerHTML = '';
 
   // Zone hero
@@ -2152,10 +2168,65 @@ function renderD2(parcelId) {
     body.appendChild(restSec);
   }
 
-  // V1 — single family verdict
-  appendV1Section(body, 'V1 Check — Single family dwelling', v1single, 1);
-  // V1 — multi-family verdict
-  appendV1Section(body, 'V1 Check — 6-unit multi-family (scenario)', v1multi, 6);
+  // V1 — dev intent form (user must submit before check runs)
+  var v1Sec = document.createElement('div');
+  v1Sec.className = 'zone-section';
+  v1Sec.id = 'v1-intent-section';
+  v1Sec.innerHTML =
+    '<div class="zone-sec-title">V1 Compliance Check</div>' +
+    '<p style="font-size:12.5px;color:#888;margin:0 0 12px;">Tell us what you\'re planning and we\'ll check it against the development order rules.</p>' +
+    '<div style="display:flex;flex-direction:column;gap:8px;">' +
+      '<div>' +
+        '<label style="font-size:11px;font-weight:600;color:#666;display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:0.04em;">Development type</label>' +
+        '<select id="v1-use-class" style="width:100%;padding:8px 10px;border:1px solid #ddd;border-radius:6px;font-size:13px;color:#444;background:#fff;">' +
+          '<option value="">— Select a use —</option>' +
+          '<option value="12">Dwelling house (residential)</option>' +
+          '<option value="12m">Multi-family / apartment</option>' +
+          '<option value="11">Commercial / retail</option>' +
+          '<option value="8">Light industrial</option>' +
+          '<option value="0">Other / unsure</option>' +
+        '</select>' +
+      '</div>' +
+      '<div id="v1-units-wrap" style="display:none;">' +
+        '<label style="font-size:11px;font-weight:600;color:#666;display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:0.04em;">Number of units</label>' +
+        '<input id="v1-units" type="number" min="1" max="999" value="1" style="width:100%;padding:8px 10px;border:1px solid #ddd;border-radius:6px;font-size:13px;color:#444;box-sizing:border-box;">' +
+      '</div>' +
+      '<button id="v1-run-btn" style="margin-top:4px;padding:9px 16px;background:#518eb4;color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;letter-spacing:0.02em;">Run V1 check</button>' +
+    '</div>' +
+    '<div id="v1-results"></div>';
+  body.appendChild(v1Sec);
+
+  // show units input only for multi-family
+  // Pre-fill from onboarding params if available
+  (function() {
+    var dt = window._onboardDevtype;
+    var un = window._onboardUnits;
+    if (!dt) return;
+    var sel = document.getElementById('v1-use-class');
+    if (dt === 'residential-single') { sel.value = '12'; }
+    else if (dt === 'residential-multi') { sel.value = '12m'; document.getElementById('v1-units-wrap').style.display = 'block'; if (un) document.getElementById('v1-units').value = un; }
+    else if (dt === 'commercial') { sel.value = '11'; }
+    else if (dt === 'agricultural') { sel.value = '0'; }
+  })();
+
+  document.getElementById('v1-use-class').addEventListener('change', function() {
+    document.getElementById('v1-units-wrap').style.display = this.value === '12m' ? 'block' : 'none';
+  });
+
+  document.getElementById('v1-run-btn').addEventListener('click', function() {
+    var useVal = document.getElementById('v1-use-class').value;
+    if (!useVal) { alert('Please select a development type first.'); return; }
+    var units = useVal === '12m' ? parseInt(document.getElementById('v1-units').value, 10) || 1 : 1;
+    var useClass = (useVal === '12m' || useVal === '12') ? 12 : parseInt(useVal, 10);
+    var title = useVal === '12' ? 'V1 Check — Single dwelling house' :
+                useVal === '12m' ? 'V1 Check — Multi-family (' + units + ' units)' :
+                useVal === '11' ? 'V1 Check — Commercial use' :
+                useVal === '8'  ? 'V1 Check — Light industrial' : 'V1 Check — Proposed development';
+    var result = runV1(parcelId, useClass, units);
+    var resDiv = document.getElementById('v1-results');
+    resDiv.innerHTML = '';
+    appendV1Section(resDiv, title, result, units);
+  });
 
   // Flood / referral note
   var refSec = document.createElement('div');
