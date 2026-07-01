@@ -287,7 +287,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Inter'
       It's stored only in your browser session — never sent anywhere except directly to Anthropic.
     </p>
     <div class="key-row">
-      <input class="key-input" id="key-input" type="password" placeholder="sk-ant-api03-…" autocomplete="off" spellcheck="false"/>
+      <input class="key-input" id="key-input" type="password" placeholder="sk-ant-… or sk-or-… (OpenRouter)" autocomplete="off" spellcheck="false"/>
       <button class="key-btn" onclick="startChat()">Start →</button>
     </div>
     <div class="key-note">Your key is used only to call the Claude API and is cleared when you close the tab.</div>
@@ -582,21 +582,30 @@ async function sendMessage() {
   addTyping();
 
   try {
-    var resp = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': API_KEY,
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true'
-      },
-      body: JSON.stringify({
-        model: 'claude-opus-4-8',
-        max_tokens: 400,
-        system: SYSTEM_PROMPT,
-        messages: conversationHistory
-      })
-    });
+    var isOpenRouter = API_KEY.startsWith('sk-or-');
+    var resp = await fetch(
+      isOpenRouter
+        ? 'https://openrouter.ai/api/v1/chat/completions'
+        : 'https://api.anthropic.com/v1/messages',
+      {
+        method: 'POST',
+        headers: isOpenRouter
+          ? { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + API_KEY }
+          : { 'Content-Type': 'application/json', 'x-api-key': API_KEY, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
+        body: isOpenRouter
+          ? JSON.stringify({
+              model: 'anthropic/claude-3-haiku',
+              max_tokens: 400,
+              messages: [{role:'system',content:SYSTEM_PROMPT}].concat(conversationHistory)
+            })
+          : JSON.stringify({
+              model: 'claude-opus-4-8',
+              max_tokens: 400,
+              system: SYSTEM_PROMPT,
+              messages: conversationHistory
+            })
+      }
+    );
 
     if (!resp.ok) {
       var err = await resp.json().catch(function(){ return {}; });
@@ -604,7 +613,7 @@ async function sendMessage() {
     }
 
     var data = await resp.json();
-    var reply = data.content[0].text;
+    var reply = isOpenRouter ? data.choices[0].message.content : data.content[0].text;
 
     removeTyping();
     conversationHistory.push({role:'assistant', content: reply});
