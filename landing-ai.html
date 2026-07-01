@@ -539,7 +539,7 @@ function launch() {
   if (extracted.units) params.set('units', extracted.units);
   if (extracted.scale) params.set('scale', extracted.scale);
   if (extracted.parcel) params.set('parcel', extracted.parcel);
-  window.location.href = 'mapt.html?' + params.toString();
+  window.location.replace('mapt.html?' + params.toString());
 }
 
 function addTyping() {
