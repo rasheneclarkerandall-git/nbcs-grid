@@ -1009,23 +1009,21 @@ nav {
 
 /* ── AI Chat Widget ──────────────────────────────────────────── */
 #ai-chat-btn {
-  position: absolute; bottom: 20px; right: calc(var(--panel-w) + 20px);
-  z-index: 200;
   display: none;
-  align-items: center; gap: 8px;
-  padding: 10px 18px;
+  align-items: center; gap: 6px;
+  padding: 5px 12px;
   background: #1a3a52;
   color: #fff;
-  font-size: 13px; font-weight: 600; font-family: var(--font);
+  font-size: 12px; font-weight: 600; font-family: var(--font);
   border: none; border-radius: 100px;
   cursor: pointer;
-  box-shadow: 0 4px 20px rgba(26,58,82,0.5);
-  transition: background 0.2s, box-shadow 0.2s, transform 0.15s;
+  transition: background 0.2s;
+  margin-left: auto;
 }
-#ai-chat-btn:hover { background: #3b6682; box-shadow: 0 4px 24px rgba(81,142,180,0.4); transform: translateY(-1px); }
-#ai-chat-btn svg { width: 16px; height: 16px; }
+#ai-chat-btn:hover { background: #3b6682; }
+#ai-chat-btn svg { width: 13px; height: 13px; }
 #ai-chat-btn .ai-pulse {
-  width: 7px; height: 7px; border-radius: 50%; background: #4ade80;
+  width: 6px; height: 6px; border-radius: 50%; background: #4ade80;
   animation: ai-pulse 2s ease-in-out infinite;
 }
 @keyframes ai-pulse { 0%,100%{opacity:1}50%{opacity:0.3} }
@@ -1241,9 +1239,16 @@ nav {
 
     <!-- ── D2 Panel ─────────────────────────────────────────── -->
     <div id="panel-d2">
-      <div class="panel-header">
-        <div class="panel-title">Zoning &amp; Development Order — D2</div>
-        <div class="panel-sub">St. Elizabeth Development Order, 2018 · updated 2024</div>
+      <div class="panel-header" style="display:flex;align-items:center;flex-wrap:wrap;gap:6px;">
+        <div>
+          <div class="panel-title">Zoning &amp; Development Order — D2</div>
+          <div class="panel-sub">Development Order, 2018 · updated 2024</div>
+        </div>
+        <button id="ai-chat-btn" onclick="toggleAIPanel()">
+          <span class="ai-pulse"></span>
+          <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M10 2C5.58 2 2 5.58 2 10s3.58 8 8 8 8-3.58 8-8-3.58-8-8-8zm0 3a2 2 0 1 1 0 4 2 2 0 0 1 0-4zm0 11a6 6 0 0 1-5-2.69C5.02 12.1 7.41 11 10 11s4.98 1.1 5 2.31A6 6 0 0 1 10 16z" fill="white"/></svg>
+          Ask AI
+        </button>
       </div>
       <div id="d2-body" style="flex:1;overflow-y:auto;display:flex;flex-direction:column;">
         <div class="d2-empty">
@@ -1257,13 +1262,6 @@ nav {
     </div>
 
     <div id="zoom-hint">Zoom in closer to identify a parcel by clicking</div>
-
-    <!-- AI Ask button (floats above map, appears when parcel selected) -->
-    <button id="ai-chat-btn" onclick="toggleAIPanel()">
-      <span class="ai-pulse"></span>
-      <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M10 2C5.58 2 2 5.58 2 10s3.58 8 8 8 8-3.58 8-8-3.58-8-8-8zm0 3a2 2 0 1 1 0 4 2 2 0 0 1 0-4zm0 11a6 6 0 0 1-5-2.69C5.02 12.1 7.41 11 10 11s4.98 1.1 5 2.31A6 6 0 0 1 10 16z" fill="white"/></svg>
-      Ask AI
-    </button>
 
     <!-- AI Chat Panel (anchored inside D2 panel) -->
     <div id="ai-panel">
@@ -2319,6 +2317,8 @@ function renderD2(parcelId) {
     } else {
       document.getElementById('d2-body').innerHTML = '<div class="d2-empty">No zoning data available for this parcel.</div>';
     }
+    // still show AI button even on LPA-fallback path
+    if (window._aiSetParcel) window._aiSetParcel(p, z || {zone: lpaInfo ? lpaInfo.primaryZone : 'Unknown'}, null);
     return;
   }
 
