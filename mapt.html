@@ -2240,6 +2240,29 @@ document.getElementById('search').addEventListener('keydown', function(e){ if (e
   // stash devtype/units so renderD2 can pre-fill the intent form
   window._onboardDevtype = devtype || null;
   window._onboardUnits = units ? parseInt(units, 10) : null;
+
+  // show onboarding context banner in D2 if devtype was passed
+  if (devtype) {
+    var dtLabels = {
+      single_dwelling:'Single dwelling', multi_family:'Multi-family / apartment',
+      commercial:'Commercial / retail', industrial:'Light industrial',
+      agricultural:'Agricultural', other:'Other'
+    };
+    var scaleLabels = {small:'Small',medium:'Medium',large:'Large',unsure:'Not decided'};
+    var roleLabels = {developer:'Developer / Investor',planner:'Town Planner',architect:'Architect / Designer',other:'Landowner / Other'};
+    var role = params.get('role');
+    var scale = params.get('scale');
+    var banner = document.createElement('div');
+    banner.id = 'onboard-banner';
+    banner.style.cssText = 'padding:10px 14px;background:#f0f6fb;border-bottom:1px solid #dce8f0;font-size:12px;color:#3b6682;display:flex;align-items:flex-start;gap:8px;';
+    var rows = [];
+    if (role) rows.push('<strong>Role:</strong> ' + (roleLabels[role]||role));
+    rows.push('<strong>Intent:</strong> ' + (dtLabels[devtype]||devtype) + (devtype==='multi_family'&&units?' ('+units+' units)':''));
+    if (scale) rows.push('<strong>Scale:</strong> ' + (scaleLabels[scale]||scale));
+    banner.innerHTML = '<svg width="14" height="14" viewBox="0 0 20 20" fill="none" style="flex-shrink:0;margin-top:1px"><path d="M10 2C5.58 2 2 5.58 2 10s3.58 8 8 8 8-3.58 8-8-3.58-8-8-8zm0 3a2 2 0 1 1 0 4 2 2 0 0 1 0-4zm0 11a6 6 0 0 1-5-2.69C5.02 12.1 7.41 11 10 11s4.98 1.1 5 2.31A6 6 0 0 1 10 16z" fill="#518eb4"/></svg><div>' + rows.join(' &nbsp;·&nbsp; ') + '</div>';
+    var d2body = document.getElementById('d2-body');
+    if (d2body) d2body.insertBefore(banner, d2body.firstChild);
+  }
 })();
 
 /* ── D2: ZONING PANEL ─────────────────────────────────────────── */

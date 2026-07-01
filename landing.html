@@ -746,9 +746,40 @@ function launch(skip){
   ob.style.opacity='0';
   ob.style.transform='scale(1.03)';
   setTimeout(function(){
-    window.location.href='mapt.html'+(params.toString()?'?'+params.toString():'');
+    // replace so back button doesn't return to a broken mid-animation state
+    window.location.replace('mapt.html'+(params.toString()?'?'+params.toString():''));
   }, 420);
 }
+
+// reset hero if browser restores this page from bfcache
+window.addEventListener('pageshow', function(e){
+  if(e.persisted){
+    document.getElementById('hero').style.cssText='';
+    document.getElementById('onboard').style.display='none';
+    document.querySelector('.hero-sub').classList.remove('visible');
+    document.querySelector('.cta-btn').classList.remove('visible');
+    var aw=document.getElementById('ai-link-wrap');
+    if(aw){aw.style.opacity='0';aw.style.transform='translateY(10px)';}
+    // re-trigger animations
+    document.querySelectorAll('.hero-headline .word').forEach(function(w){
+      w.style.opacity='0';w.style.transform='translateY(40px)';w.style.filter='blur(12px)';
+    });
+    setTimeout(function(){
+      document.querySelectorAll('.hero-headline .word').forEach(function(w,i){
+        setTimeout(function(){
+          w.style.transition='opacity 0.6s cubic-bezier(0.22,1,0.36,1),transform 0.6s cubic-bezier(0.22,1,0.36,1),filter 0.6s cubic-bezier(0.22,1,0.36,1)';
+          w.style.opacity='1';w.style.transform='translateY(0)';w.style.filter='blur(0)';
+        },200+i*160);
+      });
+      setTimeout(function(){
+        document.querySelector('.hero-sub').classList.add('visible');
+        document.querySelector('.cta-btn').classList.add('visible');
+        var aw=document.getElementById('ai-link-wrap');
+        if(aw){aw.style.opacity='1';aw.style.transform='none';}
+      },500);
+    },50);
+  }
+});
 </script>
 </body>
 </html>
