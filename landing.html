@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mapt — St. Elizabeth Planning Intelligence</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --blue:   #518eb4;
+    --dark:   #3b6682;
+    --gray:   #444444;
+    --light:  #f5f7fa;
+    --white:  #ffffff;
+    --muted:  #8a9bb0;
+    --border: #dde3ea;
+    --radius: 10px;
+    --shadow: 0 2px 16px rgba(59,102,130,0.10);
+  }
+
+  html, body {
+    height: 100%;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--light);
+    color: var(--gray);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── Layout ── */
+  .shell {
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  /* ── Left brand panel ── */
+  .brand-panel {
+    background: linear-gradient(160deg, #3b6682 0%, #2a4a5e 100%);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 48px 52px;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+  }
+
+  .wordmark {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--white);
+    letter-spacing: -0.5px;
+  }
+  .wordmark span { color: var(--blue); }
+
+  .brand-tagline {
+    color: rgba(255,255,255,0.55);
+    font-size: 13px;
+    margin-top: 6px;
+    letter-spacing: 0.02em;
+  }
+
+  .brand-visual {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 0;
+  }
+
+  .map-placeholder {
+    width: 100%;
+    max-width: 360px;
+    aspect-ratio: 4/3;
+    border-radius: 12px;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.12);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    color: rgba(255,255,255,0.4);
+    font-size: 13px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* subtle grid lines to evoke a map */
+  .map-placeholder::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
+    background-size: 32px 32px;
+  }
+
+  .map-icon {
+    position: relative;
+    z-index: 1;
+  }
+
+  .map-label {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    line-height: 1.5;
+  }
+
+  /* animated parcels hint */
+  .parcel-dots {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+  }
+  .dot {
+    position: absolute;
+    border-radius: 3px;
+    background: rgba(81,142,180,0.25);
+    border: 1px solid rgba(81,142,180,0.4);
+    animation: pulse 3s ease-in-out infinite;
+  }
+  .dot:nth-child(1) { width: 52px; height: 36px; left: 20%; top: 30%; animation-delay: 0s; }
+  .dot:nth-child(2) { width: 38px; height: 28px; left: 44%; top: 22%; animation-delay: 0.6s; }
+  .dot:nth-child(3) { width: 44px; height: 32px; left: 55%; top: 48%; animation-delay: 1.2s; }
+  .dot:nth-child(4) { width: 30px; height: 22px; left: 28%; top: 58%; animation-delay: 1.8s; }
+  .dot:nth-child(5) { width: 48px; height: 26px; left: 62%; top: 28%; animation-delay: 0.3s; }
+  @keyframes pulse {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 0.8; }
+  }
+
+  .brand-footer {
+    font-size: 11.5px;
+    color: rgba(255,255,255,0.3);
+    line-height: 1.6;
+  }
+  .brand-footer strong { color: rgba(255,255,255,0.5); }
+
+  /* ── Right form panel ── */
+  .form-panel {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    padding: 48px 52px;
+    overflow-y: auto;
+  }
+
+  .form-panel-inner {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    max-width: 420px;
+    width: 100%;
+    margin: 0 auto;
+  }
+
+  /* ── Progress bar ── */
+  .progress-wrap {
+    margin-bottom: 40px;
+  }
+
+  .progress-steps {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 8px;
+  }
+
+  .step-pip {
+    flex: 1;
+    height: 3px;
+    border-radius: 2px;
+    background: var(--border);
+    transition: background 0.3s;
+  }
+  .step-pip.done   { background: var(--blue); }
+  .step-pip.active { background: var(--dark); }
+
+  .progress-label {
+    font-size: 11.5px;
+    color: var(--muted);
+    letter-spacing: 0.04em;
+  }
+
+  /* ── Step card ── */
+  .step { display: none; flex-direction: column; gap: 24px; flex: 1; }
+  .step.active { display: flex; }
+
+  .step-heading {
+    font-size: 22px;
+    font-weight: 700;
+    color: #2a3a4a;
+    line-height: 1.3;
+    letter-spacing: -0.3px;
+  }
+
+  .step-sub {
+    font-size: 13.5px;
+    color: var(--muted);
+    margin-top: -14px;
+    line-height: 1.55;
+  }
+
+  /* ── Choice grid ── */
+  .choice-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .choice-grid.cols-1 { grid-template-columns: 1fr; }
+
+  .choice-card {
+    padding: 14px 16px;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
+    background: var(--white);
+    user-select: none;
+  }
+  .choice-card:hover {
+    border-color: var(--blue);
+    background: #f0f6fb;
+  }
+  .choice-card.selected {
+    border-color: var(--blue);
+    background: #edf4fa;
+    box-shadow: 0 0 0 3px rgba(81,142,180,0.12);
+  }
+  .choice-card .cc-icon {
+    font-size: 20px;
+    margin-bottom: 7px;
+    display: block;
+  }
+  .choice-card .cc-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #2a3a4a;
+    line-height: 1.3;
+  }
+  .choice-card .cc-sub {
+    font-size: 11.5px;
+    color: var(--muted);
+    margin-top: 3px;
+    line-height: 1.4;
+  }
+
+  /* ── Text / number input ── */
+  .field-label {
+    font-size: 11.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #6a7d8e;
+    margin-bottom: 6px;
+    display: block;
+  }
+
+  .field-input {
+    width: 100%;
+    padding: 11px 14px;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    font-size: 14px;
+    color: var(--gray);
+    background: var(--white);
+    transition: border-color 0.15s;
+    outline: none;
+  }
+  .field-input:focus { border-color: var(--blue); }
+  .field-input::placeholder { color: #b0bcc8; }
+
+  .field-hint {
+    font-size: 11.5px;
+    color: var(--muted);
+    margin-top: 6px;
+  }
+
+  /* ── Navigation buttons ── */
+  .step-nav {
+    display: flex;
+    gap: 10px;
+    margin-top: auto;
+    padding-top: 24px;
+  }
+
+  .btn-next {
+    flex: 1;
+    padding: 13px;
+    background: var(--blue);
+    color: var(--white);
+    border: none;
+    border-radius: var(--radius);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    letter-spacing: 0.02em;
+    transition: background 0.15s;
+  }
+  .btn-next:hover { background: var(--dark); }
+  .btn-next:disabled { background: #b8cfe0; cursor: default; }
+
+  .btn-back {
+    padding: 13px 18px;
+    background: none;
+    color: var(--muted);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    font-size: 14px;
+    cursor: pointer;
+    transition: color 0.15s, border-color 0.15s;
+  }
+  .btn-back:hover { color: var(--gray); border-color: #b0bcc8; }
+
+  /* ── Skip link ── */
+  .skip-link {
+    text-align: center;
+    margin-top: 14px;
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .skip-link a {
+    color: var(--muted);
+    text-decoration: underline;
+    cursor: pointer;
+  }
+  .skip-link a:hover { color: var(--gray); }
+
+  /* ── Responsive ── */
+  @media (max-width: 768px) {
+    .shell { grid-template-columns: 1fr; }
+    .brand-panel { display: none; }
+    .form-panel { padding: 32px 24px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="shell">
+
+  <!-- ── Brand panel (left) ── -->
+  <div class="brand-panel">
+    <div>
+      <div class="wordmark">ma<span>pt</span></div>
+      <div class="brand-tagline">Planning intelligence for St. Elizabeth</div>
+    </div>
+
+    <div class="brand-visual">
+      <div class="map-placeholder">
+        <div class="parcel-dots">
+          <div class="dot"></div>
+          <div class="dot"></div>
+          <div class="dot"></div>
+          <div class="dot"></div>
+          <div class="dot"></div>
+        </div>
+        <svg class="map-icon" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/>
+          <line x1="9" y1="3" x2="9" y2="18"/>
+          <line x1="15" y1="6" x2="15" y2="21"/>
+        </svg>
+        <div class="map-label">St. Elizabeth Development Order<br>2018 · updated 2024</div>
+      </div>
+    </div>
+
+    <div class="brand-footer">
+      <strong>Planit Development Technologies</strong><br>
+      Urban planning &amp; land intelligence<br>
+      St. Elizabeth, Jamaica
+    </div>
+  </div>
+
+  <!-- ── Form panel (right) ── -->
+  <div class="form-panel">
+    <div class="form-panel-inner">
+
+      <!-- Progress -->
+      <div class="progress-wrap">
+        <div class="progress-steps">
+          <div class="step-pip active" id="pip-1"></div>
+          <div class="step-pip" id="pip-2"></div>
+          <div class="step-pip" id="pip-3"></div>
+          <div class="step-pip" id="pip-4"></div>
+        </div>
+        <div class="progress-label" id="progress-label">Step 1 of 4</div>
+      </div>
+
+      <!-- ── Step 1: Who are you? ── -->
+      <div class="step active" id="step-1">
+        <div>
+          <div class="step-heading">Who are you?</div>
+          <div class="step-sub">This helps us show the right information for your context.</div>
+        </div>
+        <div class="choice-grid cols-1">
+          <div class="choice-card" data-val="landowner" onclick="selectChoice(this, 'role')">
+            <span class="cc-icon">🏡</span>
+            <div class="cc-label">Landowner / property owner</div>
+            <div class="cc-sub">Exploring what you can build on your land</div>
+          </div>
+          <div class="choice-card" data-val="developer" onclick="selectChoice(this, 'role')">
+            <span class="cc-icon">🏗️</span>
+            <div class="cc-label">Developer / investor</div>
+            <div class="cc-sub">Evaluating sites for a development project</div>
+          </div>
+          <div class="choice-card" data-val="planner" onclick="selectChoice(this, 'role')">
+            <span class="cc-icon">📐</span>
+            <div class="cc-label">Planning professional</div>
+            <div class="cc-sub">Architect, surveyor, planner, or consultant</div>
+          </div>
+          <div class="choice-card" data-val="researcher" onclick="selectChoice(this, 'role')">
+            <span class="cc-icon">🔍</span>
+            <div class="cc-label">Researcher / analyst</div>
+            <div class="cc-sub">Academic, policy, or investment research</div>
+          </div>
+        </div>
+        <div class="step-nav">
+          <button class="btn-next" id="next-1" onclick="goTo(2)" disabled>Continue</button>
+        </div>
+        <div class="skip-link"><a onclick="skipToMap()">Skip and go straight to the map →</a></div>
+      </div>
+
+      <!-- ── Step 2: What are you planning? ── -->
+      <div class="step" id="step-2">
+        <div>
+          <div class="step-heading">What are you planning?</div>
+          <div class="step-sub">We'll pre-load the relevant compliance checks for your development type.</div>
+        </div>
+        <div class="choice-grid">
+          <div class="choice-card" data-val="residential-single" onclick="selectChoice(this, 'devtype')">
+            <span class="cc-icon">🏠</span>
+            <div class="cc-label">Single dwelling</div>
+            <div class="cc-sub">One house on a lot</div>
+          </div>
+          <div class="choice-card" data-val="residential-multi" onclick="selectChoice(this, 'devtype')">
+            <span class="cc-icon">🏢</span>
+            <div class="cc-label">Multi-family</div>
+            <div class="cc-sub">Apartments or townhouses</div>
+          </div>
+          <div class="choice-card" data-val="commercial" onclick="selectChoice(this, 'devtype')">
+            <span class="cc-icon">🏪</span>
+            <div class="cc-label">Commercial</div>
+            <div class="cc-sub">Shop, office, or mixed-use</div>
+          </div>
+          <div class="choice-card" data-val="agricultural" onclick="selectChoice(this, 'devtype')">
+            <span class="cc-icon">🌿</span>
+            <div class="cc-label">Agricultural</div>
+            <div class="cc-sub">Farming, agro-processing</div>
+          </div>
+          <div class="choice-card" data-val="subdivision" onclick="selectChoice(this, 'devtype')">
+            <span class="cc-icon">📦</span>
+            <div class="cc-label">Subdivision</div>
+            <div class="cc-sub">Splitting or lotting land</div>
+          </div>
+          <div class="choice-card" data-val="other" onclick="selectChoice(this, 'devtype')">
+            <span class="cc-icon">❓</span>
+            <div class="cc-label">Not sure yet</div>
+            <div class="cc-sub">I'm still exploring options</div>
+          </div>
+        </div>
+        <div class="step-nav">
+          <button class="btn-back" onclick="goTo(1)">Back</button>
+          <button class="btn-next" id="next-2" onclick="goTo(3)" disabled>Continue</button>
+        </div>
+      </div>
+
+      <!-- ── Step 3: Scale ── -->
+      <div class="step" id="step-3">
+        <div>
+          <div class="step-heading">What's the scale?</div>
+          <div class="step-sub" id="step3-sub">How many units are you thinking?</div>
+        </div>
+        <div id="step3-content">
+          <!-- populated by JS based on devtype -->
+        </div>
+        <div class="step-nav">
+          <button class="btn-back" onclick="goTo(2)">Back</button>
+          <button class="btn-next" id="next-3" onclick="goTo(4)">Continue</button>
+        </div>
+      </div>
+
+      <!-- ── Step 4: Do you have a parcel in mind? ── -->
+      <div class="step" id="step-4">
+        <div>
+          <div class="step-heading">Do you have a parcel in mind?</div>
+          <div class="step-sub">Enter a Valuation Number or Volume/Folio if you know it — or skip and browse the map.</div>
+        </div>
+        <div>
+          <label class="field-label" for="parcel-input">Valuation number or Volume/Folio</label>
+          <input class="field-input" id="parcel-input" type="text" placeholder="e.g. 14204012097 or Vol 1234 Fol 56">
+          <div class="field-hint">You can also search or click a parcel once you're on the map.</div>
+        </div>
+        <div class="step-nav">
+          <button class="btn-back" onclick="goTo(3)">Back</button>
+          <button class="btn-next" onclick="launchMap()">Open the map →</button>
+        </div>
+        <div class="skip-link"><a onclick="launchMap()">Skip and browse the map →</a></div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<script>
+var answers = { role: null, devtype: null, units: null, parcel: null };
+
+/* ── Choice selection ── */
+function selectChoice(el, key) {
+  el.closest('.choice-grid').querySelectorAll('.choice-card').forEach(function(c) {
+    c.classList.remove('selected');
+  });
+  el.classList.add('selected');
+  answers[key] = el.dataset.val;
+
+  if (key === 'role') document.getElementById('next-1').disabled = false;
+  if (key === 'devtype') {
+    document.getElementById('next-2').disabled = false;
+    buildStep3(el.dataset.val);
+  }
+}
+
+/* ── Build step 3 content based on devtype ── */
+function buildStep3(devtype) {
+  var content = document.getElementById('step3-content');
+  var sub = document.getElementById('step3-sub');
+
+  if (devtype === 'residential-single') {
+    sub.textContent = 'Just one dwelling on the lot?';
+    content.innerHTML =
+      '<div class="choice-grid cols-1">' +
+        '<div class="choice-card selected" data-val="1" onclick="selectChoice(this,\'units\')"><span class="cc-icon">🏠</span><div class="cc-label">Yes, a single house</div></div>' +
+        '<div class="choice-card" data-val="2" onclick="selectChoice(this,\'units\')"><span class="cc-icon">🏠🏠</span><div class="cc-label">Two dwellings (semi-detached / helper's quarters)</div></div>' +
+      '</div>';
+    answers.units = '1';
+
+  } else if (devtype === 'residential-multi') {
+    sub.textContent = 'How many units are you planning?';
+    content.innerHTML =
+      '<div class="choice-grid">' +
+        '<div class="choice-card" data-val="3" onclick="selectChoice(this,\'units\')"><span class="cc-icon">3️⃣</span><div class="cc-label">3 units</div></div>' +
+        '<div class="choice-card" data-val="6" onclick="selectChoice(this,\'units\')"><span class="cc-icon">6️⃣</span><div class="cc-label">6 units</div></div>' +
+        '<div class="choice-card" data-val="12" onclick="selectChoice(this,\'units\')"><span class="cc-icon">🔢</span><div class="cc-label">7–20 units</div></div>' +
+        '<div class="choice-card" data-val="25" onclick="selectChoice(this,\'units\')"><span class="cc-icon">🏢</span><div class="cc-label">20+ units</div></div>' +
+      '</div>' +
+      '<div style="margin-top:10px">' +
+        '<label class="field-label" for="units-custom">Or enter exact number</label>' +
+        '<input class="field-input" id="units-custom" type="number" min="1" placeholder="e.g. 8" oninput="answers.units=this.value">' +
+      '</div>';
+    answers.units = null;
+
+  } else if (devtype === 'commercial') {
+    sub.textContent = 'What kind of commercial use?';
+    content.innerHTML =
+      '<div class="choice-grid cols-1">' +
+        '<div class="choice-card" data-val="retail" onclick="selectChoice(this,\'units\')"><span class="cc-icon">🛒</span><div class="cc-label">Retail / shop</div><div class="cc-sub">Grocery, hardware, general trade</div></div>' +
+        '<div class="choice-card" data-val="office" onclick="selectChoice(this,\'units\')"><span class="cc-icon">💼</span><div class="cc-label">Office / professional services</div><div class="cc-sub">Clinic, law office, financial services</div></div>' +
+        '<div class="choice-card" data-val="hospitality" onclick="selectChoice(this,\'units\')"><span class="cc-icon">🏨</span><div class="cc-label">Hospitality / tourism</div><div class="cc-sub">Hotel, guesthouse, villa</div></div>' +
+        '<div class="choice-card" data-val="mixed" onclick="selectChoice(this,\'units\')"><span class="cc-icon">🏗️</span><div class="cc-label">Mixed-use</div><div class="cc-sub">Ground-floor commercial with residential above</div></div>' +
+      '</div>';
+    answers.units = null;
+
+  } else {
+    sub.textContent = 'Any additional details? (optional)';
+    content.innerHTML =
+      '<div>' +
+        '<label class="field-label" for="notes-input">Brief description</label>' +
+        '<input class="field-input" id="notes-input" type="text" placeholder="e.g. Subdivision of 5 lots, agro-processing shed…">' +
+      '</div>';
+    answers.units = 'n/a';
+  }
+}
+
+/* ── Navigation ── */
+function goTo(stepNum) {
+  document.querySelectorAll('.step').forEach(function(s) { s.classList.remove('active'); });
+  document.getElementById('step-' + stepNum).classList.add('active');
+
+  for (var i = 1; i <= 4; i++) {
+    var pip = document.getElementById('pip-' + i);
+    pip.className = 'step-pip' + (i < stepNum ? ' done' : i === stepNum ? ' active' : '');
+  }
+  document.getElementById('progress-label').textContent = 'Step ' + stepNum + ' of 4';
+}
+
+/* ── Build map URL and navigate ── */
+function launchMap() {
+  var parcel = document.getElementById('parcel-input') ? document.getElementById('parcel-input').value.trim() : '';
+  answers.parcel = parcel || null;
+
+  var params = new URLSearchParams();
+  if (answers.role)   params.set('role', answers.role);
+  if (answers.devtype) params.set('devtype', answers.devtype);
+  if (answers.units && answers.units !== 'n/a') params.set('units', answers.units);
+  if (answers.parcel) params.set('parcel', answers.parcel);
+
+  var target = 'mapt.html' + (params.toString() ? '?' + params.toString() : '');
+  window.location.href = target;
+}
+
+function skipToMap() {
+  window.location.href = 'mapt.html';
+}
+</script>
+</body>
+</html>
