@@ -1007,6 +1007,176 @@ nav {
 }
 .referral-row svg { flex-shrink: 0; margin-top: 1px; }
 
+/* ── AI Chat Widget ──────────────────────────────────────────── */
+#ai-chat-btn {
+  position: absolute; bottom: 20px; right: calc(var(--panel-w) + 20px);
+  z-index: 200;
+  display: none;
+  align-items: center; gap: 8px;
+  padding: 10px 18px;
+  background: #1a3a52;
+  color: #fff;
+  font-size: 13px; font-weight: 600; font-family: var(--font);
+  border: none; border-radius: 100px;
+  cursor: pointer;
+  box-shadow: 0 4px 20px rgba(26,58,82,0.5);
+  transition: background 0.2s, box-shadow 0.2s, transform 0.15s;
+}
+#ai-chat-btn:hover { background: #3b6682; box-shadow: 0 4px 24px rgba(81,142,180,0.4); transform: translateY(-1px); }
+#ai-chat-btn svg { width: 16px; height: 16px; }
+#ai-chat-btn .ai-pulse {
+  width: 7px; height: 7px; border-radius: 50%; background: #4ade80;
+  animation: ai-pulse 2s ease-in-out infinite;
+}
+@keyframes ai-pulse { 0%,100%{opacity:1}50%{opacity:0.3} }
+
+#ai-panel {
+  position: absolute; bottom: 0; right: 0;
+  width: var(--panel-w);
+  height: 0;
+  z-index: 300;
+  display: flex; flex-direction: column;
+  background: #0d1f2d;
+  border-top: 1px solid rgba(81,142,180,0.25);
+  overflow: hidden;
+  transition: height 0.35s cubic-bezier(0.22,1,0.36,1);
+}
+#ai-panel.open { height: min(440px, 60vh); }
+
+.ai-panel-header {
+  padding: 12px 16px;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+  display: flex; align-items: center; gap: 10px;
+  flex-shrink: 0;
+  background: rgba(255,255,255,0.03);
+}
+.ai-panel-avatar {
+  width: 28px; height: 28px; border-radius: 8px;
+  background: linear-gradient(135deg, #1a3a52, #518eb4);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.ai-panel-avatar svg { width: 14px; height: 14px; }
+.ai-panel-name { font-size: 13px; font-weight: 600; color: #fff; letter-spacing: -0.01em; }
+.ai-panel-sub { font-size: 11px; color: rgba(255,255,255,0.4); display: flex; align-items: center; gap: 4px; }
+.ai-panel-sub .dot { width: 5px; height: 5px; border-radius: 50%; background: #4ade80; animation: ai-pulse 2s ease-in-out infinite; }
+.ai-panel-close {
+  margin-left: auto;
+  background: none; border: none; cursor: pointer;
+  color: rgba(255,255,255,0.4); padding: 4px;
+  border-radius: 6px; transition: color 0.2s, background 0.2s;
+  display: flex; align-items: center;
+}
+.ai-panel-close:hover { color: #fff; background: rgba(255,255,255,0.08); }
+
+#ai-messages {
+  flex: 1; overflow-y: auto;
+  padding: 14px 14px;
+  display: flex; flex-direction: column; gap: 12px;
+  scroll-behavior: smooth;
+}
+#ai-messages::-webkit-scrollbar { width: 3px; }
+#ai-messages::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+
+.ai-msg { display: flex; gap: 8px; align-items: flex-end; max-width: 90%; animation: ai-msg-in 0.28s cubic-bezier(0.22,1,0.36,1); }
+.ai-msg.ai-role { align-self: flex-start; }
+.ai-msg.user-role { align-self: flex-end; flex-direction: row-reverse; }
+@keyframes ai-msg-in { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:none} }
+
+.ai-msg .av {
+  width: 22px; height: 22px; border-radius: 6px;
+  background: linear-gradient(135deg,#1a3a52,#518eb4);
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.ai-msg .av svg { width: 11px; height: 11px; }
+
+.ai-bbl {
+  padding: 9px 12px;
+  border-radius: 14px;
+  font-size: 12.5px; line-height: 1.55;
+  font-family: var(--font);
+}
+.ai-role .ai-bbl {
+  background: rgba(81,142,180,0.12);
+  border: 1px solid rgba(81,142,180,0.15);
+  border-bottom-left-radius: 3px;
+  color: rgba(255,255,255,0.9);
+}
+.user-role .ai-bbl {
+  background: #518eb4;
+  border-bottom-right-radius: 3px;
+  color: #fff;
+}
+
+.ai-typing { display: flex; gap: 4px; align-items: center; padding: 2px 0; }
+.ai-td { width: 5px; height: 5px; border-radius: 50%; background: rgba(255,255,255,0.35); animation: ai-td 1.2s ease-in-out infinite; }
+.ai-td:nth-child(2){animation-delay:0.2s}.ai-td:nth-child(3){animation-delay:0.4s}
+@keyframes ai-td{0%,60%,100%{transform:translateY(0);opacity:0.35}30%{transform:translateY(-4px);opacity:1}}
+
+.ai-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+.ai-chip {
+  padding: 5px 11px;
+  background: rgba(81,142,180,0.12);
+  border: 1px solid rgba(81,142,180,0.25);
+  border-radius: 100px;
+  font-size: 11px; color: #80bcd8; cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+}
+.ai-chip:hover { background: rgba(81,142,180,0.25); border-color: rgba(81,142,180,0.5); }
+
+.ai-input-row {
+  padding: 10px 12px;
+  border-top: 1px solid rgba(255,255,255,0.07);
+  display: flex; gap: 8px; align-items: flex-end;
+  flex-shrink: 0;
+}
+#ai-input {
+  flex: 1; padding: 9px 12px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 10px;
+  color: #fff; font-size: 12.5px; font-family: var(--font);
+  outline: none; resize: none; min-height: 36px; max-height: 90px;
+  line-height: 1.5;
+  transition: border-color 0.2s;
+}
+#ai-input:focus { border-color: rgba(81,142,180,0.5); }
+#ai-input::placeholder { color: rgba(255,255,255,0.3); }
+#ai-send {
+  width: 34px; height: 34px; flex-shrink: 0;
+  background: #518eb4; border: none; border-radius: 8px;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: background 0.2s, transform 0.1s;
+}
+#ai-send:hover { background: #62a0c8; }
+#ai-send:active { transform: scale(0.92); }
+#ai-send:disabled { background: rgba(255,255,255,0.1); cursor: not-allowed; }
+#ai-send svg { width: 15px; height: 15px; }
+
+/* key prompt inside panel */
+.ai-key-prompt {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 20px 18px; text-align: center; gap: 10px;
+}
+.ai-key-prompt p { font-size: 12px; color: rgba(255,255,255,0.5); line-height: 1.5; }
+.ai-key-row { display: flex; gap: 7px; width: 100%; }
+.ai-key-input {
+  flex: 1; padding: 9px 12px;
+  background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 9px; color: #fff; font-size: 12px; font-family: var(--font);
+  outline: none; transition: border-color 0.2s;
+}
+.ai-key-input:focus { border-color: rgba(81,142,180,0.5); }
+.ai-key-input::placeholder { color: rgba(255,255,255,0.25); }
+.ai-key-save {
+  padding: 0 14px; background: #518eb4; color: #fff;
+  font-size: 12px; font-weight: 600; font-family: var(--font);
+  border: none; border-radius: 9px; cursor: pointer;
+  transition: background 0.2s; white-space: nowrap;
+}
+.ai-key-save:hover { background: #62a0c8; }
+
 </style>
 </head>
 <body>
@@ -1087,6 +1257,36 @@ nav {
     </div>
 
     <div id="zoom-hint">Zoom in closer to identify a parcel by clicking</div>
+
+    <!-- AI Ask button (floats above map, appears when parcel selected) -->
+    <button id="ai-chat-btn" onclick="toggleAIPanel()">
+      <span class="ai-pulse"></span>
+      <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M10 2C5.58 2 2 5.58 2 10s3.58 8 8 8 8-3.58 8-8-3.58-8-8-8zm0 3a2 2 0 1 1 0 4 2 2 0 0 1 0-4zm0 11a6 6 0 0 1-5-2.69C5.02 12.1 7.41 11 10 11s4.98 1.1 5 2.31A6 6 0 0 1 10 16z" fill="white"/></svg>
+      Ask AI
+    </button>
+
+    <!-- AI Chat Panel (anchored inside D2 panel) -->
+    <div id="ai-panel">
+      <div class="ai-panel-header">
+        <div class="ai-panel-avatar">
+          <svg viewBox="0 0 20 20" fill="none"><path d="M10 2C5.58 2 2 5.58 2 10s3.58 8 8 8 8-3.58 8-8-3.58-8-8-8zm0 3a2 2 0 1 1 0 4 2 2 0 0 1 0-4zm0 11a6 6 0 0 1-5-2.69C5.02 12.1 7.41 11 10 11s4.98 1.1 5 2.31A6 6 0 0 1 10 16z" fill="white" opacity="0.9"/></svg>
+        </div>
+        <div>
+          <div class="ai-panel-name">Planning Assistant</div>
+          <div class="ai-panel-sub"><span class="dot"></span> Powered by Claude</div>
+        </div>
+        <button class="ai-panel-close" onclick="toggleAIPanel()">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M11 3L3 11M3 3l8 8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+      <div id="ai-messages"></div>
+      <div class="ai-input-row">
+        <textarea id="ai-input" placeholder="Ask about this parcel…" rows="1"></textarea>
+        <button id="ai-send" onclick="aiSend()">
+          <svg viewBox="0 0 18 18" fill="none"><path d="M9 14V4M4 9l5-5 5 5" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
+    </div>
 
   </div><!-- .main -->
 </div><!-- #app -->
@@ -2241,6 +2441,11 @@ function renderD2(parcelId) {
     var resDiv = document.getElementById('v1-results');
     resDiv.innerHTML = '';
     appendV1Section(resDiv, title, result, units);
+    // update AI context with V1 result
+    if (window._aiSetParcel && window._aiZoning) {
+      var parcelObj = PARCELS.find(function(x){ return x.id === parcelId; });
+      window._aiSetParcel(parcelObj, window._aiZoning, {useLabel: title, verdict: result.verdict, flags: result.flags});
+    }
   });
 
   // Flood / referral note
@@ -2252,6 +2457,12 @@ function renderD2(parcelId) {
     '<span><strong>Flood risk (SC H12):</strong> ' + esc(z.floodRisk) + '</span>' +
     '</div>';
   body.appendChild(refSec);
+
+  // Feed parcel + zoning context to the AI panel
+  if (window._aiSetParcel) {
+    var parcelObj = PARCELS.find(function(x){ return x.id === parcelId; });
+    window._aiSetParcel(parcelObj, z, null);
+  }
 }
 
 function appendV1Section(body, title, v1, units) {
@@ -2320,6 +2531,279 @@ function wireToggle(panelId, btnId) {
 
 wireToggle('panel-d1', 'toggle-d1');
 wireToggle('panel-d2', 'toggle-d2');
+
+})();
+
+/* ── AI CHAT PANEL ─────────────────────────────────────────────── */
+(function(){
+  var AI_KEY = sessionStorage.getItem('mapt_ai_key') || '';
+  var aiHistory = [];
+  var currentParcelContext = null;
+  var aiOpen = false;
+  var aiReady = false;
+
+  window.toggleAIPanel = function() {
+    var panel = document.getElementById('ai-panel');
+    aiOpen = !aiOpen;
+    panel.classList.toggle('open', aiOpen);
+    if (aiOpen && !aiReady) initAIPanel();
+  };
+
+  function initAIPanel() {
+    var msgs = document.getElementById('ai-messages');
+    msgs.innerHTML = '';
+    aiHistory = [];
+
+    if (!AI_KEY) {
+      showKeyPrompt();
+      return;
+    }
+    startAIConversation();
+  }
+
+  function showKeyPrompt() {
+    var msgs = document.getElementById('ai-messages');
+    var inp = document.getElementById('ai-input');
+    var snd = document.getElementById('ai-send');
+    inp.style.display = 'none';
+    snd.style.display = 'none';
+
+    var kp = document.createElement('div');
+    kp.className = 'ai-key-prompt';
+    kp.innerHTML =
+      '<p>Paste your Anthropic API key to activate the planning assistant.<br>Stored only in this browser session.</p>' +
+      '<div class="ai-key-row">' +
+        '<input class="ai-key-input" id="ai-key-field" type="password" placeholder="sk-ant-api03-…"/>' +
+        '<button class="ai-key-save" onclick="window._aiSaveKey()">Save</button>' +
+      '</div>';
+    msgs.appendChild(kp);
+
+    window._aiSaveKey = function() {
+      var k = document.getElementById('ai-key-field').value.trim();
+      if (!k || !k.startsWith('sk-')) { document.getElementById('ai-key-field').style.borderColor='#f87171'; return; }
+      AI_KEY = k;
+      sessionStorage.setItem('mapt_ai_key', k);
+      inp.style.display = '';
+      snd.style.display = '';
+      msgs.innerHTML = '';
+      startAIConversation();
+    };
+
+    document.getElementById('ai-key-field').addEventListener('keydown', function(e){
+      if(e.key==='Enter') window._aiSaveKey();
+    });
+  }
+
+  function buildSystemPrompt() {
+    var p = currentParcelContext;
+    if (!p) return 'You are a helpful planning assistant.';
+
+    var z = window._aiZoning || {};
+    var v1Summary = window._aiV1 || null;
+
+    var prompt = 'You are a planning intelligence assistant for Mapt, a development order and zoning advisory tool for Jamaica.\n\n';
+    prompt += 'The user has selected a specific parcel. Answer questions about it accurately and concisely. ' +
+              'Base answers on the data provided. If something is uncertain or not in the data, say so rather than guessing.\n\n';
+    prompt += '== SELECTED PARCEL ==\n';
+    prompt += 'LV Number: ' + p.lv + '\n';
+    prompt += 'Location: ' + p.location + '\n';
+    prompt += 'Scheme: ' + (p.scheme || 'N/A') + '\n';
+    prompt += 'Land Class: ' + (p.landClass || 'Unknown') + '\n';
+    prompt += 'Land Type (recorded use): ' + (p.landType || 'Unknown') + '\n';
+    prompt += 'Size: ' + (p.size ? p.size + ' m²' : 'Unknown') + '\n';
+    if (p.jad2001) prompt += 'Coordinates (JAD2001): E ' + p.jad2001.e.toFixed(0) + ', N ' + p.jad2001.n.toFixed(0) + '\n';
+
+    if (z && z.zone) {
+      prompt += '\n== ZONING DATA ==\n';
+      prompt += 'Zone: ' + z.zone + '\n';
+      if (z.zoneFull) prompt += 'Zone description: ' + z.zoneFull + '\n';
+      if (z.floodRisk) prompt += 'Flood risk: ' + z.floodRisk + '\n';
+      if (z.permittedUses && z.permittedUses.length) prompt += 'Permitted uses: ' + z.permittedUses.join(', ') + '\n';
+      if (z.restrictions && z.restrictions.length) prompt += 'Restrictions: ' + z.restrictions.join('; ') + '\n';
+      if (z.maxHeight) prompt += 'Max building height: ' + z.maxHeight + '\n';
+      if (z.maxCoverage) prompt += 'Max site coverage: ' + z.maxCoverage + '\n';
+      if (z.minSetback) prompt += 'Minimum setbacks: ' + z.minSetback + '\n';
+      if (z.notes) prompt += 'Notes: ' + z.notes + '\n';
+    }
+
+    if (v1Summary) {
+      prompt += '\n== LAST V1 COMPLIANCE CHECK ==\n';
+      prompt += 'Proposed use: ' + (v1Summary.useLabel || 'Unknown') + '\n';
+      prompt += 'Verdict: ' + v1Summary.verdict + '\n';
+      if (v1Summary.flags && v1Summary.flags.length) {
+        prompt += 'Flags:\n';
+        v1Summary.flags.forEach(function(f){ prompt += '  [' + f.sev + '] ' + f.plain + '\n'; });
+      }
+    }
+
+    prompt += '\n== GUIDANCE ==\n';
+    prompt += 'Keep answers concise (2-4 sentences unless the user asks for detail). ' +
+              'Use plain English — avoid jargon where possible. ' +
+              'If asked about permits or approvals, note that the user should verify with NEPA, NWC, NWA, or the relevant Parish Council as appropriate. ' +
+              'Do NOT fabricate specific regulation numbers or section references unless they appear in the data above.';
+
+    return prompt;
+  }
+
+  function startAIConversation() {
+    aiReady = true;
+    var p = currentParcelContext;
+    var greeting = p
+      ? 'I have this parcel loaded — LV ' + p.lv + ' in ' + p.location + ' (' + (p.landClass || 'unknown class') + '). What would you like to know?'
+      : 'Select a parcel on the map first, then I can answer specific questions about it.';
+
+    addAIMsg('ai', greeting, true);
+  }
+
+  var STARTER_CHIPS = [
+    'What can I build here?',
+    'What are the setback rules?',
+    'Is this zoned for commercial use?',
+    'What permits would I need?',
+    'Explain the V1 result',
+    'What\'s the flood risk?'
+  ];
+
+  function addAIMsg(role, text, withChips) {
+    var msgs = document.getElementById('ai-messages');
+    var div = document.createElement('div');
+    div.className = 'ai-msg ' + (role === 'ai' ? 'ai-role' : 'user-role');
+
+    if (role === 'ai') {
+      var av = document.createElement('div');
+      av.className = 'av';
+      av.innerHTML = '<svg viewBox="0 0 20 20" fill="none"><path d="M10 2C5.58 2 2 5.58 2 10s3.58 8 8 8 8-3.58 8-8-3.58-8-8-8zm0 3a2 2 0 1 1 0 4 2 2 0 0 1 0-4zm0 11a6 6 0 0 1-5-2.69C5.02 12.1 7.41 11 10 11s4.98 1.1 5 2.31A6 6 0 0 1 10 16z" fill="white" opacity="0.9"/></svg>';
+      div.appendChild(av);
+    }
+
+    var wrap = document.createElement('div');
+    var bbl = document.createElement('div');
+    bbl.className = 'ai-bbl';
+    bbl.textContent = text;
+    wrap.appendChild(bbl);
+
+    if (withChips && role === 'ai') {
+      var chips = document.createElement('div');
+      chips.className = 'ai-chips';
+      STARTER_CHIPS.forEach(function(c) {
+        var ch = document.createElement('div');
+        ch.className = 'ai-chip';
+        ch.textContent = c;
+        ch.onclick = function() {
+          document.getElementById('ai-input').value = c;
+          aiSend();
+        };
+        chips.appendChild(ch);
+      });
+      wrap.appendChild(chips);
+    }
+
+    div.appendChild(wrap);
+    msgs.appendChild(div);
+    msgs.scrollTop = msgs.scrollHeight;
+  }
+
+  function addTyping() {
+    var msgs = document.getElementById('ai-messages');
+    var div = document.createElement('div');
+    div.className = 'ai-msg ai-role';
+    div.id = 'ai-typing';
+    var av = document.createElement('div');
+    av.className = 'av';
+    av.innerHTML = '<svg viewBox="0 0 20 20" fill="none"><path d="M10 2C5.58 2 2 5.58 2 10s3.58 8 8 8 8-3.58 8-8-3.58-8-8-8zm0 3a2 2 0 1 1 0 4 2 2 0 0 1 0-4zm0 11a6 6 0 0 1-5-2.69C5.02 12.1 7.41 11 10 11s4.98 1.1 5 2.31A6 6 0 0 1 10 16z" fill="white" opacity="0.9"/></svg>';
+    div.appendChild(av);
+    var bbl = document.createElement('div');
+    bbl.className = 'ai-bbl';
+    bbl.innerHTML = '<div class="ai-typing"><span class="ai-td"></span><span class="ai-td"></span><span class="ai-td"></span></div>';
+    div.appendChild(bbl);
+    msgs.appendChild(div);
+    msgs.scrollTop = msgs.scrollHeight;
+  }
+
+  function removeTyping() {
+    var el = document.getElementById('ai-typing');
+    if (el) el.remove();
+  }
+
+  window.aiSend = async function() {
+    var inp = document.getElementById('ai-input');
+    var snd = document.getElementById('ai-send');
+    var text = inp.value.trim();
+    if (!text || !AI_KEY) return;
+
+    inp.value = '';
+    inp.style.height = 'auto';
+    snd.disabled = true;
+    addAIMsg('user', text);
+    aiHistory.push({role:'user', content: text});
+    addTyping();
+
+    try {
+      var resp = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': AI_KEY,
+          'anthropic-version': '2023-06-01',
+          'anthropic-dangerous-direct-browser-access': 'true'
+        },
+        body: JSON.stringify({
+          model: 'claude-opus-4-8',
+          max_tokens: 500,
+          system: buildSystemPrompt(),
+          messages: aiHistory
+        })
+      });
+
+      if (!resp.ok) {
+        var err = await resp.json().catch(function(){ return {}; });
+        throw new Error(err.error ? err.error.message : 'API error ' + resp.status);
+      }
+
+      var data = await resp.json();
+      var reply = data.content[0].text;
+      removeTyping();
+      aiHistory.push({role:'assistant', content: reply});
+      addAIMsg('ai', reply, false);
+
+    } catch(e) {
+      removeTyping();
+      addAIMsg('ai', 'Error: ' + e.message);
+    }
+
+    snd.disabled = false;
+    inp.focus();
+  };
+
+  // expose hook so renderD2 can update the parcel context
+  window._aiSetParcel = function(parcel, zoning, v1) {
+    currentParcelContext = parcel;
+    window._aiZoning = zoning;
+    window._aiV1 = v1;
+    aiReady = false; // reset so next open re-initialises with new parcel
+    aiHistory = [];
+    // show the Ask AI button
+    var btn = document.getElementById('ai-chat-btn');
+    if (btn) btn.style.display = 'flex';
+    // if panel already open, refresh
+    if (aiOpen) {
+      document.getElementById('ai-messages').innerHTML = '';
+      startAIConversation();
+    }
+  };
+
+  // input auto-grow + enter key
+  document.addEventListener('DOMContentLoaded', function() {
+    var inp = document.getElementById('ai-input');
+    if (!inp) return;
+    inp.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); window.aiSend(); }
+    });
+    inp.addEventListener('input', function() {
+      this.style.height = 'auto';
+      this.style.height = Math.min(this.scrollHeight, 90) + 'px';
+    });
+  });
 
 })();
 </script>
