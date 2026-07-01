@@ -448,6 +448,14 @@ html,body{
         <path d="M3.75 9h10.5M9.75 4.5L14.25 9l-4.5 4.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
     </button>
+
+    <div id="ai-link-wrap" style="margin-top:18px;opacity:0;transform:translateY(10px);transition:opacity 0.7s ease 1.6s,transform 0.7s ease 1.6s;">
+      <a href="landing-ai.html" style="display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:500;color:rgba(255,255,255,0.45);text-decoration:none;padding:8px 18px;border:1px solid rgba(81,142,180,0.2);border-radius:100px;background:rgba(81,142,180,0.07);transition:all 0.2s;" onmouseover="this.style.color='rgba(255,255,255,0.8)';this.style.borderColor='rgba(81,142,180,0.4)';this.style.background='rgba(81,142,180,0.14)'" onmouseout="this.style.color='rgba(255,255,255,0.45)';this.style.borderColor='rgba(81,142,180,0.2)';this.style.background='rgba(81,142,180,0.07)'">
+        <svg width="14" height="14" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M10 2C5.58 2 2 5.58 2 10s3.58 8 8 8 8-3.58 8-8-3.58-8-8-8zm0 3a2 2 0 1 1 0 4 2 2 0 0 1 0-4zm0 11a6 6 0 0 1-5-2.69C5.02 12.1 7.41 11 10 11s4.98 1.1 5 2.31A6 6 0 0 1 10 16z" fill="currentColor" opacity="0.8"/></svg>
+        Try AI onboarding
+        <span style="padding:2px 7px;background:rgba(81,142,180,0.3);border-radius:100px;font-size:10px;font-weight:700;letter-spacing:0.06em;color:#518eb4;">PRO</span>
+      </a>
+    </div>
   </div>
 
   <!-- ONBOARDING -->
@@ -642,6 +650,8 @@ window.addEventListener('DOMContentLoaded', function(){
   setTimeout(function(){
     document.querySelector('.hero-sub').classList.add('visible');
     document.querySelector('.cta-btn').classList.add('visible');
+    var aw = document.getElementById('ai-link-wrap');
+    if (aw) { aw.style.opacity='1'; aw.style.transform='none'; }
   }, 500);
 
   // parcel enter key
