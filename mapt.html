@@ -2762,21 +2762,30 @@ wireToggle('panel-d2', 'toggle-d2');
     addTyping();
 
     try {
-      var resp = await fetch('https://api.anthropic.com/v1/messages', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': AI_KEY,
-          'anthropic-version': '2023-06-01',
-          'anthropic-dangerous-direct-browser-access': 'true'
-        },
-        body: JSON.stringify({
-          model: 'claude-opus-4-8',
-          max_tokens: 500,
-          system: buildSystemPrompt(),
-          messages: aiHistory
-        })
-      });
+      var isOpenRouter = AI_KEY.startsWith('sk-or-');
+      var resp = await fetch(
+        isOpenRouter
+          ? 'https://openrouter.ai/api/v1/chat/completions'
+          : 'https://api.anthropic.com/v1/messages',
+        {
+          method: 'POST',
+          headers: isOpenRouter
+            ? { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + AI_KEY }
+            : { 'Content-Type': 'application/json', 'x-api-key': AI_KEY, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
+          body: isOpenRouter
+            ? JSON.stringify({
+                model: 'anthropic/claude-3-haiku',
+                max_tokens: 500,
+                messages: [{role:'system',content:buildSystemPrompt()}].concat(aiHistory)
+              })
+            : JSON.stringify({
+                model: 'claude-opus-4-8',
+                max_tokens: 500,
+                system: buildSystemPrompt(),
+                messages: aiHistory
+              })
+        }
+      );
 
       if (!resp.ok) {
         var err = await resp.json().catch(function(){ return {}; });
@@ -2784,7 +2793,7 @@ wireToggle('panel-d2', 'toggle-d2');
       }
 
       var data = await resp.json();
-      var reply = data.content[0].text;
+      var reply = isOpenRouter ? data.choices[0].message.content : data.content[0].text;
       removeTyping();
       aiHistory.push({role:'assistant', content: reply});
       addAIMsg('ai', reply, false);
