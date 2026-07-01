@@ -1031,7 +1031,10 @@ nav {
     </div>
 
     <div class="nav-right">
-      <span class="pilot-badge">St. Elizabeth pilot</span>
+      <a href="landing.html" style="display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:500;color:#666;text-decoration:none;padding:6px 12px;border:1px solid #ddd;border-radius:8px;background:#fff;transition:background 0.15s;" onmouseover="this.style.background='#f4f4f4'" onmouseout="this.style.background='#fff'">
+        <svg width="13" height="13" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M10 7H4M6.5 4.5L4 7l2.5 2.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Back
+      </a>
     </div>
   </nav>
 
@@ -2203,10 +2206,22 @@ function renderD2(parcelId) {
     var un = window._onboardUnits;
     if (!dt) return;
     var sel = document.getElementById('v1-use-class');
-    if (dt === 'residential-single') { sel.value = '12'; }
-    else if (dt === 'residential-multi') { sel.value = '12m'; document.getElementById('v1-units-wrap').style.display = 'block'; if (un) document.getElementById('v1-units').value = un; }
-    else if (dt === 'commercial') { sel.value = '11'; }
-    else if (dt === 'agricultural') { sel.value = '0'; }
+    // map landing.html devtype values → select option values
+    var map = {
+      'single_dwelling': '12', 'residential-single': '12',
+      'multi_family': '12m',   'residential-multi': '12m',
+      'commercial': '11',
+      'industrial': '8',       'light_industrial': '8',
+      'agricultural': '0'
+    };
+    var v = map[dt];
+    if (v) {
+      sel.value = v;
+      if (v === '12m') {
+        document.getElementById('v1-units-wrap').style.display = 'block';
+        if (un) document.getElementById('v1-units').value = un;
+      }
+    }
   })();
 
   document.getElementById('v1-use-class').addEventListener('change', function() {
