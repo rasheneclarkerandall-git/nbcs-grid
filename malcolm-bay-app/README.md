@@ -1,7 +1,7 @@
 # Malcolm Bay Resorts — Development Platform
 
 An investor/homeowner-facing web platform for **Malcolm Bay Resorts**, a 983-acre
-mixed-use coastal development in St. Elizabeth, Jamaica (Malcolm Bay Limited).
+mixed-use coastal development in St. Elizabeth, Jamaica.
 
 It merges two earlier standalone prototypes — the persona-driven prospect journey and
 the master plan tool — into one Next.js app with a real backend, so the AI concierge
