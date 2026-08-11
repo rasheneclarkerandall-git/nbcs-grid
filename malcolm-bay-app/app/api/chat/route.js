@@ -31,6 +31,14 @@ function buildSystemPrompt(persona) {
   return addendum ? `${SYSTEM_PROMPT}\n\n${addendum}` : SYSTEM_PROMPT;
 }
 
+// Lets the chat widget find out whether the concierge is live *before* a
+// visitor types, so a deployment without an API key can present a labelled
+// example instead of erroring at them. Reports only whether a key is set —
+// never any part of the key itself.
+export async function GET() {
+  return NextResponse.json({ configured: Boolean(process.env.ANTHROPIC_API_KEY) });
+}
+
 export async function POST(request) {
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
