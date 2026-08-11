@@ -1,0 +1,210 @@
+[
+  {
+    "zone_id": "DEV-01",
+    "category": "Residential",
+    "acreage": 46.9,
+    "units_or_lots": 165,
+    "total_development_cost_usd": 57105663.0,
+    "cost_per_unit_usd": 346095.0,
+    "draw_schedule_pct_by_year": {
+      "year_1": 0.075,
+      "year_2": 0.075,
+      "year_3": 0.3,
+      "year_4": 0.3,
+      "year_5": 0.25
+    }
+  },
+  {
+    "zone_id": "DEV-02a",
+    "category": "Residential",
+    "acreage": 31.9,
+    "units_or_lots": 122,
+    "total_development_cost_usd": 40632515.0,
+    "cost_per_unit_usd": 333053.0,
+    "draw_schedule_pct_by_year": {
+      "year_1": 0.075,
+      "year_2": 0.075,
+      "year_4": 0.3,
+      "year_5": 0.3,
+      "year_6": 0.25
+    }
+  },
+  {
+    "zone_id": "DEV-02b",
+    "category": "Residential",
+    "acreage": 31.9,
+    "units_or_lots": 114,
+    "total_development_cost_usd": 39294435.0,
+    "cost_per_unit_usd": 344688.0,
+    "draw_schedule_pct_by_year": {
+      "year_1": 0.075,
+      "year_2": 0.075,
+      "year_4": 0.3,
+      "year_5": 0.3,
+      "year_6": 0.25
+    }
+  },
+  {
+    "zone_id": "DEV-03",
+    "category": "Residential",
+    "acreage": 64.53,
+    "units_or_lots": 254,
+    "total_development_cost_usd": 132415290.0,
+    "cost_per_unit_usd": 521320.0,
+    "draw_schedule_pct_by_year": {
+      "year_1": 0.075,
+      "year_2": 0.075,
+      "year_5": 0.3,
+      "year_6": 0.3,
+      "year_7": 0.25
+    }
+  },
+  {
+    "zone_id": "DEV-04",
+    "category": "Residential",
+    "acreage": 29.8,
+    "units_or_lots": 69,
+    "total_development_cost_usd": 44137015.0,
+    "cost_per_unit_usd": 639667.0,
+    "draw_schedule_pct_by_year": {
+      "year_1": 0.075,
+      "year_2": 0.075,
+      "year_5": 0.3,
+      "year_6": 0.3,
+      "year_7": 0.25
+    }
+  },
+  {
+    "zone_id": "DEV-05",
+    "category": "Residential",
+    "acreage": 63.02,
+    "units_or_lots": 102,
+    "total_development_cost_usd": 66346646.0,
+    "cost_per_unit_usd": 650457.0,
+    "draw_schedule_pct_by_year": {
+      "year_1": 0.075,
+      "year_2": 0.075,
+      "year_8": 0.3,
+      "year_9": 0.3,
+      "year_10": 0.25
+    }
+  },
+  {
+    "zone_id": "DEV-06",
+    "category": "Residential",
+    "acreage": 15.5,
+    "units_or_lots": 45,
+    "total_development_cost_usd": 18364877.0,
+    "cost_per_unit_usd": 408108.0,
+    "draw_schedule_pct_by_year": {
+      "year_1": 0.075,
+      "year_2": 0.075,
+      "year_9": 0.3,
+      "year_10": 0.3,
+      "year_11": 0.25
+    }
+  },
+  {
+    "zone_id": "DEV-07",
+    "category": "Mixed Use (Apartments)",
+    "acreage": 37.21,
+    "units_or_lots": 400,
+    "total_development_cost_usd": 79879126.0,
+    "cost_per_unit_usd": 199698.0,
+    "draw_schedule_pct_by_year": {
+      "year_1": 0.075,
+      "year_2": 0.075,
+      "year_10": 0.3,
+      "year_11": 0.3,
+      "year_12": 0.25
+    }
+  },
+  {
+    "zone_id": "DEV-08",
+    "category": "Residential",
+    "acreage": 26.9,
+    "units_or_lots": 83,
+    "total_development_cost_usd": 32164703.0,
+    "cost_per_unit_usd": 387527.0,
+    "draw_schedule_pct_by_year": {
+      "year_1": 0.075,
+      "year_2": 0.075,
+      "year_10": 0.3,
+      "year_11": 0.3,
+      "year_12": 0.25
+    }
+  },
+  {
+    "zone_id": "DEV-09",
+    "category": "Residential",
+    "acreage": 27,
+    "units_or_lots": 90,
+    "total_development_cost_usd": 69291695.0,
+    "cost_per_unit_usd": 769908.0,
+    "draw_schedule_pct_by_year": {
+      "year_1": 0.075,
+      "year_2": 0.075,
+      "year_10": 0.3,
+      "year_11": 0.3,
+      "year_12": 0.25
+    }
+  },
+  {
+    "zone_id": "Marina Homes",
+    "category": "Residential (Marina)",
+    "acreage": 25.53,
+    "units_or_lots": 31,
+    "total_development_cost_usd": 28040747.0,
+    "cost_per_unit_usd": 904540.0,
+    "draw_schedule_pct_by_year": {
+      "year_1": 0.075,
+      "year_2": 0.075,
+      "year_10": 0.3,
+      "year_11": 0.3,
+      "year_12": 0.25
+    }
+  },
+  {
+    "zone_id": "Commercial Units",
+    "category": "Commercial",
+    "acreage": 72,
+    "units_or_lots": 68,
+    "total_development_cost_usd": 324988304.0,
+    "draw_schedule_pct_by_year": {
+      "year_1": 0.075,
+      "year_2": 0.075,
+      "year_3": 0.3,
+      "year_4": 0.3,
+      "year_5": 0.25
+    },
+    "cost_per_sqft_usd": 104.0
+  },
+  {
+    "zone_id": "PRC",
+    "category": "Public Recreation & Commerce",
+    "acreage": 21.68,
+    "units_or_lots": 17,
+    "total_development_cost_usd": 94932545.0,
+    "draw_schedule_pct_by_year": {
+      "year_1": 0.075,
+      "year_2": 0.075,
+      "year_6": 0.3,
+      "year_7": 0.3,
+      "year_8": 0.25
+    },
+    "cost_per_sqft_usd": 105.0
+  },
+  {
+    "zone_id": "Hotels",
+    "category": "Hospitality",
+    "acreage": 365.0,
+    "units_or_lots": 14,
+    "total_development_cost_usd": 19612916.0,
+    "cost_per_unit_usd": null,
+    "draw_schedule_pct_by_year": {
+      "year_1": 0.5,
+      "year_2": 0.5
+    },
+    "note": "Total Development Cost shown is PRE-DEVELOPMENT COST ONLY ($19.6M). Full hotel construction cost not yet modeled."
+  }
+]
