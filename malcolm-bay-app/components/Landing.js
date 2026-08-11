@@ -4,22 +4,47 @@ import Image from "next/image";
 import StatCounter from "./StatCounter";
 import { PORTFOLIO_STATS } from "../data/dataset";
 
+// Drawn marks rather than emoji: emoji as section markers reads as generic,
+// and these encode something about each view — a yield curve, a civic
+// frontage, a plot boundary.
+const MARKS = {
+  investor: (
+    <svg viewBox="0 0 32 32" aria-hidden="true">
+      <path d="M3 25h26" />
+      <path d="M5 21l7-7 5 4 9-11" />
+      <circle cx="12" cy="14" r="1.8" fill="currentColor" stroke="none" />
+      <circle cx="17" cy="18" r="1.8" fill="currentColor" stroke="none" />
+    </svg>
+  ),
+  government: (
+    <svg viewBox="0 0 32 32" aria-hidden="true">
+      <path d="M4 27h24" />
+      <path d="M6 27V13m6 14V13m8 14V13m6 14V13" />
+      <path d="M16 4L3 11h26L16 4z" />
+    </svg>
+  ),
+  homeowner: (
+    <svg viewBox="0 0 32 32" aria-hidden="true">
+      <path d="M4 26V9l12-5 12 5v17" />
+      <path d="M4 26h24" />
+      <path d="M13 26v-8h6v8" />
+    </svg>
+  ),
+};
+
 const PERSONAS = [
   {
     id: "investor",
-    icon: "📈",
     title: "Investor",
     blurb: "Explore zone-by-zone development economics, draw schedules, and lot inventory across the portfolio.",
   },
   {
     id: "government",
-    icon: "🏛️",
     title: "Government Body",
     blurb: "Review employment impact, infrastructure alignment, and the public/green-space commitment.",
   },
   {
     id: "homeowner",
-    icon: "🏡",
     title: "Future Homeowner",
     blurb: "Browse residential lots, floor plans, and what life on a 4-mile stretch of coastline looks like.",
   },
@@ -68,7 +93,7 @@ export default function Landing({ onSelectPersona }) {
         <div className="persona-picker">
           {PERSONAS.map((p) => (
             <button key={p.id} className="persona-card" onClick={() => onSelectPersona(p.id)}>
-              <div className="icon">{p.icon}</div>
+              <span className="persona-mark">{MARKS[p.id]}</span>
               <h3>{p.title}</h3>
               <p>{p.blurb}</p>
             </button>

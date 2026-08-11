@@ -79,23 +79,29 @@ function ZonePanel({ zone }) {
 
       {yearKeys.length > 0 && (
         <>
-          <h3 className="section">Investment Draw Schedule</h3>
-          <div className="draw-bar">
-            {yearKeys.map((k) => {
-              const pct = years[k];
-              const h = Math.round((pct / maxPct) * 52) + 6;
-              const yr = k.split("_")[1];
-              return (
-                <div
-                  key={k}
-                  className="col"
-                  style={{ height: h }}
-                  title={`Year ${yr}: ${Math.round(pct * 100)}%`}
-                >
-                  <span className="yr">Y{yr}</span>
-                </div>
-              );
-            })}
+          <h3 className="section">Investment draw schedule</h3>
+          <div className="draw-chart">
+            <div className="draw-plot">
+              {yearKeys.map((k) => {
+                const pct = years[k];
+                const yr = k.split("_")[1];
+                return (
+                  <div key={k} className="draw-col">
+                    <span className="draw-val">{Math.round(pct * 100)}%</span>
+                    <div
+                      className="draw-fill"
+                      style={{ height: `${Math.max(3, (pct / maxPct) * 66)}px` }}
+                      title={`Year ${yr}: ${Math.round(pct * 100)}% of this zone's spend`}
+                    />
+                  </div>
+                );
+              })}
+            </div>
+            <div className="draw-axis">
+              {yearKeys.map((k) => (
+                <span key={k}>Y{k.split("_")[1]}</span>
+              ))}
+            </div>
           </div>
         </>
       )}

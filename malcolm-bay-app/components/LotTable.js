@@ -22,6 +22,12 @@ export default function LotTable({ zoneId, onSelectLot }) {
 
   if (!zoneId) return null;
 
+  // Magnitude bars are scaled to the largest value currently in view, so the
+  // comparison is against the lots the visitor can actually see.
+  const maxArea = Math.max(...data.lots.map((l) => l.areaSqft || 0), 1);
+  const maxPrice = Math.max(...data.lots.map((l) => l.indicativePriceUsd || 0), 1);
+  const pct = (v, max) => (v ? Math.max(2, Math.round((v / max) * 100)) : 0);
+
   const sorted = [...data.lots].sort((a, b) => {
     if (sort === "price") return (b.indicativePriceUsd || 0) - (a.indicativePriceUsd || 0);
     if (sort === "area") return b.areaSqft - a.areaSqft;
@@ -62,8 +68,8 @@ export default function LotTable({ zoneId, onSelectLot }) {
                 <tr>
                   <th>Lot</th>
                   <th>Type</th>
-                  <th>Area (sq ft)</th>
-                  <th>Indicative Price</th>
+                  <th>Area sq ft</th>
+                  <th>Indicative</th>
                 </tr>
               </thead>
               <tbody>
@@ -71,8 +77,18 @@ export default function LotTable({ zoneId, onSelectLot }) {
                   <tr key={l.id} onClick={() => onSelectLot(l)}>
                     <td>{l.lotNo}</td>
                     <td>{l.lotType}</td>
-                    <td>{fmtNum(l.areaSqft, 0)}</td>
-                    <td className="price-tag">{fmtUSD(l.indicativePriceUsd)}</td>
+                    <td className="num barcell">
+                      <span className="txt">{fmtNum(l.areaSqft, 0)}</span>
+                      <span className="bar">
+                        <i style={{ width: `${pct(l.areaSqft, maxArea)}%` }} />
+                      </span>
+                    </td>
+                    <td className="num barcell price">
+                      <span className="txt price-tag">{fmtUSD(l.indicativePriceUsd)}</span>
+                      <span className="bar">
+                        <i style={{ width: `${pct(l.indicativePriceUsd, maxPrice)}%` }} />
+                      </span>
+                    </td>
                   </tr>
                 ))}
               </tbody>

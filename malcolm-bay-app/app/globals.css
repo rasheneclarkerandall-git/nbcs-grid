@@ -186,25 +186,37 @@ a {
   margin: 40px auto 0;
 }
 .stat-card {
+  position: relative;
   background: #fff;
   border: 1px solid var(--line);
   border-radius: var(--radius);
-  padding: 20px 16px;
+  padding: 22px 16px 18px;
   text-align: center;
-  box-shadow: var(--shadow);
+  box-shadow: 0 1px 0 rgba(1, 61, 115, 0.05), 0 6px 20px rgba(1, 61, 115, 0.07);
+  overflow: hidden;
+}
+.stat-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--teal), var(--aqua));
 }
 .stat-card .value {
   font-family: "Cormorant Garamond", serif;
-  font-size: 32px;
+  font-size: 38px;
   font-weight: 700;
-  color: var(--teal);
+  color: var(--navy);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
 }
 .stat-card .label {
-  font-size: 12.5px;
+  font-size: 11.5px;
   color: var(--muted);
   text-transform: uppercase;
-  letter-spacing: 0.6px;
-  margin-top: 4px;
+  letter-spacing: 0.8px;
+  font-weight: 700;
+  margin-top: 8px;
 }
 
 .persona-picker {
@@ -228,8 +240,28 @@ a {
   border-color: var(--teal);
   transform: translateY(-2px);
 }
-.persona-card .icon {
-  font-size: 28px;
+.persona-mark {
+  display: inline-flex;
+  width: 40px;
+  height: 40px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  background: var(--pale);
+  color: var(--teal);
+}
+.persona-mark svg {
+  width: 23px;
+  height: 23px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.9;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.persona-card:hover .persona-mark {
+  background: var(--teal);
+  color: #fff;
 }
 .persona-card h3 {
   color: var(--navy);
@@ -245,233 +277,212 @@ a {
 
 /* --- Explorer layout --- */
 .explorer-banner {
-  background: linear-gradient(120deg, var(--navy) 0%, var(--teal) 100%);
+  background: linear-gradient(118deg, var(--navy) 0%, var(--teal) 62%, var(--aqua) 100%);
   color: #fff;
-  padding: 20px 24px;
+  padding: 22px 24px;
 }
 .explorer-banner .tag {
   font-size: 11px;
   text-transform: uppercase;
-  letter-spacing: 1.5px;
+  letter-spacing: 1.6px;
   color: #ffe1c4;
-  font-weight: 600;
+  font-weight: 700;
 }
-.explorer-banner h2 {
-  color: #fff;
-  font-size: 24px;
-  margin-top: 4px;
-}
+.explorer-banner h2 { color: #fff; font-size: 26px; margin-top: 5px; }
 .explorer-banner p {
-  color: #d8ecef;
-  font-size: 13.5px;
-  margin-top: 4px;
-  max-width: 720px;
+  color: #d8ecef; font-size: 13.5px; margin-top: 5px; max-width: 74ch; line-height: 1.55;
 }
 
 .explorer-layout {
   display: grid;
-  grid-template-columns: 1fr 400px;
-  gap: 0;
-  min-height: 70vh;
+  grid-template-columns: minmax(0, 1fr) 404px;
+  align-items: start;
 }
-@media (max-width: 900px) {
-  .explorer-layout {
-    grid-template-columns: 1fr;
-  }
-}
+@media (max-width: 980px) { .explorer-layout { grid-template-columns: 1fr; } }
 
-.map-pane {
-  padding: 20px;
-  overflow: auto;
+.map-pane { padding: 22px 24px 88px; min-width: 0; }
+.map-head { margin-bottom: 12px; }
+.map-title { font-size: 19px; color: var(--navy); }
+.map-sub {
+  font-size: 12.5px; color: var(--muted); margin-top: 4px; line-height: 1.55; max-width: 76ch;
 }
-.map-note {
-  font-size: 12px;
-  color: var(--muted);
-  background: #fff;
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  padding: 10px 14px;
-  margin-bottom: 14px;
+.map-frame { position: relative; }
+.map-frame svg {
+  width: 100%; height: auto; display: block;
+  border-radius: 12px; overflow: hidden;
+  background: #dbe9ec;
+  box-shadow: 0 1px 0 rgba(1,61,115,.10), 0 10px 28px rgba(1,61,115,.13);
 }
-.map-pane svg {
-  width: 100%;
-  max-width: 1000px;
-  height: auto;
-  display: block;
+.map-water-label {
+  font-family: "Manrope", sans-serif; font-size: 11px; font-weight: 700;
+  letter-spacing: 1.4px; fill: #2b7f92;
 }
-.zone-shape {
-  cursor: pointer;
-  transition: filter 0.15s ease, stroke-width 0.15s ease;
-}
-.zone-shape:hover {
-  filter: brightness(1.12);
-}
-.zone-shape.selected {
-  stroke: #ff8a3d;
-  stroke-width: 3;
-}
+.zone { cursor: pointer; }
+.zone rect:first-child { transition: fill-opacity .14s ease; }
+.zone:hover rect:first-child { fill-opacity: 1; }
+.zone:focus-visible { outline: none; }
+.zone:focus-visible rect:first-child { stroke: #fff; stroke-width: 3; }
 .zone-label {
-  font-size: 13px;
-  font-weight: 600;
-  fill: #fff;
-  pointer-events: none;
+  font-family: "Manrope", sans-serif; font-size: 13px; font-weight: 700;
+  fill: #fff; pointer-events: none; paint-order: stroke;
+  stroke: rgba(0,0,0,.16); stroke-width: 2.5px;
 }
-.legend {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px 18px;
-  margin-top: 14px;
-  font-size: 12px;
-  color: var(--muted);
-}
-.legend-item {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-.swatch {
-  width: 11px;
-  height: 11px;
-  border-radius: 3px;
-  display: inline-block;
+.zone-acres {
+  font-family: "Manrope", sans-serif; font-size: 11px; font-weight: 600;
+  fill: rgba(255,255,255,.88); pointer-events: none; font-variant-numeric: tabular-nums;
 }
 
+.map-tip {
+  position: absolute; top: 12px; right: 12px; pointer-events: none;
+  background: rgba(255,255,255,.97); border: 1px solid var(--line);
+  border-radius: 10px; padding: 11px 13px; min-width: 186px;
+  box-shadow: 0 8px 22px rgba(1,40,63,.16);
+}
+.map-tip-id { font-weight: 800; font-size: 13.5px; color: var(--navy); }
+.map-tip-cat {
+  font-size: 10.5px; color: var(--teal); font-weight: 700;
+  text-transform: uppercase; letter-spacing: .5px; margin-top: 1px;
+}
+.map-tip-rows { margin: 9px 0 0; display: grid; gap: 4px; }
+.map-tip-rows > div { display: flex; justify-content: space-between; gap: 14px; }
+.map-tip-rows dt { font-size: 11.5px; color: var(--muted); margin: 0; }
+.map-tip-rows dd {
+  font-size: 11.5px; color: var(--ink); font-weight: 700; margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.legend {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 14px 26px; margin-top: 16px;
+  padding-top: 14px; border-top: 1px solid var(--line);
+}
+.legend-family { display: flex; flex-wrap: wrap; align-items: baseline; gap: 5px 13px; align-content: start; }
+.legend-family-name {
+  font-size: 10px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .9px; color: var(--navy); width: 100%;
+}
+.legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); }
+.swatch { width: 11px; height: 11px; border-radius: 3px; display: inline-block; }
+
+/* --- Zone detail panel --- */
 .panel {
-  background: #fff;
-  border-left: 1px solid var(--line);
-  padding: 24px;
-  overflow-y: auto;
+  background: var(--surface); border-left: 1px solid var(--line);
+  padding: 24px 24px 90px; min-height: 60vh;
 }
-.panel .empty-state {
-  color: var(--muted);
-  font-size: 13.5px;
-  line-height: 1.6;
-}
+@media (max-width: 980px) { .panel { border-left: none; border-top: 1px solid var(--line); } }
+.panel .empty-state { color: var(--muted); font-size: 13.5px; line-height: 1.65; }
 .panel .cat {
-  color: var(--teal);
-  font-size: 13px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+  color: var(--teal); font-size: 12px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .6px;
 }
 .note-box {
-  background: var(--pale);
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  padding: 10px 12px;
-  font-size: 12.5px;
-  color: var(--muted);
-  margin-top: 10px;
+  background: var(--warn-bg); border: 1px solid #e8d5ae; border-radius: 8px;
+  padding: 10px 12px; font-size: 12.5px; color: var(--warn); margin-top: 10px; line-height: 1.5;
 }
-.stat-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  margin-top: 16px;
-}
-.stat {
-  background: var(--pale);
-  border-radius: 8px;
-  padding: 10px 12px;
-}
+.stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 16px; }
+.stat { background: var(--pale); border-radius: 9px; padding: 11px 12px; }
 .stat .label {
-  font-size: 11px;
-  color: var(--muted);
-  text-transform: uppercase;
+  font-size: 10.5px; color: var(--muted); text-transform: uppercase;
+  letter-spacing: .5px; font-weight: 700;
 }
 .stat .value {
-  font-size: 16px;
-  font-weight: 700;
-  color: var(--navy);
-  margin-top: 2px;
+  font-size: 17px; font-weight: 700; color: var(--navy); margin-top: 3px;
+  font-variant-numeric: tabular-nums;
 }
-.section {
-  margin-top: 22px;
-  font-size: 15px;
-  color: var(--navy);
+.section { margin-top: 24px; font-size: 16px; }
+
+/* Draw schedule — real bar chart with baseline and value labels */
+.draw-chart { margin-top: 12px; }
+.draw-plot {
+  display: flex; align-items: flex-end; gap: 6px; height: 92px;
+  border-bottom: 1px solid var(--line); padding-bottom: 0;
 }
-.draw-bar {
-  display: flex;
-  align-items: flex-end;
-  gap: 10px;
-  height: 70px;
-  margin-top: 10px;
-  margin-bottom: 22px; /* room for the absolutely-positioned year labels */
+.draw-col { flex: 1; display: flex; flex-direction: column; justify-content: flex-end; height: 100%; }
+.draw-val {
+  font-size: 10.5px; font-weight: 700; color: var(--navy);
+  text-align: center; margin-bottom: 3px; font-variant-numeric: tabular-nums;
 }
-.draw-bar .col {
-  flex: 1;
+.draw-fill {
   background: linear-gradient(180deg, var(--aqua), var(--teal));
-  border-radius: 4px 4px 0 0;
-  min-height: 6px;
-  position: relative;
+  border-radius: 4px 4px 0 0; min-height: 3px;
 }
-.draw-bar .col .yr {
-  position: absolute;
-  bottom: -18px;
-  left: 0;
-  right: 0;
-  text-align: center;
-  font-size: 10px;
-  color: var(--muted);
+.draw-axis { display: flex; gap: 6px; margin-top: 5px; }
+.draw-axis span {
+  flex: 1; text-align: center; font-size: 10.5px; color: var(--muted); font-weight: 600;
 }
 
-.filter-bar {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  padding: 14px 20px;
-  background: #fff;
-  border-bottom: 1px solid var(--line);
-}
+
+/* --- Lot table --- */
+.lot-controls { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+.lot-controls select,
 .filter-bar select,
 .filter-bar input {
   border: 1px solid var(--line);
   border-radius: 8px;
   padding: 8px 10px;
-  font-size: 13px;
+  font-size: 12.5px;
   font-family: inherit;
   background: #fff;
+  color: var(--ink);
+  cursor: pointer;
 }
-
-.lot-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 12.5px;
+.lot-scroll {
+  max-height: 340px;
+  overflow-y: auto;
+  margin-top: 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
 }
+.lot-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
 .lot-table th {
   text-align: left;
-  padding: 6px 8px;
+  padding: 9px 10px;
   color: var(--muted);
   border-bottom: 1px solid var(--line);
   position: sticky;
   top: 0;
   background: #fff;
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 700;
+  z-index: 1;
 }
 .lot-table td {
-  padding: 7px 8px;
+  padding: 9px 10px;
   border-bottom: 1px solid var(--line);
   cursor: pointer;
 }
-.lot-table tr:hover td {
-  background: var(--pale);
+.lot-table tbody tr:last-child td { border-bottom: none; }
+.lot-table tbody tr:hover td { background: var(--pale); }
+.lot-table td.num { font-variant-numeric: tabular-nums; }
+.price-tag { color: var(--teal); font-weight: 700; }
+
+/* Inline magnitude bar: lets you scan for large or cheap lots without reading
+   every figure. Width is relative to the largest value currently in view. */
+.barcell { position: relative; }
+.barcell .txt { position: relative; display: block; padding-bottom: 6px; }
+.barcell .bar {
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  bottom: 6px;
+  height: 3px;
+  background: rgba(1, 61, 115, 0.09);
+  border-radius: 2px;
+  overflow: hidden;
 }
-.lot-scroll {
-  max-height: 320px;
-  overflow-y: auto;
-  margin-top: 8px;
-  border: 1px solid var(--line);
-  border-radius: 8px;
-}
-.price-tag {
-  color: var(--teal);
-  font-weight: 700;
-}
+.barcell .bar i { display: block; height: 100%; border-radius: 2px; background: var(--aqua); }
+.barcell.price .bar i { background: var(--teal); }
+
 .disclaimer {
   font-size: 11px;
   color: var(--muted);
-  margin-top: 6px;
+  margin-top: 8px;
   font-style: italic;
+  line-height: 1.5;
 }
+.meta { font-size: 11px; color: var(--muted); margin-top: 7px; }
 
 /* --- Lot detail drawer --- */
 .drawer-overlay {
