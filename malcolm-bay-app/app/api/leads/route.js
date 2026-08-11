@@ -32,6 +32,17 @@ async function saveToLocalFile(lead) {
   await fs.writeFile(LOCAL_FILE, JSON.stringify(existing, null, 2));
 }
 
+// Last-resort sink. Serverless filesystems are read-only, so on a deployment
+// with no store configured the file write fails. Dropping the lead and showing
+// the prospect an error loses them entirely; writing it to the function log at
+// least keeps it recoverable while the operator wires up a real store.
+function saveToLog(lead, reason) {
+  console.error(
+    `[leads] NOT DURABLY STORED (${reason}). Configure KV_REST_API_URL/KV_REST_API_TOKEN. Lead follows:\n` +
+      JSON.stringify(lead)
+  );
+}
+
 export async function POST(request) {
   const body = await request.json();
   const { name, email, phone, notes, interest, persona, lotId } = body;
@@ -52,18 +63,26 @@ export async function POST(request) {
     createdAt: new Date().toISOString(),
   };
 
-  try {
-    if (hasKv()) {
+  // `stored` reports where the lead actually landed, so a deployment that is
+  // only logging leads is visible rather than silently assumed durable.
+  let stored = "log-only";
+
+  if (hasKv()) {
+    try {
       await saveToKv(lead);
-    } else {
-      // No KV configured — durable only for local dev. In production, add the
-      // Vercel KV integration and set KV_REST_API_URL / KV_REST_API_TOKEN.
-      await saveToLocalFile(lead);
-      console.warn("[leads] KV not configured — lead saved to local dev file only.");
+      stored = "redis";
+    } catch (err) {
+      saveToLog(lead, `redis write failed: ${err.message}`);
     }
-  } catch (err) {
-    return NextResponse.json({ error: `Failed to store lead: ${err.message}` }, { status: 500 });
+  } else {
+    try {
+      await saveToLocalFile(lead);
+      stored = "file";
+    } catch (err) {
+      // Expected on serverless (read-only FS) with no store configured.
+      saveToLog(lead, `no store configured and file write failed: ${err.code || err.message}`);
+    }
   }
 
-  return NextResponse.json({ ok: true, leadId: lead.id });
+  return NextResponse.json({ ok: true, leadId: lead.id, stored });
 }

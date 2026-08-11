@@ -89,9 +89,13 @@ chat only worked inside the Claude.ai sandbox.
 3. For durable lead storage, add a Redis integration from the Vercel Marketplace; it
    populates `KV_REST_API_URL` and `KV_REST_API_TOKEN` automatically.
 
-**Without Redis configured, leads are written to a local JSON file** — fine for local
-dev, but serverless filesystems are ephemeral, so leads submitted in production would be
-lost. Configure Redis (or a CRM) before sending real traffic.
+**Without Redis configured, leads are not durably stored.** Locally they go to a JSON
+file; on a serverless deployment the filesystem is read-only, so the write fails and the
+lead is written to the function log instead. The form still returns success — showing a
+prospect an error loses them outright, whereas a logged lead is recoverable from
+`vercel logs`. The response's `stored` field reports which happened (`redis`, `file`, or
+`log-only`), so a deployment that is only logging is visible rather than silently assumed
+durable. Configure Redis (or a CRM) before sending real traffic.
 
 ## Still to wire up
 
